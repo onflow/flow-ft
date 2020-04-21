@@ -2,18 +2,6 @@
 
 # FlowToken example contract
 
- * Copyright (c) 2020 Dapper Labs
- * The MIT License (MIT)
- * https://github.com/onflow/flow-NFT/blob/master/LICENSE
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
- * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 This is an example implementation of the Flow Fungible Token standard.
 Is not part of the standard, but just shows how most tokens
 should implement the standard, including the Flow network token itself.
