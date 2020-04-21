@@ -199,3 +199,12 @@ accounts 1 and 2, respectively:
 
 1. Deploy `CustodialDeposit.cdc` to account `0x03`
 2. Switch to Account `0x02` and submit the `custodial_deposit.cdc` transaction.
+
+
+## License 
+
+The works in these folders 
+/onflow/flow-FT/blob/master/contracts
+
+are under the Unlicense
+https://github.com/onflow/flow-NFT/blob/master/LICENSE
