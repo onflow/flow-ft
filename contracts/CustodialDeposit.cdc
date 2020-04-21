@@ -2,11 +2,6 @@
 
 # The Custodial Deposit example contract
 
-Authors:
-- Joshua Hannan <joshua.hannan@dapperlabs.com>
-- Dieter Shirley <dete@dapperlabs.com>
-- Bastian Mueller <bastian@dapperlabs.com>
-
 An example contract for accepting deposits from any user
 so that a custodial service could credit to their account.
 

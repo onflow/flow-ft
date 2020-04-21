@@ -2,12 +2,6 @@
 
 # The Flow Fungible Token standard
 
-Authors:
-
-- Joshua Hannan <joshua.hannan@dapperlabs.com>
-- Dieter Shirley <dete@dapperlabs.com>
-- Bastian Mueller <bastian@dapperlabs.com>
-
 ## `FungibleToken` contract interface
 
 The interface that all fungible token contracts would have to conform to.

@@ -2,11 +2,6 @@
 
 # Fungible Token Forwarding Contract
 
-Authors:
-
-- Joshua Hannan <joshua.hannan@dapperlabs.com>
-- Bastian Mueller <bastian@dapperlabs.com>
-
 This contract shows how an account could set up a custom FungibleToken Receiver
 to allow them to forward tokens to a different account whenever they receive tokens.
 

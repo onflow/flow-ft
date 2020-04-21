@@ -2,13 +2,8 @@
 
 # FlowToken example contract
 
-Authors:
-
-- Joshua Hannan <joshua.hannan@dapperlabs.com>
-- Dieter Shirley <dete@dapperlabs.com>
-- Bastian Mueller <bastian@dapperlabs.com>
-
-It is not part of the standard, but just shows how most tokens
+This is an example implementation of the Flow Fungible Token standard.
+Is not part of the standard, but just shows how most tokens
 should implement the standard, including the Flow network token itself.
 
 The FlowToken contract only needs to be deployed in one account.
