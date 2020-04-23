@@ -22,7 +22,7 @@ transaction {
 
         // Create a public capability to the Vault that only exposes
         // the balance field through the Balance interface
-        signer.link<&{FungibleToken.Receiver}>(
+        signer.link<&{FungibleToken.Balance}>(
             /public/flowTokenBalance,
             target: /storage/flowTokenVault
         )
