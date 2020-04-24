@@ -107,7 +107,11 @@ Right now we are using unsigned 64-bit fixed point numbers `UFix64` as the type 
 - Conditions:
     - the balance of the returned Vault must be 0
 
-6 - Standard for Token Metadata
+6 - Destroying a Vault
+
+If a `Vault` is explicitly destroyed using Cadence's `destroy` keyword, the balance of the destroyed vault must be subracted from the total supply.
+
+7 - Standard for Token Metadata
 
 - not sure what this should be yet
 - Could be a dictionary, could be an IPFS hash, could be json, etc.
