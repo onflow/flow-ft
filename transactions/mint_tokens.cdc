@@ -17,7 +17,8 @@ transaction {
     prepare(signer: AuthAccount) {
 
         // Get a reference to the signer's MintAndBurn resource in storage
-        let mintAndBurn = signer.borrow<&FlowToken.MintAndBurn>(from: /storage/flowTokenMintAndBurn)!
+        let mintAndBurn = signer.borrow<&FlowToken.MintAndBurn>(from: /storage/flowTokenMintAndBurn)
+            ?? panic("Couldn't borrow MintAndBurn reference from storage")
 
         // Mint 10 new tokens
         self.vault <- mintAndBurn.mintTokens(amount: 10.0)
@@ -29,7 +30,8 @@ transaction {
 
         // Get a reference to the recipient's Receiver
         let receiver = recipient.getCapability(/public/flowTokenReceiver)!
-            .borrow<&{FungibleToken.Receiver}>()!
+            .borrow<&{FungibleToken.Receiver}>()
+            ?? panic("Couldn't borrow receiver reference from the recipient")
 
         // Deposit the newly minted token in the recipient's Receiver
         receiver.deposit(from: <-self.vault)

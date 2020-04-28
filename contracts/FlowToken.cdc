@@ -84,11 +84,12 @@ pub contract FlowToken: FungibleToken {
         // It is allowed to destroy the sent Vault because the Vault
         // was a temporary holder of the tokens. The Vault's balance has
         // been consumed and therefore can be destroyed.
-        pub fun deposit(from: @FlowToken.Vault) {
-            self.balance = self.balance + from.balance
-            emit Deposit(amount: from.balance, to: self.owner?.address)
-            from.balance = 0.0
-            destroy from
+        pub fun deposit(from: @Vault) {
+            let vault <- from as! @FlowToken.Vault
+            self.balance = self.balance + vault.balance
+            emit Deposit(amount: vault.balance, to: self.owner?.address)
+            vault.balance = 0.0
+            destroy vault
         }
 
         destroy() {
@@ -141,11 +142,11 @@ pub contract FlowToken: FungibleToken {
         //
         // Returns the amount that was burnt.
         //
-        pub fun burnTokens(from: @FlowToken.Vault): UFix64 {
-            let amount = from.balance
-            destroy from
+        pub fun burnTokens(from: @Vault) {
+            let vault <- from as! @FlowToken.Vault
+            let amount = vault.balance
+            destroy vault
             emit Burn(amount: amount)
-            return amount
         }
 
         // createNewMinter

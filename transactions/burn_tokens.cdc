@@ -30,3 +30,4 @@ transaction {
         self.mintAndBurn.burnTokens(from: <-self.vault)
     }
 }
+ 

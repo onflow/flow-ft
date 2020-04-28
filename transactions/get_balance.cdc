@@ -6,7 +6,7 @@ import FlowToken from 0x02
 pub fun main(): UFix64 {
 
     // Get the public account object of the account
-    let account = getAccount(0x03)
+    let account = getAccount(0x02)
 
     // Retrieve their public Balance reference from their account
     let balanceRef = account
