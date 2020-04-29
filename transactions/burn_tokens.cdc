@@ -4,8 +4,8 @@
 //
 // The burning amount would be a parameter to the transaction
 
-import FungibleToken from 0x01
-import FlowToken from 0x02
+import FungibleToken from 0x02
+import FlowToken from 0x03
 
 transaction {
 

@@ -12,8 +12,8 @@ user account off-chain
 
 */
 
-import FungibleToken from 0x01
-import FlowToken from 0x02
+import FungibleToken from 0x02
+import FlowToken from 0x03
 
 pub contract CustodialDeposit {
 

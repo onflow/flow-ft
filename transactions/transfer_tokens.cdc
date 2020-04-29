@@ -5,8 +5,8 @@
 // The withdraw amount and the account from getAccount
 // would be the parameters to the transaction
 
-import FungibleToken from 0x01
-import FlowToken from 0x02
+import FungibleToken from 0x02
+import FlowToken from 0x03
 
 transaction {
 
@@ -26,7 +26,7 @@ transaction {
     execute {
 
         // Get the recipient's public account object
-        let recipient = getAccount(0x03)
+        let recipient = getAccount(0x04)
 
         // Get a reference to the recipient's Receiver
         let receiver = recipient

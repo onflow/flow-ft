@@ -15,7 +15,7 @@ already defined in the Fungible Token interface
 
 */
 
-import FungibleToken from 0x01
+import FungibleToken from 0x02
 
 pub contract FlowToken: FungibleToken {
 

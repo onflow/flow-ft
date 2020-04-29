@@ -23,15 +23,15 @@ Steps to set up accounts with token forwarder:
     getting the Receiver from the account that is the recipient.
 */
 
-import FungibleToken from 0x01
-import FlowToken from 0x02
-import TokenForwarding from 0x03
+import FungibleToken from 0x02
+import FlowToken from 0x03
+import TokenForwarding from 0x04
 
 transaction {
 
     prepare(signer: AuthAccount) {
 
-        let recipient = getAccount(0x03)
+        let recipient = getAccount(0x04)
 
         // Get a Receiver reference for the account that will be the recipient of the forwarded tokens
 
