@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
@@ -35,12 +34,7 @@ func TestTokenDeployment(t *testing.T) {
 	assert.NoError(t, err)
 
 	t.Run("Should have initialized Supply field correctly", func(t *testing.T) {
-
-		result, err := b.ExecuteScript(GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
 	})
 }
 
@@ -81,17 +75,9 @@ func TestCreateToken(t *testing.T) {
 			false,
 		)
 
-		result, err := b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
 
-		result, err = b.ExecuteScript(GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
 	})
 }
 
@@ -150,17 +136,9 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		result, err := b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
 
-		result, err = b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
 	})
 
 	t.Run("Shouldn't be able to withdraw more than the balance of the Vault", func(t *testing.T) {
@@ -179,17 +157,9 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		result, err := b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
 
-		result, err = b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
 	})
 
 	t.Run("Should be able to withdraw and deposit tokens from a vault", func(t *testing.T) {
@@ -208,23 +178,11 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		result, err := b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 700))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 700))
 
-		result, err = b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 300))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 300))
 
-		result, err = b.ExecuteScript(GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
 	})
 }
 
@@ -296,17 +254,9 @@ func TestVaultDestroy(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		result, err := b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 600))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 600))
 
-		result, err = b.ExecuteScript(GenerateInspectSupplyScript(fungibleAddr, flowAddr, 900))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 900))
 	})
 
 	t.Run("Should subtract tokens from supply when they are destroyed by a different account", func(t *testing.T) {
@@ -325,17 +275,9 @@ func TestVaultDestroy(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		result, err := b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 200))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 200))
 
-		result, err = b.ExecuteScript(GenerateInspectSupplyScript(fungibleAddr, flowAddr, 800))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 800))
 	})
 
 }
@@ -394,24 +336,12 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		result, err := b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
 
 		// Assert that the vaults' balances are correct
-		result, err = b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
 
-		result, err = b.ExecuteScript(GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
 	})
 
 	t.Run("Shouldn't be able to mint more than the allowed amount", func(t *testing.T) {
@@ -430,24 +360,12 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		result, err := b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
 
 		// Assert that the vaults' balances are correct
-		result, err = b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
 
-		result, err = b.ExecuteScript(GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
 	})
 
 	t.Run("Should mint tokens, deposit, and update balance and total supply", func(t *testing.T) {
@@ -466,24 +384,12 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		result, err := b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
 
 		// Assert that the vaults' balances are correct
-		result, err = b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 50))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 50))
 
-		result, err = b.ExecuteScript(GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1050))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1050))
 	})
 
 	t.Run("Should burn tokens and update balance and total supply", func(t *testing.T) {
@@ -502,17 +408,8 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		result, err := b.ExecuteScript(GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 950))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 950))
 
-		result, err = b.ExecuteScript(GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
+		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
 	})
-
 }

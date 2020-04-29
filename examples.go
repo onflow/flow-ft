@@ -89,3 +89,13 @@ func Submit(
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 }
+
+// ExecuteScriptAndCheck executes a script and checks to make sure
+// that it succeeded
+func ExecuteScriptAndCheck(t *testing.T, b *emulator.Blockchain, script []byte) {
+	result, err := b.ExecuteScript(script)
+	require.NoError(t, err)
+	if !assert.True(t, result.Succeeded()) {
+		t.Log(result.Error.Error())
+	}
+}
