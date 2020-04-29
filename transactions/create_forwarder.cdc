@@ -37,7 +37,8 @@ transaction {
 
         let recipientReceiver = recipient
             .getCapability(/public/flowTokenReceiver)!
-            .borrow<&{FungibleToken.Receiver}>()!
+            .borrow<&{FungibleToken.Receiver}>()
+            ?? panic("Could not borrow receiver reference from the capability")
 
         // Create a new Forwarder resource and store it in the signer's storage
         let forwarder <- TokenForwarding.createNewForwarder(recipient: recipientReceiver)
@@ -50,3 +51,4 @@ transaction {
         )
     }
 }
+ 

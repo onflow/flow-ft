@@ -40,7 +40,8 @@ transaction {
 
         let receiver = recipient
             .getCapability(/public/depositResourcePublic)!
-            .borrow<&{CustodialDeposit.DepositPublic}>()!
+            .borrow<&{CustodialDeposit.DepositPublic}>()
+            ?? panic("Could not borrow deposit reference from capability")
 
         // Deposit the withdrawn tokens to the recipient's Receiver.
         // Include a tag for the event that is emitted
@@ -48,3 +49,4 @@ transaction {
         receiver.taggedDeposit(from: <-self.sentVault, tag: "1234")
     }
 }
+ 
