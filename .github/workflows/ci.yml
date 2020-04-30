@@ -4,6 +4,7 @@ on: [push]
 
 env:
   SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+  GOPRIVATE: github.com/dapperlabs/*,github.com/onflow/*
 
 jobs:
   build:
