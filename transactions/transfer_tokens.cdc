@@ -5,8 +5,8 @@
 // The withdraw amount and the account from getAccount
 // would be the parameters to the transaction
 
-import FungibleToken from 0x01
-import FlowToken from 0x02
+import FungibleToken from 0x02
+import FlowToken from 0x03
 
 transaction {
 
@@ -16,7 +16,8 @@ transaction {
     prepare(signer: AuthAccount) {
 
         // Get a reference to the signer's stored vault
-        let storedVault = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)!
+        let storedVault = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
+            ?? panic("Unable to borrow a reference to the sender's Vault")
 
         // Withdraw 10 tokens from the signer's stored vault
         self.sentVault <- storedVault.withdraw(amount: 10.0)
@@ -25,14 +26,16 @@ transaction {
     execute {
 
         // Get the recipient's public account object
-        let recipient = getAccount(0x03)
+        let recipient = getAccount(0x04)
 
         // Get a reference to the recipient's Receiver
         let receiver = recipient
             .getCapability(/public/flowTokenReceiver)!
-            .borrow<&{FungibleToken.Receiver}>()!
+            .borrow<&{FungibleToken.Receiver}>() 
+            ?? panic("Unable to borrow receiver reference for recipient")
 
         // Deposit the withdrawn tokens in the recipient's receiver
         receiver.deposit(from: <-self.sentVault)
     }
 }
+ 

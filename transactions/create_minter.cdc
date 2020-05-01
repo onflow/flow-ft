@@ -5,8 +5,8 @@
 // Both accounts need to sign the transaction because the transaction needs
 // to be able to access both accounts' storage
 
-import FungibleToken from 0x01
-import FlowToken from 0x02
+import FungibleToken from 0x02
+import FlowToken from 0x03
 
 transaction {
 

@@ -107,7 +107,11 @@ Right now we are using unsigned 64-bit fixed point numbers `UFix64` as the type 
 - Conditions:
     - the balance of the returned Vault must be 0
 
-6 - Standard for Token Metadata
+6 - Destroying a Vault
+
+If a `Vault` is explicitly destroyed using Cadence's `destroy` keyword, the balance of the destroyed vault must be subracted from the total supply.
+
+7 - Standard for Token Metadata
 
 - not sure what this should be yet
 - Could be a dictionary, could be an IPFS hash, could be json, etc.
@@ -168,8 +172,8 @@ A standard for token metadata is still an unsolved problem in the general blockc
 
 To use the Flow Token contract as is, you need to follow these steps:
 
-1. Deploy the `FungibleToken` definition to account `0x01`
-2. Deploy the `FlowToken` definition to account `0x02`
+1. Deploy the `FungibleToken` definition to account `0x02`
+2. Deploy the `FlowToken` definition to account `0x03`
 3. You can use the `get_balance.cdc` or `get_supply.cdc` scripts to read the 
    balance of a user's `Vault` or the total supply of all tokens, respectively.
 4. Use the `setupAccount.cdc` on any account to set up the account to be able to
@@ -180,6 +184,11 @@ To use the Flow Token contract as is, you need to follow these steps:
 7. Use the `burn_tokens.cdc` transaction with the admin account to burn tokens.
 8. Use the `create_minter.cdc` transaction to create a new MintandBurn resource
    and store it in a new Admin's account.
+
+
+# Running Automated Tests
+
+You can find automated tests in the `fungible_token_test.go` file. It uses the transaction templates that are contained in the `fungible_templates.go` file. Currently, these rely on a dependency from a private dapper labs repository to run, so external users will not be able to run them. We are working on making all of this public so anyone can run tests, but haven't completed this work yet.
 
 
 # Payment ID solution for Custodial Deposits
@@ -197,9 +206,8 @@ service can watch for to see which user's account to credit.
 To test, if you have already deployed `FungibleToken.cdc` and `FlowToken.cdc` to
 accounts 1 and 2, respectively:
 
-1. Deploy `CustodialDeposit.cdc` to account `0x03`
-2. Switch to Account `0x02` and submit the `custodial_deposit.cdc` transaction.
-
+1. Deploy `CustodialDeposit.cdc` to account `0x04`
+2. Switch to Account `0x03` and submit the `custodial_deposit.cdc` transaction.
 
 ## License 
 

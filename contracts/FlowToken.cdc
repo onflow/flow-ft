@@ -15,7 +15,7 @@ already defined in the Fungible Token interface
 
 */
 
-import FungibleToken from 0x01
+import FungibleToken from 0x02
 
 pub contract FlowToken: FungibleToken {
 
@@ -71,7 +71,7 @@ pub contract FlowToken: FungibleToken {
         // created Vault to the context that called so it can be deposited
         // elsewhere.
         //
-        pub fun withdraw(amount: UFix64): @Vault {
+        pub fun withdraw(amount: UFix64): @FlowToken.Vault {
             self.balance = self.balance - amount
             emit Withdraw(amount: amount, from: self.owner?.address)
             return <-create Vault(balance: amount)
@@ -85,9 +85,15 @@ pub contract FlowToken: FungibleToken {
         // was a temporary holder of the tokens. The Vault's balance has
         // been consumed and therefore can be destroyed.
         pub fun deposit(from: @Vault) {
-            self.balance = self.balance + from.balance
-            emit Deposit(amount: from.balance, to: self.owner?.address)
-            destroy from
+            let vault <- from as! @FlowToken.Vault
+            self.balance = self.balance + vault.balance
+            emit Deposit(amount: vault.balance, to: self.owner?.address)
+            vault.balance = 0.0
+            destroy vault
+        }
+
+        destroy() {
+            FlowToken.totalSupply = FlowToken.totalSupply - self.balance
         }
     }
 
@@ -98,7 +104,7 @@ pub contract FlowToken: FungibleToken {
     // and store the returned Vault in their storage in order to allow their
     // account to be able to receive deposits of this token type.
     //
-    pub fun createEmptyVault(): @Vault {
+    pub fun createEmptyVault(): @FlowToken.Vault {
         return <-create Vault(balance: 0.0)
     }
 
@@ -117,7 +123,7 @@ pub contract FlowToken: FungibleToken {
         // Function that mints new tokens, adds them to the total Supply,
         // and returns them to the calling context
         //
-        pub fun mintTokens(amount: UFix64): @Vault {
+        pub fun mintTokens(amount: UFix64): @FlowToken.Vault {
             pre {
                 amount > UFix64(0): "Amount minted must be greater than zero"
                 amount <= self.allowedAmount: "Amount minted must be less than the allowed amount"
@@ -136,12 +142,11 @@ pub contract FlowToken: FungibleToken {
         //
         // Returns the amount that was burnt.
         //
-        pub fun burnTokens(from: @Vault): UFix64 {
-            let amount = from.balance
-            FlowToken.totalSupply = FlowToken.totalSupply - from.balance
-            destroy from
+        pub fun burnTokens(from: @Vault) {
+            let vault <- from as! @FlowToken.Vault
+            let amount = vault.balance
+            destroy vault
             emit Burn(amount: amount)
-            return amount
         }
 
         // createNewMinter
@@ -198,3 +203,4 @@ pub contract FlowToken: FungibleToken {
     }
 }
 
+ 

@@ -3,8 +3,8 @@
 // to add a Vault resource to their account
 // so that they can use the FlowTokens
 
-import FungibleToken from 0x01
-import FlowToken from 0x02
+import FungibleToken from 0x02
+import FlowToken from 0x03
 
 transaction {
 

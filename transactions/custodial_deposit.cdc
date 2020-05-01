@@ -13,9 +13,9 @@
 // The withdraw amount and the account from getAccount
 // would be the parameters to the transaction
 
-import FungibleToken from 0x01
-import FlowToken from 0x02
-import CustodialDeposit from 0x03
+import FungibleToken from 0x02
+import FlowToken from 0x03
+import CustodialDeposit from 0x04
 
 transaction {
 
@@ -33,14 +33,15 @@ transaction {
 
     execute {
         // Get the custodial service's public account object
-        let recipient = getAccount(0x03)
+        let recipient = getAccount(0x04)
 
         // Get the custodial service's public reference to the resource
         // that emits events when deposits happen
 
         let receiver = recipient
             .getCapability(/public/depositResourcePublic)!
-            .borrow<&{CustodialDeposit.DepositPublic}>()!
+            .borrow<&{CustodialDeposit.DepositPublic}>()
+            ?? panic("Could not borrow deposit reference from capability")
 
         // Deposit the withdrawn tokens to the recipient's Receiver.
         // Include a tag for the event that is emitted
@@ -48,3 +49,4 @@ transaction {
         receiver.taggedDeposit(from: <-self.sentVault, tag: "1234")
     }
 }
+ 

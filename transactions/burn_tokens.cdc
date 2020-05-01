@@ -4,8 +4,8 @@
 //
 // The burning amount would be a parameter to the transaction
 
-import FungibleToken from 0x01
-import FlowToken from 0x02
+import FungibleToken from 0x02
+import FlowToken from 0x03
 
 transaction {
 
@@ -21,7 +21,8 @@ transaction {
             .withdraw(amount: 10.0)
 
         // Create a reference to the admin MintAndBurn resource in storage
-        self.mintAndBurn = signer.borrow<&FlowToken.MintAndBurn>(from: /storage/flowTokenMintAndBurn)!
+        self.mintAndBurn = signer.borrow<&FlowToken.MintAndBurn>(from: /storage/flowTokenMintAndBurn)
+            ?? panic("Could not borrow a reference to the Burn resource")
     }
 
     execute {
@@ -29,3 +30,4 @@ transaction {
         self.mintAndBurn.burnTokens(from: <-self.vault)
     }
 }
+ 

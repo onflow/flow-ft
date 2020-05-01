@@ -204,3 +204,4 @@ pub contract interface FungibleToken {
 // on their own at the moment
 //
 pub contract Dummy {}
+ 

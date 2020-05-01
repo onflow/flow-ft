@@ -14,7 +14,7 @@ their tokens to.
 
 */
 
-import FungibleToken from 0x01
+import FungibleToken from 0x02
 
 pub contract TokenForwarding {
 
