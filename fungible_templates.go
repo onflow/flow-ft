@@ -90,7 +90,7 @@ func GenerateMintTokensScript(fungibleAddr, flowAddr flow.Address, receiverAddr 
 		transaction {
 	
 			// Vault resource that holds the tokens that are being minted
-			var vault: @FlowToken.Vault
+			var vault: @FungibleToken.Vault
 		
 			prepare(signer: AuthAccount) {
 		
@@ -130,7 +130,7 @@ func GenerateBurnTokensScript(fungibleAddr, flowAddr flow.Address, amount int) [
 	transaction {
 	
 		// Vault resource that holds the tokens that are being burned
-		let vault: @FlowToken.Vault
+		let vault: @FungibleToken.Vault
 	
 		let mintAndBurn: &FlowToken.MintAndBurn
 	
