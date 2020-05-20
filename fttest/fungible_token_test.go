@@ -1,4 +1,4 @@
-package tests
+package fttest
 
 import (
 	"testing"
@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	fungibleTokenContractFile = "./contracts/FungibleToken.cdc"
-	flowTokenContractFile     = "./contracts/FlowToken.cdc"
+	fungibleTokenContractFile = "../contracts/FungibleToken.cdc"
+	flowTokenContractFile     = "../contracts/FlowToken.cdc"
 )
 
 func TestTokenDeployment(t *testing.T) {
