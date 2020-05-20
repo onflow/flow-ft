@@ -11,7 +11,7 @@ import FlowToken from 0x03
 transaction {
 
     // The Vault resource that holds the tokens that are being transferred
-    let sentVault: @FlowToken.Vault
+    let sentVault: @FungibleToken.Vault
 
     prepare(signer: AuthAccount) {
 

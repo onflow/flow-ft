@@ -10,7 +10,7 @@ import FlowToken from 0x03
 transaction {
 
     // Vault resource that holds the tokens that are being burned
-    let vault: @FlowToken.Vault
+    let vault: @FungibleToken.Vault
 
     let mintAndBurn: &FlowToken.MintAndBurn
 
