@@ -1,4 +1,4 @@
-module github.com/onflow/flow-ft/tests
+module github.com/onflow/flow-ft
 
 go 1.13
 

@@ -1,4 +1,4 @@
-package tests
+package fttest
 
 import (
 	"io/ioutil"
