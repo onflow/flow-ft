@@ -1,6 +1,6 @@
 package contracts
 
-//go:generate go run github.com/kevinburke/go-bindata/go-bindata -prefix ../src/contracts -o assets.go -pkg contracts -nomemcopy ../src/contracts
+//go:generate go run github.com/kevinburke/go-bindata/go-bindata -prefix ../src/contracts -o assets.go -pkg contracts -nometadata -nomemcopy ../src/contracts
 
 import (
 	"strings"
