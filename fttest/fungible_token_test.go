@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	fungibleTokenContractFile = "../contracts/FungibleToken.cdc"
-	flowTokenContractFile     = "../contracts/FlowToken.cdc"
+	fungibleTokenContractFile = "../src/contracts/FungibleToken.cdc"
+	flowTokenContractFile     = "../src/contracts/FlowToken.cdc"
 )
 
 func TestTokenDeployment(t *testing.T) {
