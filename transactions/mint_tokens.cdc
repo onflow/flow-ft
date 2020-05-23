@@ -30,7 +30,7 @@ transaction {
 
         // Get a reference to the recipient's Receiver
         let receiver = recipient.getCapability(/public/flowTokenReceiver)!
-            .borrow<&{FungibleToken.Receiver}>()
+            .borrow<&FlowToken.Vault{FungibleToken.Receiver}>()
             ?? panic("Couldn't borrow receiver reference from the recipient")
 
         // Deposit the newly minted token in the recipient's Receiver
