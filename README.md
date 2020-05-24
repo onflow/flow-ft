@@ -45,9 +45,9 @@ The feedback we are looking for is:
 
 ## Basics of the Standard:
 
-The code for the standard is in `contracts/FungibleToken.cdc`. An example implementation of the standard that simulates what a simple FlowToken would be like is in `contracts/FlowToken.cdc`.
+The code for the standard is in `src/contracts/FungibleToken.cdc`. An example implementation of the standard that simulates what a simple FlowToken would be like is in `src/contracts/FlowToken.cdc`.
 
-Example transactions that users could use to interact with fungible tokens are located in the `transactions/` directory.
+Example transactions that users could use to interact with fungible tokens are located in the `src/transactions/` directory.
 
 The standard consists of a contract interface called `FungibleToken` that requires implementing contracts to define a `Vault` resource that represents the tokens that an account owns. Each account that owns tokens will have a `Vault` stored in its account storage.  Users call functions on each other's `Vault`s to send and receive tokens.  
 
@@ -195,10 +195,10 @@ You can find automated tests in the `fungible_token_test.go` file. It uses the t
 
 We have included a simple example of a contract and resource that could
 be used by custodial services to be able to accept deposits from their customers.
-This is included in `contracts/CustodialDeposit.cdc`. The service would deploy the
+This is included in `src/contracts/CustodialDeposit.cdc`. The service would deploy the
 contract to their account, which stores the special `DepositResource`
 into their storage and published a reference, then users could use transactions
-like `transactions/custodial_deposit.cdc` to deposit their tokens into the account.
+like `src/transactions/custodial_deposit.cdc` to deposit their tokens into the account.
 Each deposit has to include a payment ID, or tag as we call it in the contract, to
 indicate which account it corresponds to. The resource emits an event that the
 service can watch for to see which user's account to credit.
@@ -211,8 +211,8 @@ accounts 1 and 2, respectively:
 
 ## License 
 
-The works in these folders 
-/onflow/flow-FT/blob/master/contracts
+The works in these folders are under the [Unlicense](https://github.com/onflow/flow-NFT/blob/master/LICENSE):
 
-are under the Unlicense
-https://github.com/onflow/flow-NFT/blob/master/LICENSE
+- [src/contracts](https://github.com/onflow/flow-ft/tree/bindata/src/contracts)
+
+

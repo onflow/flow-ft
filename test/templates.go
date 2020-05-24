@@ -1,4 +1,4 @@
-package fttest
+package test
 
 import (
 	"fmt"
@@ -150,7 +150,6 @@ func GenerateBurnTokensScript(fungibleAddr, flowAddr flow.Address, amount int) [
 			self.mintAndBurn.burnTokens(from: <-self.vault)
 		}
 	}
-	
 	`
 
 	return []byte(fmt.Sprintf(template, fungibleAddr, flowAddr, amount))
