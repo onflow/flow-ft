@@ -181,7 +181,7 @@ pub contract FlowToken: FungibleToken {
         // Create a public capability to the stored Vault that only exposes
         // the `deposit` method through the `Receiver` interface
         //
-        self.account.link<&{FungibleToken.Receiver}>(
+        self.account.link<&FlowToken.Vault{FungibleToken.Receiver}>(
             /public/flowTokenReceiver,
             target: /storage/flowTokenVault
         )
@@ -189,7 +189,7 @@ pub contract FlowToken: FungibleToken {
         // Create a public capability to the stored Vault that only exposes
         // the `balance` field through the `Balance` interface
         //
-        self.account.link<&{FungibleToken.Balance}>(
+        self.account.link<&FlowToken.Vault{FungibleToken.Balance}>(
             /public/flowTokenBalance,
             target: /storage/flowTokenVault
         )

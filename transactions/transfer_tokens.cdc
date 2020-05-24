@@ -31,7 +31,7 @@ transaction {
         // Get a reference to the recipient's Receiver
         let receiver = recipient
             .getCapability(/public/flowTokenReceiver)!
-            .borrow<&{FungibleToken.Receiver}>() 
+            .borrow<&FlowToken.Vault{FungibleToken.Receiver}>()
             ?? panic("Unable to borrow receiver reference for recipient")
 
         // Deposit the withdrawn tokens in the recipient's receiver

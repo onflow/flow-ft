@@ -37,7 +37,7 @@ transaction {
 
         let recipientReceiver = recipient
             .getCapability(/public/flowTokenReceiver)!
-            .borrow<&{FungibleToken.Receiver}>()
+            .borrow<&FlowToken.Vault{FungibleToken.Receiver}>()
             ?? panic("Could not borrow receiver reference from the capability")
 
         // Create a new Forwarder resource and store it in the signer's storage
@@ -45,7 +45,7 @@ transaction {
         signer.save(<-forwarder, to: /storage/flowTokenReceiver)
 
         // Publish a Receiver capability for the signer, which is linked to the Forwarder
-        signer.link<&{FungibleToken.Receiver}>(
+        signer.link<&FlowToken.Vault{FungibleToken.Receiver}>(
             /public/flowTokenReceiver,
             target: /storage/flowTokenReceiver
         )
