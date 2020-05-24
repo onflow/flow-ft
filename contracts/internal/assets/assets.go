@@ -5,7 +5,7 @@
 // ../src/contracts/FungibleToken.cdc (7.298kB)
 // ../src/contracts/TokenForwarding.cdc (1.954kB)
 
-package contracts
+package assets
 
 import (
 	"bytes"

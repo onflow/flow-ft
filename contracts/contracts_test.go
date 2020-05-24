@@ -3,10 +3,13 @@ package contracts_test
 import (
 	"testing"
 
-	"github.com/onflow/flow-ft/contracts"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/onflow/flow-ft/contracts"
 )
+
+var addrA = flow.HexToAddress("0A")
 
 func TestFungibleTokenContract(t *testing.T) {
 	contract := contracts.FungibleToken()
@@ -14,7 +17,7 @@ func TestFungibleTokenContract(t *testing.T) {
 }
 
 func TestFlowTokenContract(t *testing.T) {
-	contract := contracts.FlowToken(flow.Address{0x3})
+	contract := contracts.FlowToken(addrA.Hex())
 	assert.NotNil(t, contract)
-	assert.Contains(t, string(contract), "0x03")
+	assert.Contains(t, string(contract), addrA.Hex())
 }
