@@ -63,7 +63,7 @@ func TestCreateToken(t *testing.T) {
 	t.Run("Should be able to create empty Vault that doesn't affect supply", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(GenerateCreateTokenScript(fungibleAddr, flowAddr)).
-			SetGasLimit(20).
+			SetGasLimit(100).
 			SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber).
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(joshAddress)
@@ -107,7 +107,7 @@ func TestExternalTransfers(t *testing.T) {
 	// then deploy the tokens to an account
 	tx := flow.NewTransaction().
 		SetScript(GenerateCreateTokenScript(fungibleAddr, flowAddr)).
-		SetGasLimit(20).
+		SetGasLimit(100).
 		SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber).
 		SetPayer(b.RootKey().Address).
 		AddAuthorizer(joshAddress)
@@ -123,7 +123,7 @@ func TestExternalTransfers(t *testing.T) {
 
 		tx := flow.NewTransaction().
 			SetScript(GenerateTransferVaultScript(fungibleAddr, flowAddr, joshAddress, 0)).
-			SetGasLimit(20).
+			SetGasLimit(100).
 			SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber).
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
@@ -144,7 +144,7 @@ func TestExternalTransfers(t *testing.T) {
 	t.Run("Shouldn't be able to withdraw more than the balance of the Vault", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(GenerateTransferVaultScript(fungibleAddr, flowAddr, joshAddress, 30000)).
-			SetGasLimit(20).
+			SetGasLimit(100).
 			SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber).
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
@@ -165,7 +165,7 @@ func TestExternalTransfers(t *testing.T) {
 	t.Run("Should be able to withdraw and deposit tokens from a vault", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(GenerateTransferVaultScript(fungibleAddr, flowAddr, joshAddress, 300)).
-			SetGasLimit(20).
+			SetGasLimit(100).
 			SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber).
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
@@ -212,7 +212,7 @@ func TestVaultDestroy(t *testing.T) {
 	// then deploy the tokens to an account
 	tx := flow.NewTransaction().
 		SetScript(GenerateCreateTokenScript(fungibleAddr, flowAddr)).
-		SetGasLimit(20).
+		SetGasLimit(100).
 		SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber).
 		SetPayer(b.RootKey().Address).
 		AddAuthorizer(joshAddress)
@@ -226,7 +226,7 @@ func TestVaultDestroy(t *testing.T) {
 
 	tx = flow.NewTransaction().
 		SetScript(GenerateTransferVaultScript(fungibleAddr, flowAddr, joshAddress, 300)).
-		SetGasLimit(20).
+		SetGasLimit(100).
 		SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber).
 		SetPayer(b.RootKey().Address).
 		AddAuthorizer(flowAddr)
@@ -241,7 +241,7 @@ func TestVaultDestroy(t *testing.T) {
 	t.Run("Should subtract tokens from supply when they are destroyed", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(GenerateDestroyVaultScript(fungibleAddr, flowAddr, 100)).
-			SetGasLimit(20).
+			SetGasLimit(100).
 			SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber).
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
@@ -262,7 +262,7 @@ func TestVaultDestroy(t *testing.T) {
 	t.Run("Should subtract tokens from supply when they are destroyed by a different account", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(GenerateDestroyVaultScript(fungibleAddr, flowAddr, 100)).
-			SetGasLimit(20).
+			SetGasLimit(100).
 			SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber).
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(joshAddress)
@@ -308,7 +308,7 @@ func TestMintingAndBurning(t *testing.T) {
 	// then deploy the tokens to an account
 	tx := flow.NewTransaction().
 		SetScript(GenerateCreateTokenScript(fungibleAddr, flowAddr)).
-		SetGasLimit(20).
+		SetGasLimit(100).
 		SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber).
 		SetPayer(b.RootKey().Address).
 		AddAuthorizer(joshAddress)
@@ -323,7 +323,7 @@ func TestMintingAndBurning(t *testing.T) {
 	t.Run("Shouldn't be able to mint zero tokens", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(GenerateMintTokensScript(fungibleAddr, flowAddr, joshAddress, 0)).
-			SetGasLimit(20).
+			SetGasLimit(100).
 			SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber).
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
@@ -347,7 +347,7 @@ func TestMintingAndBurning(t *testing.T) {
 	t.Run("Shouldn't be able to mint more than the allowed amount", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(GenerateMintTokensScript(fungibleAddr, flowAddr, joshAddress, 101)).
-			SetGasLimit(20).
+			SetGasLimit(100).
 			SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber).
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
@@ -371,7 +371,7 @@ func TestMintingAndBurning(t *testing.T) {
 	t.Run("Should mint tokens, deposit, and update balance and total supply", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(GenerateMintTokensScript(fungibleAddr, flowAddr, joshAddress, 50)).
-			SetGasLimit(20).
+			SetGasLimit(100).
 			SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber).
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
@@ -395,7 +395,7 @@ func TestMintingAndBurning(t *testing.T) {
 	t.Run("Should burn tokens and update balance and total supply", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(GenerateBurnTokensScript(fungibleAddr, flowAddr, 50)).
-			SetGasLimit(20).
+			SetGasLimit(100).
 			SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber).
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)

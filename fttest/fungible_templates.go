@@ -21,8 +21,8 @@ func GenerateCreateTokenScript(fungibleAddr, flowAddr flow.Address) []byte {
               let vault <- FlowToken.createEmptyVault()
               acct.save(<-vault, to: /storage/flowTokenVault)
 
-              acct.link<&{FungibleToken.Receiver}>(/public/flowTokenReceiver, target: /storage/flowTokenVault)
-              acct.link<&{FungibleToken.Balance}>(/public/flowTokenBalance, target: /storage/flowTokenVault)
+              acct.link<&FlowToken.Vault{FungibleToken.Receiver}>(/public/flowTokenReceiver, target: /storage/flowTokenVault)
+              acct.link<&FlowToken.Vault{FungibleToken.Balance}>(/public/flowTokenBalance, target: /storage/flowTokenVault)
           }
       }
     `
@@ -64,10 +64,10 @@ func GenerateTransferVaultScript(fungibleAddr, flowAddr flow.Address, receiverAd
 			prepare(acct: AuthAccount) {
 				let recipient = getAccount(0x%s)
 
-				let providerRef = acct.borrow<&{FungibleToken.Provider}>(from: /storage/flowTokenVault)
+				let providerRef = acct.borrow<&FlowToken.Vault{FungibleToken.Provider}>(from: /storage/flowTokenVault)
 					?? panic("Could not borrow Provider reference to the Vault!")
 
-				let receiverRef = recipient.getCapability(/public/flowTokenReceiver)!.borrow<&{FungibleToken.Receiver}>()
+				let receiverRef = recipient.getCapability(/public/flowTokenReceiver)!.borrow<&FlowToken.Vault{FungibleToken.Receiver}>()
 					?? panic("Could not borrow receiver reference to the recipient's Vault")
 
 				let tokens <- providerRef.withdraw(amount: %d.0)
@@ -108,7 +108,7 @@ func GenerateMintTokensScript(fungibleAddr, flowAddr flow.Address, receiverAddr 
 		
 				// Get a reference to the recipient's Receiver
 				let receiver = recipient.getCapability(/public/flowTokenReceiver)!
-					.borrow<&{FungibleToken.Receiver}>()
+					.borrow<&FlowToken.Vault{FungibleToken.Receiver}>()
 					?? panic("Couldn't borrow receiver reference to recipient's vault")
 		
 				// Deposit the newly minted token in the recipient's Receiver
@@ -165,7 +165,7 @@ func GenerateInspectVaultScript(fungibleAddr, flowAddr, userAddr flow.Address, e
 
 		pub fun main() {
 			let acct = getAccount(0x%s)
-			let vaultRef = acct.getCapability(/public/flowTokenBalance)!.borrow<&{FungibleToken.Balance}>()
+			let vaultRef = acct.getCapability(/public/flowTokenBalance)!.borrow<&FlowToken.Vault{FungibleToken.Balance}>()
 				?? panic("Could not borrow Balance reference to the Vault")
 			assert(
                 vaultRef.balance == UFix64(%f),

@@ -11,7 +11,7 @@ pub fun main(): UFix64 {
     // Retrieve their public Balance reference from their account
     let balanceRef = account
         .getCapability(/public/flowTokenBalance)!
-        .borrow<&{FungibleToken.Balance}>()!
+        .borrow<&FlowToken.Vault{FungibleToken.Balance}>()!
 
     // get the balance of their Vault
     let balance = balanceRef.balance
