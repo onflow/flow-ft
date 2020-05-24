@@ -15,23 +15,21 @@ const (
 )
 
 // FungibleToken returns the FungibleToken contract interface.
-func FungibleToken() ([]byte, error) {
-	return Asset(FungibleTokenContractFilename)
+func FungibleToken() []byte {
+	return MustAsset(FungibleTokenContractFilename)
 }
 
-// FlowToken returns the FlowToken contract, importing the
-// FungibleToken contract interface from the specified Flow address.
-func FlowToken(fungibleTokenAddress flow.Address) ([]byte, error) {
-	tpl, err := AssetString(FlowTokenContractFilename)
-	if err != nil {
-		return nil, err
-	}
+// FlowToken returns the FlowToken contract. importing the
+//
+// The returned contract will import the FungibleToken contract from the specified address.
+func FlowToken(fungibleTokenAddress flow.Address) []byte {
+	code := MustAssetString(FlowTokenContractFilename)
 
-	code := strings.ReplaceAll(
-		tpl,
+	code = strings.ReplaceAll(
+		code,
 		"0x"+defaultFungibleTokenAddress,
 		"0x"+fungibleTokenAddress.Hex(),
 	)
 
-	return []byte(code), nil
+	return []byte(code)
 }
