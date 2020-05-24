@@ -1,4 +1,4 @@
-package fttest
+package test
 
 import (
 	"fmt"

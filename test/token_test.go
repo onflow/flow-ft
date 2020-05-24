@@ -1,4 +1,4 @@
-package fttest
+package test
 
 import (
 	"testing"
@@ -16,7 +16,7 @@ const (
 )
 
 func TestTokenDeployment(t *testing.T) {
-	b := NewEmulator()
+	b := newEmulator()
 
 	// Should be able to deploy a contract as a new account with no keys.
 	fungibleTokenCode := readFile(fungibleTokenContractFile)
@@ -33,12 +33,12 @@ func TestTokenDeployment(t *testing.T) {
 	assert.NoError(t, err)
 
 	t.Run("Should have initialized Supply field correctly", func(t *testing.T) {
-		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
+		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
 	})
 }
 
 func TestCreateToken(t *testing.T) {
-	b := NewEmulator()
+	b := newEmulator()
 
 	accountKeys := test.AccountKeyGenerator()
 
@@ -67,21 +67,21 @@ func TestCreateToken(t *testing.T) {
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(joshAddress)
 
-		SignAndSubmit(
+		signAndSubmit(
 			t, b, tx,
 			[]flow.Address{b.RootKey().Address, joshAddress},
 			[]crypto.Signer{b.RootKey().Signer(), joshSigner},
 			false,
 		)
 
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
 
-		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
+		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
 	})
 }
 
 func TestExternalTransfers(t *testing.T) {
-	b := NewEmulator()
+	b := newEmulator()
 
 	accountKeys := test.AccountKeyGenerator()
 
@@ -111,7 +111,7 @@ func TestExternalTransfers(t *testing.T) {
 		SetPayer(b.RootKey().Address).
 		AddAuthorizer(joshAddress)
 
-	SignAndSubmit(
+	signAndSubmit(
 		t, b, tx,
 		[]flow.Address{b.RootKey().Address, joshAddress},
 		[]crypto.Signer{b.RootKey().Signer(), joshSigner},
@@ -127,7 +127,7 @@ func TestExternalTransfers(t *testing.T) {
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
 
-		SignAndSubmit(
+		signAndSubmit(
 			t, b, tx,
 			[]flow.Address{b.RootKey().Address, flowAddr},
 			[]crypto.Signer{b.RootKey().Signer(), flowSigner},
@@ -135,9 +135,9 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
 
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
 	})
 
 	t.Run("Shouldn't be able to withdraw more than the balance of the Vault", func(t *testing.T) {
@@ -148,7 +148,7 @@ func TestExternalTransfers(t *testing.T) {
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
 
-		SignAndSubmit(
+		signAndSubmit(
 			t, b, tx,
 			[]flow.Address{b.RootKey().Address, flowAddr},
 			[]crypto.Signer{b.RootKey().Signer(), flowSigner},
@@ -156,9 +156,9 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
 
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
 	})
 
 	t.Run("Should be able to withdraw and deposit tokens from a vault", func(t *testing.T) {
@@ -169,7 +169,7 @@ func TestExternalTransfers(t *testing.T) {
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
 
-		SignAndSubmit(
+		signAndSubmit(
 			t, b, tx,
 			[]flow.Address{b.RootKey().Address, flowAddr},
 			[]crypto.Signer{b.RootKey().Signer(), flowSigner},
@@ -177,16 +177,16 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 700))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 700))
 
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 300))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 300))
 
-		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
+		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
 	})
 }
 
 func TestVaultDestroy(t *testing.T) {
-	b := NewEmulator()
+	b := newEmulator()
 
 	accountKeys := test.AccountKeyGenerator()
 
@@ -216,7 +216,7 @@ func TestVaultDestroy(t *testing.T) {
 		SetPayer(b.RootKey().Address).
 		AddAuthorizer(joshAddress)
 
-	SignAndSubmit(
+	signAndSubmit(
 		t, b, tx,
 		[]flow.Address{b.RootKey().Address, joshAddress},
 		[]crypto.Signer{b.RootKey().Signer(), joshSigner},
@@ -230,7 +230,7 @@ func TestVaultDestroy(t *testing.T) {
 		SetPayer(b.RootKey().Address).
 		AddAuthorizer(flowAddr)
 
-	SignAndSubmit(
+	signAndSubmit(
 		t, b, tx,
 		[]flow.Address{b.RootKey().Address, flowAddr},
 		[]crypto.Signer{b.RootKey().Signer(), flowSigner},
@@ -245,7 +245,7 @@ func TestVaultDestroy(t *testing.T) {
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
 
-		SignAndSubmit(
+		signAndSubmit(
 			t, b, tx,
 			[]flow.Address{b.RootKey().Address, flowAddr},
 			[]crypto.Signer{b.RootKey().Signer(), flowSigner},
@@ -253,9 +253,9 @@ func TestVaultDestroy(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 600))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 600))
 
-		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 900))
+		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 900))
 	})
 
 	t.Run("Should subtract tokens from supply when they are destroyed by a different account", func(t *testing.T) {
@@ -266,7 +266,7 @@ func TestVaultDestroy(t *testing.T) {
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(joshAddress)
 
-		SignAndSubmit(
+		signAndSubmit(
 			t, b, tx,
 			[]flow.Address{b.RootKey().Address, joshAddress},
 			[]crypto.Signer{b.RootKey().Signer(), joshSigner},
@@ -274,15 +274,15 @@ func TestVaultDestroy(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 200))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 200))
 
-		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 800))
+		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 800))
 	})
 
 }
 
 func TestMintingAndBurning(t *testing.T) {
-	b := NewEmulator()
+	b := newEmulator()
 
 	accountKeys := test.AccountKeyGenerator()
 
@@ -312,7 +312,7 @@ func TestMintingAndBurning(t *testing.T) {
 		SetPayer(b.RootKey().Address).
 		AddAuthorizer(joshAddress)
 
-	SignAndSubmit(
+	signAndSubmit(
 		t, b, tx,
 		[]flow.Address{b.RootKey().Address, joshAddress},
 		[]crypto.Signer{b.RootKey().Signer(), joshSigner},
@@ -327,7 +327,7 @@ func TestMintingAndBurning(t *testing.T) {
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
 
-		SignAndSubmit(
+		signAndSubmit(
 			t, b, tx,
 			[]flow.Address{b.RootKey().Address, flowAddr},
 			[]crypto.Signer{b.RootKey().Signer(), flowSigner},
@@ -335,12 +335,12 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
 
 		// Assert that the vaults' balances are correct
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
 
-		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
+		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
 	})
 
 	t.Run("Shouldn't be able to mint more than the allowed amount", func(t *testing.T) {
@@ -351,7 +351,7 @@ func TestMintingAndBurning(t *testing.T) {
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
 
-		SignAndSubmit(
+		signAndSubmit(
 			t, b, tx,
 			[]flow.Address{b.RootKey().Address, flowAddr},
 			[]crypto.Signer{b.RootKey().Signer(), flowSigner},
@@ -359,12 +359,12 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
 
 		// Assert that the vaults' balances are correct
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 0))
 
-		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
+		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
 	})
 
 	t.Run("Should mint tokens, deposit, and update balance and total supply", func(t *testing.T) {
@@ -375,7 +375,7 @@ func TestMintingAndBurning(t *testing.T) {
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
 
-		SignAndSubmit(
+		signAndSubmit(
 			t, b, tx,
 			[]flow.Address{b.RootKey().Address, flowAddr},
 			[]crypto.Signer{b.RootKey().Signer(), flowSigner},
@@ -383,12 +383,12 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 1000))
 
 		// Assert that the vaults' balances are correct
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 50))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, joshAddress, 50))
 
-		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1050))
+		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1050))
 	})
 
 	t.Run("Should burn tokens and update balance and total supply", func(t *testing.T) {
@@ -399,7 +399,7 @@ func TestMintingAndBurning(t *testing.T) {
 			SetPayer(b.RootKey().Address).
 			AddAuthorizer(flowAddr)
 
-		SignAndSubmit(
+		signAndSubmit(
 			t, b, tx,
 			[]flow.Address{b.RootKey().Address, flowAddr},
 			[]crypto.Signer{b.RootKey().Signer(), flowSigner},
@@ -407,8 +407,8 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		ExecuteScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 950))
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, flowAddr, flowAddr, 950))
 
-		ExecuteScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
+		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
 	})
 }

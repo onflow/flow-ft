@@ -211,8 +211,8 @@ accounts 1 and 2, respectively:
 
 ## License 
 
-The works in these folders 
-/onflow/flow-ft/blob/master/src/contracts
+The works in these folders are under the [Unlicense](https://github.com/onflow/flow-NFT/blob/master/LICENSE):
 
-are under the Unlicense
-https://github.com/onflow/flow-NFT/blob/master/LICENSE
+- [src/contracts](https://github.com/onflow/flow-ft/tree/bindata/src/contracts)
+
+
