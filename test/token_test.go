@@ -431,15 +431,15 @@ func TestTokenAdministrator(t *testing.T) {
 	flowTokenCode := readFile(flowTokenContractFile)
 
 	setupScript := fmt.Sprintf(`
-	  transaction {
-	    prepare(signer: AuthAccount) {
-	      let flowTokenAcct = AuthAccount(payer: signer)
+      transaction {
+        prepare(signer: AuthAccount) {
+          let flowTokenAcct = AuthAccount(payer: signer)
 
-		  let admin = signer
-	      flowTokenAcct.setCode("%s".decodeHex(), admin)
-	    }
-	  }
-	`, hex.EncodeToString(flowTokenCode))
+          let admin = signer
+          flowTokenAcct.setCode("%s".decodeHex(), admin)
+        }
+      }
+    `, hex.EncodeToString(flowTokenCode))
 
 	setupTx := flow.NewTransaction().
 		SetScript([]byte(setupScript)).
@@ -467,33 +467,33 @@ func TestTokenAdministrator(t *testing.T) {
       import FungibleToken from 0x02
       import FlowToken from 0x06
 
-	  transaction {
-		let tokenAdmin: &FlowToken.Administrator
-		let tokenReceiver: &FlowToken.Vault{FungibleToken.Receiver}
+      transaction {
+        let tokenAdmin: &FlowToken.Administrator
+        let tokenReceiver: &FlowToken.Vault{FungibleToken.Receiver}
 
-	    prepare(signer: AuthAccount) {
-	      self.tokenAdmin = signer.
-	        borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin) 
-		    ?? panic("Signer is not the token admin")
+        prepare(signer: AuthAccount) {
+          self.tokenAdmin = signer.
+            borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin) 
+            ?? panic("Signer is not the token admin")
 
           self.tokenReceiver = signer
             .getCapability(/public/flowTokenReceiver2)!
             .borrow<&FlowToken.Vault{FungibleToken.Receiver}>()
             ?? panic("Unable to borrow receiver reference for recipient")
-	    }
+        }
 
-		execute {
-		  let minter <- self.tokenAdmin.createNewMinter(allowedAmount: 100.0)
-		  let mintedVault <- minter.mintTokens(amount: 100.0)
+        execute {
+          let minter <- self.tokenAdmin.createNewMinter(allowedAmount: 100.0)
+          let mintedVault <- minter.mintTokens(amount: 100.0)
 
-		  self.tokenReceiver.deposit(from: <-mintedVault)
+          self.tokenReceiver.deposit(from: <-mintedVault)
 
           log("Minted 100 tokens and deposited to admin account")
 
-		  destroy minter
-	    }
-	  }
-	`
+          destroy minter
+        }
+      }
+    `
 
 	mintTx := flow.NewTransaction().
 		SetScript([]byte(mintScript)).
