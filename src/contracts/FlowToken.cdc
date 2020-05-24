@@ -1,25 +1,8 @@
-/**
-
-# FlowToken example contract
-
-This is an example implementation of the Flow Fungible Token standard.
-Is not part of the standard, but just shows how most tokens
-should implement the standard, including the Flow network token itself.
-
-The FlowToken contract only needs to be deployed in one account.
-The only part of the contract that would be stored in each user's account
-is the Vault object, below
-
-The implementation does not need to redefine the interfaces that are
-already defined in the Fungible Token interface
-
-*/
-
 import FungibleToken from 0x02
 
 pub contract FlowToken: FungibleToken {
 
-    // Total supply of flow tokens in existence
+    // Total supply of Flow tokens in existence
     pub var totalSupply: UFix64
 
     // Event that is emitted when the contract is created
@@ -39,6 +22,9 @@ pub contract FlowToken: FungibleToken {
 
     // Event that is emitted when a mew minter resource is created
     pub event MinterCreated(allowedAmount: UFix64)
+
+    // Event that is emitted when a mew burner resource is created
+    pub event BurnerCreated()
 
     // Vault
     //
@@ -108,12 +94,31 @@ pub contract FlowToken: FungibleToken {
         return <-create Vault(balance: 0.0)
     }
 
-    // MintAndBurn
+    pub resource Administrator {
+        // createNewMinter
+        //
+        // Function that creates and returns a new minter resource
+        //
+        pub fun createNewMinter(allowedAmount: UFix64): @Minter {
+            emit MinterCreated(allowedAmount: allowedAmount)
+            return <-create Minter(allowedAmount: allowedAmount)
+        }
+
+        // createNewBurner
+        //
+        // Function that creates and returns a new burner resource
+        //
+        pub fun createNewBurner(): @Burner {
+            emit BurnerCreated()
+            return <-create Burner()
+        }
+    }
+
+    // Minter
     //
-    // Resource object that token admin accounts could hold
-    // to mint and burn new tokens.
+    // Resource object that token admin accounts can hold to mint new tokens.
     //
-    pub resource MintAndBurn {
+    pub resource Minter {
 
         // the amount of tokens that the minter is allowed to mint
         pub var allowedAmount: UFix64
@@ -134,6 +139,15 @@ pub contract FlowToken: FungibleToken {
             return <-create Vault(balance: amount)
         }
 
+        init(allowedAmount: UFix64) {
+            self.allowedAmount = allowedAmount
+        }
+    }
+    
+    // Burner
+    //
+    pub resource Burner {
+
         // burnTokens
         //
         // Function that takes a Vault as an argument, subtracts its balance
@@ -148,19 +162,6 @@ pub contract FlowToken: FungibleToken {
             destroy vault
             emit Burn(amount: amount)
         }
-
-        // createNewMinter
-        //
-        // Function that creates and returns a new minter resource
-        //
-        pub fun createNewMinter(allowedAmount: UFix64): @MintAndBurn {
-            emit MinterCreated(allowedAmount: allowedAmount)
-            return <-create MintAndBurn(allowedAmount: allowedAmount)
-        }
-
-        init(allowedAmount: UFix64) {
-            self.allowedAmount = allowedAmount
-        }
     }
 
     // The initializer for the contract. All fields in the contract must
@@ -169,38 +170,34 @@ pub contract FlowToken: FungibleToken {
     //
     // The numbers are arbitrary.
     //
-    init() {
-        // Initialize the totalSupply field to the initial balance
-        self.totalSupply = 1000.0
+    init(adminAcct: AuthAccount) {
+        self.totalSupply = 0.0
 
         // Create the Vault with the total supply of tokens and save it in storage
         //
         let vault <- create Vault(balance: self.totalSupply)
-        self.account.save(<-vault, to: /storage/flowTokenVault)
+        adminAcct.save(<-vault, to: /storage/flowTokenVault2)
 
         // Create a public capability to the stored Vault that only exposes
         // the `deposit` method through the `Receiver` interface
         //
-        self.account.link<&FlowToken.Vault{FungibleToken.Receiver}>(
-            /public/flowTokenReceiver,
-            target: /storage/flowTokenVault
+        adminAcct.link<&FlowToken.Vault{FungibleToken.Receiver}>(
+            /public/flowTokenReceiver2,
+            target: /storage/flowTokenVault2
         )
 
         // Create a public capability to the stored Vault that only exposes
         // the `balance` field through the `Balance` interface
         //
-        self.account.link<&FlowToken.Vault{FungibleToken.Balance}>(
-            /public/flowTokenBalance,
-            target: /storage/flowTokenVault
+        adminAcct.link<&FlowToken.Vault{FungibleToken.Balance}>(
+            /public/flowTokenBalance2,
+            target: /storage/flowTokenVault2
         )
 
-        // Create a new MintAndBurn resource and store it in account storage
-        let mintAndBurn <- create MintAndBurn(allowedAmount: 100.0)
-        self.account.save(<-mintAndBurn, to: /storage/flowTokenMintAndBurn)
+        let admin <- create Administrator()
+        adminAcct.save(<-admin, to: /storage/flowTokenAdmin)
 
         // Emit an event that shows that the contract was initialized
         emit FungibleTokenInitialized(initialSupply: self.totalSupply)
     }
 }
-
- 
