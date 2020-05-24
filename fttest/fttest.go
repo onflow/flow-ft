@@ -14,15 +14,6 @@ import (
 	emulator "github.com/dapperlabs/flow-emulator"
 )
 
-// ReadFile reads a file from the file system
-func ReadFile(path string) []byte {
-	contents, err := ioutil.ReadFile(path)
-	if err != nil {
-		panic(err)
-	}
-	return contents
-}
-
 // NewEmulator returns a emulator object for testing
 func NewEmulator() *emulator.Blockchain {
 	b, err := emulator.NewBlockchain()
@@ -98,4 +89,12 @@ func ExecuteScriptAndCheck(t *testing.T, b *emulator.Blockchain, script []byte) 
 	if !assert.True(t, result.Succeeded()) {
 		t.Log(result.Error.Error())
 	}
+}
+
+func readFile(path string) []byte {
+	contents, err := ioutil.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	return contents
 }

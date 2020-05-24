@@ -7,7 +7,6 @@ import (
 
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
-	"github.com/onflow/flow-go-sdk/examples"
 	"github.com/onflow/flow-go-sdk/test"
 )
 
@@ -20,14 +19,14 @@ func TestTokenDeployment(t *testing.T) {
 	b := NewEmulator()
 
 	// Should be able to deploy a contract as a new account with no keys.
-	fungibleTokenCode := examples.ReadFile(fungibleTokenContractFile)
+	fungibleTokenCode := readFile(fungibleTokenContractFile)
 	fungibleAddr, err := b.CreateAccount(nil, fungibleTokenCode)
 	assert.NoError(t, err)
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
 	// Should be able to deploy a contract as a new account with no keys.
-	flowTokenCode := examples.ReadFile(flowTokenContractFile)
+	flowTokenCode := readFile(flowTokenContractFile)
 	flowAddr, err := b.CreateAccount(nil, flowTokenCode)
 	assert.NoError(t, err)
 	_, err = b.CommitBlock()
@@ -44,21 +43,21 @@ func TestCreateToken(t *testing.T) {
 	accountKeys := test.AccountKeyGenerator()
 
 	// Should be able to deploy a contract as a new account with no keys.
-	fungibleTokenCode := examples.ReadFile(fungibleTokenContractFile)
+	fungibleTokenCode := readFile(fungibleTokenContractFile)
 	fungibleAddr, err := b.CreateAccount(nil, fungibleTokenCode)
 	assert.NoError(t, err)
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
 	// Should be able to deploy a contract as a new account with no keys.
-	flowTokenCode := examples.ReadFile(flowTokenContractFile)
+	flowTokenCode := readFile(flowTokenContractFile)
 	flowAddr, err := b.CreateAccount(nil, flowTokenCode)
 	assert.NoError(t, err)
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
-	joshAddress, err := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
+	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
 
 	t.Run("Should be able to create empty Vault that doesn't affect supply", func(t *testing.T) {
 		tx := flow.NewTransaction().
@@ -87,14 +86,14 @@ func TestExternalTransfers(t *testing.T) {
 	accountKeys := test.AccountKeyGenerator()
 
 	// Should be able to deploy a contract as a new account with no keys.
-	fungibleTokenCode := examples.ReadFile(fungibleTokenContractFile)
+	fungibleTokenCode := readFile(fungibleTokenContractFile)
 	fungibleAddr, err := b.CreateAccount(nil, fungibleTokenCode)
 	assert.NoError(t, err)
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
 	// Should be able to deploy a contract as a new account with no keys.
-	flowTokenCode := examples.ReadFile(flowTokenContractFile)
+	flowTokenCode := readFile(flowTokenContractFile)
 	flowAccountKey, flowSigner := accountKeys.NewWithSigner()
 	flowAddr, err := b.CreateAccount([]*flow.AccountKey{flowAccountKey}, flowTokenCode)
 	assert.NoError(t, err)
@@ -102,7 +101,7 @@ func TestExternalTransfers(t *testing.T) {
 	assert.NoError(t, err)
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
-	joshAddress, err := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
+	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
 
 	// then deploy the tokens to an account
 	tx := flow.NewTransaction().
@@ -192,14 +191,14 @@ func TestVaultDestroy(t *testing.T) {
 	accountKeys := test.AccountKeyGenerator()
 
 	// Should be able to deploy a contract as a new account with no keys.
-	fungibleTokenCode := examples.ReadFile(fungibleTokenContractFile)
+	fungibleTokenCode := readFile(fungibleTokenContractFile)
 	fungibleAddr, err := b.CreateAccount(nil, fungibleTokenCode)
 	assert.NoError(t, err)
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
 	// Should be able to deploy a contract as a new account with no keys.
-	flowTokenCode := examples.ReadFile(flowTokenContractFile)
+	flowTokenCode := readFile(flowTokenContractFile)
 	flowAccountKey, flowSigner := accountKeys.NewWithSigner()
 	flowAddr, err := b.CreateAccount([]*flow.AccountKey{flowAccountKey}, flowTokenCode)
 	assert.NoError(t, err)
@@ -207,7 +206,7 @@ func TestVaultDestroy(t *testing.T) {
 	assert.NoError(t, err)
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
-	joshAddress, err := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
+	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
 
 	// then deploy the tokens to an account
 	tx := flow.NewTransaction().
@@ -288,14 +287,14 @@ func TestMintingAndBurning(t *testing.T) {
 	accountKeys := test.AccountKeyGenerator()
 
 	// Should be able to deploy a contract as a new account with no keys.
-	fungibleTokenCode := examples.ReadFile(fungibleTokenContractFile)
+	fungibleTokenCode := readFile(fungibleTokenContractFile)
 	fungibleAddr, err := b.CreateAccount(nil, fungibleTokenCode)
 	assert.NoError(t, err)
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
 	// Should be able to deploy a contract as a new account with no keys.
-	flowTokenCode := examples.ReadFile(flowTokenContractFile)
+	flowTokenCode := readFile(flowTokenContractFile)
 	flowAccountKey, flowSigner := accountKeys.NewWithSigner()
 	flowAddr, err := b.CreateAccount([]*flow.AccountKey{flowAccountKey}, flowTokenCode)
 	assert.NoError(t, err)
@@ -303,7 +302,7 @@ func TestMintingAndBurning(t *testing.T) {
 	assert.NoError(t, err)
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
-	joshAddress, err := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
+	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
 
 	// then deploy the tokens to an account
 	tx := flow.NewTransaction().
