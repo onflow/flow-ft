@@ -9,21 +9,21 @@ import (
 )
 
 const (
-	FungibleTokenContractFilename = "FungibleToken.cdc"
-	FlowTokenContractFilename     = "FlowToken.cdc"
-	defaultFungibleTokenAddress   = "02"
+	fungibleTokenFilename       = "FungibleToken.cdc"
+	flowTokenFilename           = "FlowToken.cdc"
+	defaultFungibleTokenAddress = "02"
 )
 
 // FungibleToken returns the FungibleToken contract interface.
 func FungibleToken() []byte {
-	return assets.MustAsset(FungibleTokenContractFilename)
+	return assets.MustAsset(fungibleTokenFilename)
 }
 
 // FlowToken returns the FlowToken contract.
 //
 // The returned contract will import the FungibleToken contract from the specified address.
 func FlowToken(fungibleTokenAddr string) []byte {
-	code := assets.MustAssetString(FlowTokenContractFilename)
+	code := assets.MustAssetString(flowTokenFilename)
 
 	code = strings.ReplaceAll(
 		code,
