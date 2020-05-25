@@ -8,7 +8,3 @@ require (
 	github.com/onflow/flow-go-sdk v0.3.0-beta1
 	github.com/stretchr/testify v1.5.1
 )
-
-replace github.com/dapperlabs/flow-emulator => ../../../go/src/github.com/dapperlabs/flow-emulator
-
-replace github.com/onflow/flow-go-sdk => ../../../go/src/github.com/onflow/flow-go-sdk
