@@ -23,7 +23,7 @@ pub contract FlowToken: FungibleToken {
     // Event that is emitted when a mew minter resource is created
     pub event MinterCreated(allowedAmount: UFix64)
 
-    // Event that is emitted when a mew burner resource is created
+    // Event that is emitted when a new burner resource is created
     pub event BurnerCreated()
 
     // Vault
