@@ -6,19 +6,19 @@ pub contract FlowToken: FungibleToken {
     pub var totalSupply: UFix64
 
     // Event that is emitted when the contract is created
-    pub event FungibleTokenInitialized(initialSupply: UFix64)
+    pub event TokensInitialized(initialSupply: UFix64)
 
     // Event that is emitted when tokens are withdrawn from a Vault
-    pub event Withdraw(amount: UFix64, from: Address?)
+    pub event TokensWithdrawn(amount: UFix64, from: Address?)
 
     // Event that is emitted when tokens are deposited to a Vault
-    pub event Deposit(amount: UFix64, to: Address?)
+    pub event TokensDeposited(amount: UFix64, to: Address?)
 
     // Event that is emitted when new tokens are minted
-    pub event Mint(amount: UFix64)
+    pub event TokensMinted(amount: UFix64)
 
     // Event that is emitted when tokens are destroyed
-    pub event Burn(amount: UFix64)
+    pub event TokensBurned(amount: UFix64)
 
     // Event that is emitted when a mew minter resource is created
     pub event MinterCreated(allowedAmount: UFix64)
@@ -59,7 +59,7 @@ pub contract FlowToken: FungibleToken {
         //
         pub fun withdraw(amount: UFix64): @FungibleToken.Vault {
             self.balance = self.balance - amount
-            emit Withdraw(amount: amount, from: self.owner?.address)
+            emit TokensWithdrawn(amount: amount, from: self.owner?.address)
             return <-create Vault(balance: amount)
         }
 
@@ -73,7 +73,7 @@ pub contract FlowToken: FungibleToken {
         pub fun deposit(from: @FungibleToken.Vault) {
             let vault <- from as! @FlowToken.Vault
             self.balance = self.balance + vault.balance
-            emit Deposit(amount: vault.balance, to: self.owner?.address)
+            emit TokensDeposited(amount: vault.balance, to: self.owner?.address)
             vault.balance = 0.0
             destroy vault
         }
@@ -135,7 +135,7 @@ pub contract FlowToken: FungibleToken {
             }
             FlowToken.totalSupply = FlowToken.totalSupply + amount
             self.allowedAmount = self.allowedAmount - amount
-            emit Mint(amount: amount)
+            emit TokensMinted(amount: amount)
             return <-create Vault(balance: amount)
         }
 
@@ -160,7 +160,7 @@ pub contract FlowToken: FungibleToken {
             let vault <- from as! @FlowToken.Vault
             let amount = vault.balance
             destroy vault
-            emit Burn(amount: amount)
+            emit TokensBurned(amount: amount)
         }
     }
 
@@ -198,6 +198,6 @@ pub contract FlowToken: FungibleToken {
         adminAcct.save(<-admin, to: /storage/flowTokenAdmin)
 
         // Emit an event that shows that the contract was initialized
-        emit FungibleTokenInitialized(initialSupply: self.totalSupply)
+        emit TokensInitialized(initialSupply: self.totalSupply)
     }
 }
