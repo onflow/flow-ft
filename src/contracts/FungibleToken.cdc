@@ -51,13 +51,13 @@ pub contract interface FungibleToken {
     pub var totalSupply: UFix64
 
     // Event that is emitted when the contract is created
-    pub event FungibleTokenInitialized(initialSupply: UFix64)
+    pub event TokensInitialized(initialSupply: UFix64)
 
     // Event that is emitted when tokens are withdrawn from a Vault
-    pub event Withdraw(amount: UFix64, from: Address?)
+    pub event TokensWithdrawn(amount: UFix64, from: Address?)
 
     // Event that is emitted when tokens are deposited to a Vault
-    pub event Deposit(amount: UFix64, to: Address?)
+    pub event TokensDeposited(amount: UFix64, to: Address?)
 
     // Provider
     //

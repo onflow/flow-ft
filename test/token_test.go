@@ -1,9 +1,12 @@
 package test
 
 import (
+	"encoding/hex"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
@@ -411,4 +414,106 @@ func TestMintingAndBurning(t *testing.T) {
 
 		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, flowAddr, 1000))
 	})
+}
+
+func TestTokenAdministrator(t *testing.T) {
+	b := newEmulator()
+
+	// Should be able to deploy a contract as a new account with no keys.
+	fungibleTokenCode := readFile(fungibleTokenContractFile)
+	_, err := b.CreateAccount(nil, fungibleTokenCode)
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
+	// Should be able to deploy a contract as a new account with no keys.
+	flowTokenCode := readFile(flowTokenContractFile)
+
+	setupScript := fmt.Sprintf(`
+      transaction {
+        prepare(signer: AuthAccount) {
+          let flowTokenAcct = AuthAccount(payer: signer)
+
+          let admin = signer
+          flowTokenAcct.setCode("%s".decodeHex(), admin)
+        }
+      }
+    `, hex.EncodeToString(flowTokenCode))
+
+	setupTx := flow.NewTransaction().
+		SetScript([]byte(setupScript)).
+		AddAuthorizer(b.RootKey().Address).
+		SetPayer(b.RootKey().Address).
+		SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber)
+
+	err = setupTx.SignEnvelope(b.RootKey().Address, b.RootKey().ID, b.RootKey().Signer())
+	require.NoError(t, err)
+
+	err = b.AddTransaction(*setupTx)
+	require.NoError(t, err)
+
+	result, err := b.ExecuteNextTransaction()
+	require.NoError(t, err)
+
+	if !assert.Nil(t, result.Error) {
+		t.Fatal(result.Error)
+	}
+
+	_, err = b.CommitBlock()
+	require.NoError(t, err)
+
+	mintScript := `
+      import FungibleToken from 0x02
+      import FlowToken from 0x06
+
+      transaction {
+        let tokenAdmin: &FlowToken.Administrator
+        let tokenReceiver: &FlowToken.Vault{FungibleToken.Receiver}
+
+        prepare(signer: AuthAccount) {
+          self.tokenAdmin = signer
+            .borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin) 
+            ?? panic("Signer is not the token admin")
+
+          self.tokenReceiver = signer
+            .getCapability(/public/flowTokenReceiver)!
+            .borrow<&FlowToken.Vault{FungibleToken.Receiver}>()
+            ?? panic("Unable to borrow receiver reference")
+        }
+
+        execute {
+          let minter <- self.tokenAdmin.createNewMinter(allowedAmount: 100.0)
+          let mintedVault <- minter.mintTokens(amount: 100.0)
+
+          self.tokenReceiver.deposit(from: <-mintedVault)
+
+          log("Minted 100 tokens and deposited to admin account")
+
+          destroy minter
+        }
+      }
+    `
+
+	mintTx := flow.NewTransaction().
+		SetScript([]byte(mintScript)).
+		AddAuthorizer(b.RootKey().Address).
+		SetPayer(b.RootKey().Address).
+		SetProposalKey(b.RootKey().Address, b.RootKey().ID, b.RootKey().SequenceNumber)
+
+	err = mintTx.SignEnvelope(b.RootKey().Address, b.RootKey().ID, b.RootKey().Signer())
+	require.NoError(t, err)
+
+	err = b.AddTransaction(*mintTx)
+	require.NoError(t, err)
+
+	result, err = b.ExecuteNextTransaction()
+	require.NoError(t, err)
+
+	if !assert.Nil(t, result.Error) {
+		t.Fatal(result.Error)
+	}
+
+	_, err = b.CommitBlock()
+	require.NoError(t, err)
 }
