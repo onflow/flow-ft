@@ -20,7 +20,7 @@ pub contract FlowToken: FungibleToken {
     // Event that is emitted when tokens are destroyed
     pub event TokensBurned(amount: UFix64)
 
-    // Event that is emitted when a mew minter resource is created
+    // Event that is emitted when a new minter resource is created
     pub event MinterCreated(allowedAmount: UFix64)
 
     // Event that is emitted when a new burner resource is created
@@ -125,8 +125,8 @@ pub contract FlowToken: FungibleToken {
 
         // mintTokens
         //
-        // Function that mints new tokens, adds them to the total Supply,
-        // and returns them to the calling context
+        // Function that mints new tokens, adds them to the total supply,
+        // and returns them to the calling context.
         //
         pub fun mintTokens(amount: UFix64): @FlowToken.Vault {
             pre {
@@ -146,15 +146,16 @@ pub contract FlowToken: FungibleToken {
     
     // Burner
     //
+    // Resource object that token admin accounts can hold to burn tokens.
+    //
     pub resource Burner {
 
         // burnTokens
         //
-        // Function that takes a Vault as an argument, subtracts its balance
-        // from the total supply, then destroys the Vault,
-        // thereby removing the tokens from existence.
+        // Function that destroys a Vault instance, effectively burning the tokens.
         //
-        // Returns the amount that was burnt.
+        // Note: the burned tokens are automatically subtracted from the 
+        // total supply in the Vault destructor.
         //
         pub fun burnTokens(from: @FungibleToken.Vault) {
             let vault <- from as! @FlowToken.Vault
@@ -164,12 +165,6 @@ pub contract FlowToken: FungibleToken {
         }
     }
 
-    // The initializer for the contract. All fields in the contract must
-    // be initialized at deployment. This is just an example of what
-    // an implementation could do in the initializer.
-    //
-    // The numbers are arbitrary.
-    //
     init(adminAccount: AuthAccount) {
         self.totalSupply = 0.0
 
