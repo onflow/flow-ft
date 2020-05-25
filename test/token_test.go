@@ -472,14 +472,14 @@ func TestTokenAdministrator(t *testing.T) {
         let tokenReceiver: &FlowToken.Vault{FungibleToken.Receiver}
 
         prepare(signer: AuthAccount) {
-          self.tokenAdmin = signer.
-            borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin) 
+          self.tokenAdmin = signer
+            .borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin) 
             ?? panic("Signer is not the token admin")
 
           self.tokenReceiver = signer
             .getCapability(/public/flowTokenReceiver)!
             .borrow<&FlowToken.Vault{FungibleToken.Receiver}>()
-            ?? panic("Unable to borrow receiver reference for recipient")
+            ?? panic("Unable to borrow receiver reference")
         }
 
         execute {
