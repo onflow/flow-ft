@@ -21,3 +21,9 @@ func TestFlowTokenContract(t *testing.T) {
 	assert.NotNil(t, contract)
 	assert.Contains(t, string(contract), addrA.Hex())
 }
+
+func TestExampleTokenContract(t *testing.T) {
+	contract := contracts.ExampleToken(addrA.Hex())
+	assert.NotNil(t, contract)
+	assert.Contains(t, string(contract), addrA.Hex())
+}
