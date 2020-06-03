@@ -56,7 +56,7 @@ func signAndSubmit(
 	Submit(t, b, tx, shouldRevert)
 }
 
-// submit submits a transaction and checks if it fails or not.
+// Submit submits a transaction and checks if it fails or not.
 func Submit(
 	t *testing.T,
 	b *emulator.Blockchain,

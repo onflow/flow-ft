@@ -11,7 +11,9 @@ import (
 const (
 	fungibleTokenFilename       = "FungibleToken.cdc"
 	flowTokenFilename           = "FlowToken.cdc"
+	exampleTokenFilename        = "ExampleToken.cdc"
 	defaultFungibleTokenAddress = "02"
+	tokenForwardingFilename     = "TokenForwarding.cdc"
 )
 
 // FungibleToken returns the FungibleToken contract interface.
@@ -24,6 +26,36 @@ func FungibleToken() []byte {
 // The returned contract will import the FungibleToken contract from the specified address.
 func FlowToken(fungibleTokenAddr string) []byte {
 	code := assets.MustAssetString(flowTokenFilename)
+
+	code = strings.ReplaceAll(
+		code,
+		"0x"+defaultFungibleTokenAddress,
+		"0x"+fungibleTokenAddr,
+	)
+
+	return []byte(code)
+}
+
+// ExampleToken returns the ExampleToken contract.
+//
+// The returned contract will import the FungibleToken contract from the specified address.
+func ExampleToken(fungibleTokenAddr string) []byte {
+	code := assets.MustAssetString(exampleTokenFilename)
+
+	code = strings.ReplaceAll(
+		code,
+		"0x"+defaultFungibleTokenAddress,
+		"0x"+fungibleTokenAddr,
+	)
+
+	return []byte(code)
+}
+
+// TokenForwarding returns the TokenForwarding contract.
+//
+// The returned contract will import the FungibleToken contract from the specified address.
+func TokenForwarding(fungibleTokenAddr string) []byte {
+	code := assets.MustAssetString(tokenForwardingFilename)
 
 	code = strings.ReplaceAll(
 		code,

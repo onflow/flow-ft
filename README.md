@@ -45,9 +45,12 @@ The feedback we are looking for is:
 
 ## Basics of the Standard:
 
-The code for the standard is in `src/contracts/FungibleToken.cdc`. An example implementation of the standard that simulates what a simple FlowToken would be like is in `src/contracts/FlowToken.cdc`.
+The code for the standard is in `src/contracts/FungibleToken.cdc`. An example implementation of the standard that simulates what a simple token would be like is in `src/contracts/ExampleToken.cdc`. 
+
+The exact smart contract that is used for the official Flow Network Token is in `src/contracts/FlowToken.cdc`
 
 Example transactions that users could use to interact with fungible tokens are located in the `src/transactions/` directory.
+Go transaction templates are in the `test/templates.go` file. These templates are mostly generic and can be used with any fungible token implementation by providing the correct addresses, names, and values.
 
 The standard consists of a contract interface called `FungibleToken` that requires implementing contracts to define a `Vault` resource that represents the tokens that an account owns. Each account that owns tokens will have a `Vault` stored in its account storage.  Users call functions on each other's `Vault`s to send and receive tokens.  
 
@@ -60,7 +63,7 @@ Right now we are using unsigned 64-bit fixed point numbers `UFix64` as the type 
 - `pub var totalSupply: UFix64`
     - The only required field of the contract.  It would be incremented when new tokens are minted and decremented when they are destroyed.
 - Event that gets emitted when the contract is initialized
-    - `pub event FungibleTokenInitialized(initialSupply: UFix64)`
+    - `pub event TokensInitialized(initialSupply: UFix64)`
 
 2- Retrieving the token fields of a `Vault` in an account that owns tokens.
 
@@ -71,7 +74,7 @@ Right now we are using unsigned 64-bit fixed point numbers `UFix64` as the type 
 3- Withdrawing a specific amount of tokens *amount* using the *withdraw* function of the owner's `Vault`
 
 - Provider interface
-    - `pub fun withdraw(amount: UFix64): @Vault`
+    - `pub fun withdraw(amount: UFix64): @FungibleToken.Vault`
         - Conditions
             - the returned Vault's balance must equal the amount withdrawn
             - The amount withdrawn must be less than or equal to the balance
@@ -81,12 +84,12 @@ Right now we are using unsigned 64-bit fixed point numbers `UFix64` as the type 
     - Indicates how much was withdrawn and from what account the `Vault` is stored in.
       If the `Vault` is not in account storage when the event is emitted,
       `from` will be `nil`.
-    - `pub event withdraw(amount: UFix64, from: Address?)`
+    - `pub event TokensWithdrawn(amount: UFix64, from: Address?)`
 
 4 - Depositing a specific amount of tokens *from* using the *deposit* function of the recipient's `Vault`
 
 - `Receiver` interface
-    - `pub fun deposit(from: @Vault)`
+    - `pub fun deposit(from: @FungibleToken.Vault)`
     - Conditions
         - `from` balance must be non-zero
         - The resulting balance must be equal to the initial balance + the balance of `from`
@@ -94,16 +97,20 @@ Right now we are using unsigned 64-bit fixed point numbers `UFix64` as the type 
     - Indicates how much was deposited and to what account the `Vault` is stored in.
       If the `Vault` is not in account storage when the event is emitted,
       `to` will be `nil`.
-    - `pub event Deposit(amount: UFix64, to: Address?)`
-- Users could create custom `Receiver`s to trigger special code when transfers to them happen.
+    - `pub event TokensDeposited(amount: UFix64, to: Address?)`
+- Users could create custom `Receiver`s to trigger special code when transfers to them happen, like forwarding the tokens
+  to another account, splitting them up, and much more.
+
+- **ATTENTION**: It is VITALLY important that if you are making your own implementation of the fungible token interface that
+  you cast the input to `deposit` as the type of your token.
+  `let vault <- from as! @ExampleToken.Vault`
+  Because the interface specifies the argument as `@FungibleToken.Vault`, any resource that satisfies this can be sent to the deposit function. If you do not cast it as the type of your token, others could deposit different tokens into your Vault maliciously to change the balance.
 
 5 - Creating an empty Vault resource
 
-- `pub fun createEmptyVault(): @Vault`
-- Currently have no event
-- Defined in the contract, but not in the `Vault` resource.  
-  This means that to create an empty `Vault`, 
-  the caller would always have to call the function in the contract.
+- `pub fun createEmptyVault(): @FungibleToken.Vault`
+- Defined in the contract 
+  To create an empty `Vault`, the caller calls the function in the contract and stores the Vault in their storage.
 - Conditions:
     - the balance of the returned Vault must be 0
 
@@ -173,7 +180,7 @@ A standard for token metadata is still an unsolved problem in the general blockc
 To use the Flow Token contract as is, you need to follow these steps:
 
 1. Deploy the `FungibleToken` definition to account `0x02`
-2. Deploy the `FlowToken` definition to account `0x03`
+2. Deploy the `ExampleToken` definition to account `0x03`
 3. You can use the `get_balance.cdc` or `get_supply.cdc` scripts to read the 
    balance of a user's `Vault` or the total supply of all tokens, respectively.
 4. Use the `setupAccount.cdc` on any account to set up the account to be able to
