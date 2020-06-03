@@ -6,7 +6,7 @@
 // would be the parameters to the transaction
 
 import FungibleToken from 0x02
-import FlowToken from 0x03
+import ExampleToken from 0x03
 
 transaction {
 
@@ -16,7 +16,7 @@ transaction {
     prepare(signer: AuthAccount) {
 
         // Get a reference to the signer's stored vault
-        let storedVault = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
+        let storedVault = signer.borrow<&ExampleToken.Vault>(from: /storage/exampleTokenVault)
             ?? panic("Unable to borrow a reference to the sender's Vault")
 
         // Withdraw 10 tokens from the signer's stored vault
@@ -30,8 +30,8 @@ transaction {
 
         // Get a reference to the recipient's Receiver
         let receiver = recipient
-            .getCapability(/public/flowTokenReceiver)!
-            .borrow<&FlowToken.Vault{FungibleToken.Receiver}>()
+            .getCapability(/public/exampleTokenReceiver)!
+            .borrow<&ExampleToken.Vault{FungibleToken.Receiver}>()
             ?? panic("Unable to borrow receiver reference for recipient")
 
         // Deposit the withdrawn tokens in the recipient's receiver

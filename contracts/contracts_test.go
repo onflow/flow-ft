@@ -27,3 +27,9 @@ func TestExampleTokenContract(t *testing.T) {
 	assert.NotNil(t, contract)
 	assert.Contains(t, string(contract), addrA.Hex())
 }
+
+func TestTokenForwardingContract(t *testing.T) {
+	contract := contracts.TokenForwarding(addrA.Hex())
+	assert.NotNil(t, contract)
+	assert.Contains(t, string(contract), addrA.Hex())
+}

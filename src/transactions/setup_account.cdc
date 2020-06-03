@@ -1,31 +1,31 @@
 
 // This transaction is a template for a transaction
 // to add a Vault resource to their account
-// so that they can use the FlowTokens
+// so that they can use the exampleToken
 
 import FungibleToken from 0x02
-import FlowToken from 0x03
+import ExampleToken from 0x03
 
 transaction {
 
     prepare(signer: AuthAccount) {
 
-        if signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault) != nil {
-            // Create a new FlowToken Vault and put it in storage
-            signer.save(<-FlowToken.createEmptyVault(), to: /storage/flowTokenVault)
+        if signer.borrow<&ExampleToken.Vault>(from: /storage/exampleTokenVault) != nil {
+            // Create a new exampleToken Vault and put it in storage
+            signer.save(<-ExampleToken.createEmptyVault(), to: /storage/exampleTokenVault)
 
             // Create a public capability to the Vault that only exposes
             // the deposit function through the Receiver interface
-            signer.link<&FlowToken.Vault{FungibleToken.Receiver}>(
-                /public/flowTokenReceiver,
-                target: /storage/flowTokenVault
+            signer.link<&ExampleToken.Vault{FungibleToken.Receiver}>(
+                /public/exampleTokenReceiver,
+                target: /storage/exampleTokenVault
             )
 
             // Create a public capability to the Vault that only exposes
             // the balance field through the Balance interface
-            signer.link<&FlowToken.Vault{FungibleToken.Balance}>(
-                /public/flowTokenBalance,
-                target: /storage/flowTokenVault
+            signer.link<&ExampleToken.Vault{FungibleToken.Balance}>(
+                /public/exampleTokenBalance,
+                target: /storage/exampleTokenVault
             )
         }
     }
