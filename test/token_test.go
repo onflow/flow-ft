@@ -381,7 +381,7 @@ func TestCreateCustomToken(t *testing.T) {
 
 	accountKeys := test.AccountKeyGenerator()
 
-	exampleTokenAccountKey, _ := accountKeys.NewWithSigner()
+	exampleTokenAccountKey, tokenSigner := accountKeys.NewWithSigner()
 	// Should be able to deploy a contract as a new account with no keys.
 	fungibleTokenCode := contracts.FungibleToken()
 	fungibleAddr, err := b.CreateAccount(nil, fungibleTokenCode)
@@ -390,7 +390,7 @@ func TestCreateCustomToken(t *testing.T) {
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
-	exampleTokenCode := contracts.CustomToken(fungibleAddr.String(), "UtilityCoin")
+	exampleTokenCode := contracts.CustomToken(fungibleAddr.String(), "UtilityCoin", "utilityCoin")
 
 	tokenAddr, err := b.CreateAccount([]*flow.AccountKey{exampleTokenAccountKey}, exampleTokenCode)
 	assert.NoError(t, err)
@@ -419,5 +419,29 @@ func TestCreateCustomToken(t *testing.T) {
 		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, tokenAddr, joshAddress, "UtilityCoin", "utilityCoin", 0))
 
 		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin", 1000))
+	})
+
+	t.Run("Should mint tokens, deposit, and update balance and total supply", func(t *testing.T) {
+		tx := flow.NewTransaction().
+			SetScript(GenerateMintTokensScript(fungibleAddr, tokenAddr, joshAddress, "UtilityCoin", "utilityCoin", 50)).
+			SetGasLimit(100).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetPayer(b.ServiceKey().Address).
+			AddAuthorizer(tokenAddr)
+
+		signAndSubmit(
+			t, b, tx,
+			[]flow.Address{b.ServiceKey().Address, tokenAddr},
+			[]crypto.Signer{b.ServiceKey().Signer(), tokenSigner},
+			false,
+		)
+
+		// Assert that the vaults' balances are correct
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, tokenAddr, tokenAddr, "UtilityCoin", "utilityCoin", 1000))
+
+		// Assert that the vaults' balances are correct
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, tokenAddr, joshAddress, "UtilityCoin", "utilityCoin", 50))
+
+		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin", 1050))
 	})
 }

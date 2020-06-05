@@ -54,7 +54,7 @@ func ExampleToken(fungibleTokenAddr string) []byte {
 // CustomToken returns the ExampleToken contract with a custom name.
 //
 // The returned contract will import the FungibleToken interface from the specified address.
-func CustomToken(fungibleTokenAddr, tokenName string) []byte {
+func CustomToken(fungibleTokenAddr, tokenName, storageName string) []byte {
 	code := assets.MustAssetString(exampleTokenFilename)
 
 	code = strings.ReplaceAll(
@@ -67,6 +67,12 @@ func CustomToken(fungibleTokenAddr, tokenName string) []byte {
 		code,
 		"ExampleToken",
 		tokenName,
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		"exampleToken",
+		storageName,
 	)
 
 	return []byte(code)
@@ -90,7 +96,7 @@ func TokenForwarding(fungibleTokenAddr string) []byte {
 // CustomTokenForwarding returns the TokenForwarding contract for a custom token
 //
 // The returned contract will import the FungibleToken interface from the specified address.
-func CustomTokenForwarding(fungibleTokenAddr, tokenName string) []byte {
+func CustomTokenForwarding(fungibleTokenAddr, tokenName, storageName string) []byte {
 	code := assets.MustAssetString(tokenForwardingFilename)
 
 	code = strings.ReplaceAll(
@@ -103,6 +109,12 @@ func CustomTokenForwarding(fungibleTokenAddr, tokenName string) []byte {
 		code,
 		"ExampleToken",
 		tokenName,
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		"exampleToken",
+		storageName,
 	)
 
 	return []byte(code)
