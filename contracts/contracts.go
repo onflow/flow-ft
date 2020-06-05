@@ -23,7 +23,7 @@ func FungibleToken() []byte {
 
 // FlowToken returns the FlowToken contract.
 //
-// The returned contract will import the FungibleToken contract from the specified address.
+// The returned contract will import the FungibleToken interface from the specified address.
 func FlowToken(fungibleTokenAddr string) []byte {
 	code := assets.MustAssetString(flowTokenFilename)
 
@@ -38,7 +38,7 @@ func FlowToken(fungibleTokenAddr string) []byte {
 
 // ExampleToken returns the ExampleToken contract.
 //
-// The returned contract will import the FungibleToken contract from the specified address.
+// The returned contract will import the FungibleToken interface from the specified address.
 func ExampleToken(fungibleTokenAddr string) []byte {
 	code := assets.MustAssetString(exampleTokenFilename)
 
@@ -51,10 +51,10 @@ func ExampleToken(fungibleTokenAddr string) []byte {
 	return []byte(code)
 }
 
-// CustomizableExampleToken returns the ExampleToken contract with a custom Name.
+// CustomToken returns the ExampleToken contract with a custom name.
 //
-// The returned contract will import the FungibleToken contract from the specified address.
-func CustomizableExampleToken(fungibleTokenAddr, tokenName string) []byte {
+// The returned contract will import the FungibleToken interface from the specified address.
+func CustomToken(fungibleTokenAddr, tokenName string) []byte {
 	code := assets.MustAssetString(exampleTokenFilename)
 
 	code = strings.ReplaceAll(
@@ -87,10 +87,10 @@ func TokenForwarding(fungibleTokenAddr string) []byte {
 	return []byte(code)
 }
 
-// CustomizableTokenForwarding returns the TokenForwarding contract for a custom token
+// CustomTokenForwarding returns the TokenForwarding contract for a custom token
 //
-// The returned contract will import the FungibleToken contract from the specified address.
-func CustomizableTokenForwarding(fungibleTokenAddr, tokenName string) []byte {
+// The returned contract will import the FungibleToken interface from the specified address.
+func CustomTokenForwarding(fungibleTokenAddr, tokenName string) []byte {
 	code := assets.MustAssetString(tokenForwardingFilename)
 
 	code = strings.ReplaceAll(

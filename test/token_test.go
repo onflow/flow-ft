@@ -392,7 +392,7 @@ func TestCreateCustomToken(t *testing.T) {
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
-	exampleTokenCode := contracts.CustomizableExampleToken(fungibleAddr.String(), "UtilityCoin")
+	exampleTokenCode := contracts.CustomToken(fungibleAddr.String(), "UtilityCoin")
 
 	tokenAddr, err := b.CreateAccount([]*flow.AccountKey{exampleTokenAccountKey}, exampleTokenCode)
 	assert.NoError(t, err)
