@@ -1,7 +1,6 @@
 package test
 
 import (
-	"strings"
 	"testing"
 
 	emulator "github.com/dapperlabs/flow-emulator"
@@ -366,14 +365,59 @@ func DeployTokenContracts(b *emulator.Blockchain, t *testing.T, key []*flow.Acco
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
-	exampleTokenCode := readFile("../src/contracts/ExampleToken.cdc")
-	codeWithFTAddr := strings.ReplaceAll(string(exampleTokenCode), "02", fungibleAddr.String())
+	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String())
 
-	tokenAddr, err := b.CreateAccount(key, []byte(codeWithFTAddr))
+	tokenAddr, err := b.CreateAccount(key, []byte(exampleTokenCode))
 	assert.NoError(t, err)
 
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
 	return fungibleAddr, tokenAddr
+}
+
+func TestCreateCustomToken(t *testing.T) {
+	b := newEmulator()
+
+	accountKeys := test.AccountKeyGenerator()
+
+	exampleTokenAccountKey, _ := accountKeys.NewWithSigner()
+	// Should be able to deploy a contract as a new account with no keys.
+	fungibleTokenCode := contracts.FungibleToken()
+	fungibleAddr, err := b.CreateAccount(nil, fungibleTokenCode)
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
+	exampleTokenCode := contracts.CustomToken(fungibleAddr.String(), "UtilityCoin")
+
+	tokenAddr, err := b.CreateAccount([]*flow.AccountKey{exampleTokenAccountKey}, exampleTokenCode)
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
+	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
+	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
+
+	t.Run("Should be able to create empty Vault that doesn't affect supply", func(t *testing.T) {
+		tx := flow.NewTransaction().
+			SetScript(GenerateCreateTokenScript(fungibleAddr, tokenAddr, "UtilityCoin", "utilityCoin")).
+			SetGasLimit(100).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetPayer(b.ServiceKey().Address).
+			AddAuthorizer(joshAddress)
+
+		signAndSubmit(
+			t, b, tx,
+			[]flow.Address{b.ServiceKey().Address, joshAddress},
+			[]crypto.Signer{b.ServiceKey().Signer(), joshSigner},
+			false,
+		)
+
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, tokenAddr, joshAddress, "UtilityCoin", "utilityCoin", 0))
+
+		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin", 1000))
+	})
 }

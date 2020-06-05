@@ -12,7 +12,7 @@ const (
 	fungibleTokenFilename       = "FungibleToken.cdc"
 	flowTokenFilename           = "FlowToken.cdc"
 	exampleTokenFilename        = "ExampleToken.cdc"
-	defaultFungibleTokenAddress = "02"
+	defaultFungibleTokenAddress = "FUNGIBLETOKENADDRESS"
 	tokenForwardingFilename     = "TokenForwarding.cdc"
 )
 
@@ -23,7 +23,7 @@ func FungibleToken() []byte {
 
 // FlowToken returns the FlowToken contract.
 //
-// The returned contract will import the FungibleToken contract from the specified address.
+// The returned contract will import the FungibleToken interface from the specified address.
 func FlowToken(fungibleTokenAddr string) []byte {
 	code := assets.MustAssetString(flowTokenFilename)
 
@@ -38,7 +38,7 @@ func FlowToken(fungibleTokenAddr string) []byte {
 
 // ExampleToken returns the ExampleToken contract.
 //
-// The returned contract will import the FungibleToken contract from the specified address.
+// The returned contract will import the FungibleToken interface from the specified address.
 func ExampleToken(fungibleTokenAddr string) []byte {
 	code := assets.MustAssetString(exampleTokenFilename)
 
@@ -46,6 +46,27 @@ func ExampleToken(fungibleTokenAddr string) []byte {
 		code,
 		"0x"+defaultFungibleTokenAddress,
 		"0x"+fungibleTokenAddr,
+	)
+
+	return []byte(code)
+}
+
+// CustomToken returns the ExampleToken contract with a custom name.
+//
+// The returned contract will import the FungibleToken interface from the specified address.
+func CustomToken(fungibleTokenAddr, tokenName string) []byte {
+	code := assets.MustAssetString(exampleTokenFilename)
+
+	code = strings.ReplaceAll(
+		code,
+		"0x"+defaultFungibleTokenAddress,
+		"0x"+fungibleTokenAddr,
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		"ExampleToken",
+		tokenName,
 	)
 
 	return []byte(code)
@@ -61,6 +82,27 @@ func TokenForwarding(fungibleTokenAddr string) []byte {
 		code,
 		"0x"+defaultFungibleTokenAddress,
 		"0x"+fungibleTokenAddr,
+	)
+
+	return []byte(code)
+}
+
+// CustomTokenForwarding returns the TokenForwarding contract for a custom token
+//
+// The returned contract will import the FungibleToken interface from the specified address.
+func CustomTokenForwarding(fungibleTokenAddr, tokenName string) []byte {
+	code := assets.MustAssetString(tokenForwardingFilename)
+
+	code = strings.ReplaceAll(
+		code,
+		"0x"+defaultFungibleTokenAddress,
+		"0x"+fungibleTokenAddr,
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		"ExampleToken",
+		tokenName,
 	)
 
 	return []byte(code)

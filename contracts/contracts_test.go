@@ -28,8 +28,20 @@ func TestExampleTokenContract(t *testing.T) {
 	assert.Contains(t, string(contract), addrA.Hex())
 }
 
+func TestCustomExampleTokenContract(t *testing.T) {
+	contract := contracts.CustomToken(addrA.Hex(), "UtilityCoin")
+	assert.NotNil(t, contract)
+	assert.Contains(t, string(contract), addrA.Hex())
+}
+
 func TestTokenForwardingContract(t *testing.T) {
 	contract := contracts.TokenForwarding(addrA.Hex())
+	assert.NotNil(t, contract)
+	assert.Contains(t, string(contract), addrA.Hex())
+}
+
+func TestCustomTokenForwardingContract(t *testing.T) {
+	contract := contracts.CustomTokenForwarding(addrA.Hex(), "UtilityCoin")
 	assert.NotNil(t, contract)
 	assert.Contains(t, string(contract), addrA.Hex())
 }
