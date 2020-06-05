@@ -9,3 +9,5 @@ require (
 	github.com/onflow/flow-go-sdk v0.4.0
 	github.com/stretchr/testify v1.5.1
 )
+
+replace github.com/onflow/flow-ft/contracts => ../contracts
