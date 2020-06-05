@@ -12,7 +12,7 @@ const (
 	fungibleTokenFilename       = "FungibleToken.cdc"
 	flowTokenFilename           = "FlowToken.cdc"
 	exampleTokenFilename        = "ExampleToken.cdc"
-	defaultFungibleTokenAddress = "02"
+	defaultFungibleTokenAddress = "FUNGIBLETOKENADDRESS"
 	tokenForwardingFilename     = "TokenForwarding.cdc"
 )
 

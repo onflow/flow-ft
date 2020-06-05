@@ -1,7 +1,6 @@
 package test
 
 import (
-	"strings"
 	"testing"
 
 	emulator "github.com/dapperlabs/flow-emulator"
@@ -366,10 +365,9 @@ func DeployTokenContracts(b *emulator.Blockchain, t *testing.T, key []*flow.Acco
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
-	exampleTokenCode := readFile("../src/contracts/ExampleToken.cdc")
-	codeWithFTAddr := strings.ReplaceAll(string(exampleTokenCode), "02", fungibleAddr.String())
+	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String())
 
-	tokenAddr, err := b.CreateAccount(key, []byte(codeWithFTAddr))
+	tokenAddr, err := b.CreateAccount(key, []byte(exampleTokenCode))
 	assert.NoError(t, err)
 
 	_, err = b.CommitBlock()
