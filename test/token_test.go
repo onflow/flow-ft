@@ -398,6 +398,14 @@ func TestCreateCustomToken(t *testing.T) {
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
+	badTokenCode := contracts.CustomToken(fungibleAddr.String(), "BadCoin", "badCoin")
+	badTokenAccountKey, _ := accountKeys.NewWithSigner()
+	badTokenAddr, err := b.CreateAccount([]*flow.AccountKey{badTokenAccountKey}, badTokenCode)
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
 	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
 
@@ -443,5 +451,30 @@ func TestCreateCustomToken(t *testing.T) {
 		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, tokenAddr, joshAddress, "UtilityCoin", "utilityCoin", 50))
 
 		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin", 1050))
+	})
+
+	t.Run("Shouldn't be able to transfer token from a vault to a differenly typed vault", func(t *testing.T) {
+		tx := flow.NewTransaction().
+			SetScript(GenerateTransferInvalidVaultScript(fungibleAddr, tokenAddr, badTokenAddr, badTokenAddr, "UtilityCoin", "utilityCoin", "BadCoin", "badCoin", 20)).
+			SetGasLimit(100).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetPayer(b.ServiceKey().Address).
+			AddAuthorizer(tokenAddr)
+
+		signAndSubmit(
+			t, b, tx,
+			[]flow.Address{b.ServiceKey().Address, tokenAddr},
+			[]crypto.Signer{b.ServiceKey().Signer(), tokenSigner},
+			true,
+		)
+
+		// Assert that the vaults' balances are correct
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, tokenAddr, tokenAddr, "UtilityCoin", "utilityCoin", 1000))
+
+		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, badTokenAddr, badTokenAddr, "BadCoin", "badCoin", 1000))
+
+		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin", 1050))
+
+		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, badTokenAddr, "BadCoin", 1000))
 	})
 }

@@ -154,6 +154,34 @@ func GenerateBurnTokensScript(fungibleAddr, tokenAddr flow.Address, tokenName, s
 	return []byte(fmt.Sprintf(template, fungibleAddr, tokenAddr, tokenName, storageName, amount))
 }
 
+// GenerateTransferInvalidVaultScript creates a script that withdraws an tokens from an account
+// and tries to deposit it into a vault of the wrong type. Should fail
+func GenerateTransferInvalidVaultScript(fungibleAddr, tokenAddr, otherTokenAddr, receiverAddr flow.Address, tokenName, storageName, otherTokenName, otherStorageName string, amount int) []byte {
+	template := `
+		import FungibleToken from 0x%s 
+		import %s from 0x%s
+		import %s from 0x%s
+
+		transaction {
+			prepare(acct: AuthAccount) {
+				let recipient = getAccount(0x%s)
+
+				let providerRef = acct.borrow<&%s.Vault{FungibleToken.Provider}>(from: /storage/%sVault)
+					?? panic("Could not borrow Provider reference to the Vault!")
+
+				let receiverRef = recipient.getCapability(/public/%sReceiver)!.borrow<&%s.Vault{FungibleToken.Receiver}>()
+					?? panic("Could not borrow receiver reference to the recipient's Vault")
+
+				let tokens <- providerRef.withdraw(amount: %d.0)
+
+				receiverRef.deposit(from: <-tokens)
+			}
+		}
+	`
+
+	return []byte(fmt.Sprintf(template, fungibleAddr, tokenName, tokenAddr, otherTokenName, otherTokenAddr, receiverAddr, tokenName, storageName, otherStorageName, otherTokenName, amount))
+}
+
 // GenerateInspectVaultScript creates a script that retrieves a
 // Vault from the array in storage and makes assertions about
 // its balance. If these assertions fail, the script panics.
