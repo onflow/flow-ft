@@ -54,7 +54,7 @@ func ExampleToken(fungibleTokenAddr string) []byte {
 // CustomToken returns the ExampleToken contract with a custom name.
 //
 // The returned contract will import the FungibleToken interface from the specified address.
-func CustomToken(fungibleTokenAddr, tokenName, storageName string) []byte {
+func CustomToken(fungibleTokenAddr, tokenName, storageName, initialBalance string) []byte {
 	code := assets.MustAssetString(exampleTokenFilename)
 
 	code = strings.ReplaceAll(
@@ -73,6 +73,12 @@ func CustomToken(fungibleTokenAddr, tokenName, storageName string) []byte {
 		code,
 		"exampleToken",
 		storageName,
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		"1000.0",
+		initialBalance,
 	)
 
 	return []byte(code)

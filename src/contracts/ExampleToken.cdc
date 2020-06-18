@@ -176,7 +176,7 @@ pub contract ExampleToken: FungibleToken {
         // Create a public capability to the stored Vault that only exposes
         // the `deposit` method through the `Receiver` interface
         //
-        self.account.link<&ExampleToken.Vault{FungibleToken.Receiver}>(
+        self.account.link<&{FungibleToken.Receiver}>(
             /public/exampleTokenReceiver,
             target: /storage/exampleTokenVault
         )
