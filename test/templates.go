@@ -10,7 +10,9 @@ import (
 // a new Vault instance and stores it in storage.
 // balance is an argument to the Vault constructor.
 // The Vault must have been deployed already.
-func GenerateCreateTokenScript(fungibleAddr, tokenAddr flow.Address, tokenName, storageName string) []byte {
+func GenerateCreateTokenScript(fungibleAddr, tokenAddr flow.Address, tokenName string) []byte {
+	storageName := MakeFirstLowerCase(tokenName)
+
 	template := `
 	  import FungibleToken from 0x%[1]s 
 	  import %[3]s from 0x%[2]s
@@ -21,7 +23,7 @@ func GenerateCreateTokenScript(fungibleAddr, tokenAddr flow.Address, tokenName, 
               let vault <- %[3]s.createEmptyVault()
               acct.save(<-vault, to: /storage/%[4]sVault)
 
-              acct.link<&%[3]s.Vault{FungibleToken.Receiver}>(/public/%[4]sReceiver, target: /storage/%[4]sVault)
+              acct.link<&{FungibleToken.Receiver}>(/public/%[4]sReceiver, target: /storage/%[4]sVault)
               acct.link<&%[3]s.Vault{FungibleToken.Balance}>(/public/%[4]sBalance, target: /storage/%[4]sVault)
           }
       }
@@ -31,7 +33,9 @@ func GenerateCreateTokenScript(fungibleAddr, tokenAddr flow.Address, tokenName, 
 
 // GenerateDestroyVaultScript creates a script that withdraws
 // tokens from a vault and destroys the tokens
-func GenerateDestroyVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName, storageName string, withdrawAmount int) []byte {
+func GenerateDestroyVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName string, withdrawAmount int) []byte {
+	storageName := MakeFirstLowerCase(tokenName)
+
 	template := `
 		import FungibleToken from 0x%[1]s 
 		import %[3]s from 0x%[2]s
@@ -55,7 +59,9 @@ func GenerateDestroyVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName,
 
 // GenerateTransferVaultScript creates a script that withdraws an tokens from an account
 // and deposits it to another account's vault
-func GenerateTransferVaultScript(fungibleAddr, tokenAddr flow.Address, receiverAddr flow.Address, tokenName, storageName string, amount int) []byte {
+func GenerateTransferVaultScript(fungibleAddr, tokenAddr flow.Address, receiverAddr flow.Address, tokenName string, amount int) []byte {
+	storageName := MakeFirstLowerCase(tokenName)
+
 	template := `
 		import FungibleToken from 0x%s 
 		import %s from 0x%s
@@ -64,10 +70,10 @@ func GenerateTransferVaultScript(fungibleAddr, tokenAddr flow.Address, receiverA
 			prepare(acct: AuthAccount) {
 				let recipient = getAccount(0x%s)
 
-				let providerRef = acct.borrow<&%s.Vault{FungibleToken.Provider}>(from: /storage/%sVault)
+				let providerRef = acct.borrow<&{FungibleToken.Provider}>(from: /storage/%sVault)
 					?? panic("Could not borrow Provider reference to the Vault!")
 
-				let receiverRef = recipient.getCapability(/public/%sReceiver)!.borrow<&%s.Vault{FungibleToken.Receiver}>()
+				let receiverRef = recipient.getCapability(/public/%sReceiver)!.borrow<&{FungibleToken.Receiver}>()
 					?? panic("Could not borrow receiver reference to the recipient's Vault")
 
 				let tokens <- providerRef.withdraw(amount: %d.0)
@@ -77,19 +83,21 @@ func GenerateTransferVaultScript(fungibleAddr, tokenAddr flow.Address, receiverA
 		}
 	`
 
-	return []byte(fmt.Sprintf(template, fungibleAddr, tokenName, tokenAddr, receiverAddr, tokenName, storageName, storageName, tokenName, amount))
+	return []byte(fmt.Sprintf(template, fungibleAddr, tokenName, tokenAddr, receiverAddr, storageName, storageName, amount))
 }
 
 // GenerateMintTokensScript creates a script that uses the admin resource
 // to mint new tokens and deposit them in a Vault
-func GenerateMintTokensScript(fungibleAddr, tokenAddr flow.Address, receiverAddr flow.Address, tokenName, storageName string, amount float64) []byte {
+func GenerateMintTokensScript(fungibleAddr, tokenAddr flow.Address, receiverAddr flow.Address, tokenName string, amount float64) []byte {
+	storageName := MakeFirstLowerCase(tokenName)
+
 	template := `
 		import FungibleToken from 0x%[1]s 
 		import %[3]s from 0x%[2]s
 	
 		transaction {
 			let tokenAdmin: &%[3]s.Administrator
-			let tokenReceiver: &%[3]s.Vault{FungibleToken.Receiver}
+			let tokenReceiver: &{FungibleToken.Receiver}
 	
 			prepare(signer: AuthAccount) {
 			  self.tokenAdmin = signer
@@ -98,7 +106,7 @@ func GenerateMintTokensScript(fungibleAddr, tokenAddr flow.Address, receiverAddr
 	
 			  self.tokenReceiver = getAccount(0x%[5]s)
 				.getCapability(/public/%[4]sReceiver)!
-				.borrow<&%[3]s.Vault{FungibleToken.Receiver}>()
+				.borrow<&{FungibleToken.Receiver}>()
 				?? panic("Unable to borrow receiver reference")
 			}
 	
@@ -118,7 +126,9 @@ func GenerateMintTokensScript(fungibleAddr, tokenAddr flow.Address, receiverAddr
 
 // GenerateBurnTokensScript creates a script that uses the admin resource
 // to destroy tokens and deposit them in a Vault
-func GenerateBurnTokensScript(fungibleAddr, tokenAddr flow.Address, tokenName, storageName string, amount int) []byte {
+func GenerateBurnTokensScript(fungibleAddr, tokenAddr flow.Address, tokenName string, amount int) []byte {
+	storageName := MakeFirstLowerCase(tokenName)
+
 	template := `
 	import FungibleToken from 0x%[1]s 
 	import %[3]s from 0x%[2]s
@@ -154,10 +164,44 @@ func GenerateBurnTokensScript(fungibleAddr, tokenAddr flow.Address, tokenName, s
 	return []byte(fmt.Sprintf(template, fungibleAddr, tokenAddr, tokenName, storageName, amount))
 }
 
+// GenerateTransferInvalidVaultScript creates a script that withdraws an tokens from an account
+// and tries to deposit it into a vault of the wrong type. Should fail
+func GenerateTransferInvalidVaultScript(fungibleAddr, tokenAddr, otherTokenAddr, receiverAddr flow.Address, tokenName, otherTokenName string, amount int) []byte {
+	storageName := MakeFirstLowerCase(tokenName)
+
+	otherStorageName := MakeFirstLowerCase(tokenName)
+
+	template := `
+		import FungibleToken from 0x%s 
+		import %s from 0x%s
+		import %s from 0x%s
+
+		transaction {
+			prepare(acct: AuthAccount) {
+				let recipient = getAccount(0x%s)
+
+				let providerRef = acct.borrow<&{FungibleToken.Provider}>(from: /storage/%sVault)
+					?? panic("Could not borrow Provider reference to the Vault!")
+
+				let receiverRef = recipient.getCapability(/public/%sReceiver)!.borrow<&{FungibleToken.Receiver}>()
+					?? panic("Could not borrow receiver reference to the recipient's Vault")
+
+				let tokens <- providerRef.withdraw(amount: %d.0)
+
+				receiverRef.deposit(from: <-tokens)
+			}
+		}
+	`
+
+	return []byte(fmt.Sprintf(template, fungibleAddr, tokenName, tokenAddr, otherTokenName, otherTokenAddr, receiverAddr, storageName, otherStorageName, amount))
+}
+
 // GenerateInspectVaultScript creates a script that retrieves a
 // Vault from the array in storage and makes assertions about
 // its balance. If these assertions fail, the script panics.
-func GenerateInspectVaultScript(fungibleAddr, tokenAddr, userAddr flow.Address, tokenName, storageName string, expectedBalance float64) []byte {
+func GenerateInspectVaultScript(fungibleAddr, tokenAddr, userAddr flow.Address, tokenName string, expectedBalance float64) []byte {
+	storageName := MakeFirstLowerCase(tokenName)
+
 	template := `
 		import FungibleToken from 0x%[1]s 
 		import %[3]s from 0x%[2]s
@@ -180,6 +224,7 @@ func GenerateInspectVaultScript(fungibleAddr, tokenAddr, userAddr flow.Address, 
 // the total supply of tokens in existence
 // and makes assertions about the number
 func GenerateInspectSupplyScript(fungibleAddr, tokenAddr flow.Address, tokenName string, expectedSupply int) []byte {
+
 	template := `
 		import FungibleToken from 0x%[1]s 
 		import %[3]s from 0x%[2]s
@@ -193,4 +238,31 @@ func GenerateInspectSupplyScript(fungibleAddr, tokenAddr flow.Address, tokenName
 	`
 
 	return []byte(fmt.Sprintf(template, fungibleAddr, tokenAddr, tokenName, expectedSupply))
+}
+
+// GenerateCreateForwarderScript creates a script that instantiates
+// a new forwarder instance in an account
+func GenerateCreateForwarderScript(fungibleAddr, forwardingAddr, receiverAddr flow.Address, tokenName string) []byte {
+	storageName := MakeFirstLowerCase(tokenName)
+
+	template := `
+	  	import FungibleToken from 0x%[1]s 
+	  	import TokenForwarding from 0x%[2]s
+
+      	transaction {
+
+        	prepare(acct: AuthAccount) {
+				let recipient = getAccount(0x%[4]s).getCapability(/public/%[3]sReceiver)!
+
+		        let vault <- TokenForwarding.createNewForwarder(recipient: recipient)
+              	acct.save(<-vault, to: /storage/%[3]sForwarder)
+
+				if acct.getCapability(/public/%[3]sReceiver)!.borrow<&{FungibleToken.Receiver}>() != nil {
+					acct.unlink(/public/%[3]sReceiver)
+				}
+				acct.link<&{FungibleToken.Receiver}>(/public/%[3]sReceiver, target: /storage/%[3]sForwarder)
+          	}
+      	}
+    `
+	return []byte(fmt.Sprintf(template, fungibleAddr, forwardingAddr, storageName, receiverAddr))
 }
