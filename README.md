@@ -45,12 +45,11 @@ The feedback we are looking for is:
 
 ## Basics of the Standard:
 
-The code for the standard is in `src/contracts/FungibleToken.cdc`. An example implementation of the standard that simulates what a simple token would be like is in `src/contracts/ExampleToken.cdc`. 
+The code for the standard is in `contracts/FungibleToken.cdc`. An example implementation of the standard that simulates what a simple token would be like is in `contracts/ExampleToken.cdc`. 
 
-The exact smart contract that is used for the official Flow Network Token is in `src/contracts/FlowToken.cdc`
+The exact smart contract that is used for the official Flow Network Token is in `contracts/FlowToken.cdc`
 
-Example transactions that users could use to interact with fungible tokens are located in the `src/transactions/` directory.
-Go transaction templates are in the `test/templates.go` file. These templates are mostly generic and can be used with any fungible token implementation by providing the correct addresses, names, and values.
+Example transactions that users could use to interact with fungible tokens are located in the `transactions/` directory. These templates are mostly generic and can be used with any fungible token implementation by providing the correct addresses, names, and values.
 
 The standard consists of a contract interface called `FungibleToken` that requires implementing contracts to define a `Vault` resource that represents the tokens that an account owns. Each account that owns tokens will have a `Vault` stored in its account storage.  Users call functions on each other's `Vault`s to send and receive tokens.  
 
@@ -179,8 +178,8 @@ A standard for token metadata is still an unsolved problem in the general blockc
 
 To use the Flow Token contract as is, you need to follow these steps:
 
-1. Deploy the `FungibleToken` definition to account `0x02`
-2. Deploy the `ExampleToken` definition to account `0x03`
+1. Import the `FungibleToken` definition from account `0xee82856bf20e2aa6`. This is a predeployed interface in the emulator, testnet, and mainnet.
+2. Deploy the `ExampleToken` definition
 3. You can use the `get_balance.cdc` or `get_supply.cdc` scripts to read the 
    balance of a user's `Vault` or the total supply of all tokens, respectively.
 4. Use the `setupAccount.cdc` on any account to set up the account to be able to
@@ -195,26 +194,7 @@ To use the Flow Token contract as is, you need to follow these steps:
 
 # Running Automated Tests
 
-You can find automated tests in the `fungible_token_test.go` file. It uses the transaction templates that are contained in the `fungible_templates.go` file. Currently, these rely on a dependency from a private dapper labs repository to run, so external users will not be able to run them. We are working on making all of this public so anyone can run tests, but haven't completed this work yet.
-
-
-# Payment ID solution for Custodial Deposits
-
-We have included a simple example of a contract and resource that could
-be used by custodial services to be able to accept deposits from their customers.
-This is included in `src/contracts/CustodialDeposit.cdc`. The service would deploy the
-contract to their account, which stores the special `DepositResource`
-into their storage and published a reference, then users could use transactions
-like `src/transactions/custodial_deposit.cdc` to deposit their tokens into the account.
-Each deposit has to include a payment ID, or tag as we call it in the contract, to
-indicate which account it corresponds to. The resource emits an event that the
-service can watch for to see which user's account to credit.
-
-To test, if you have already deployed `FungibleToken.cdc` and `FlowToken.cdc` to
-accounts 1 and 2, respectively:
-
-1. Deploy `CustodialDeposit.cdc` to account `0x04`
-2. Switch to Account `0x03` and submit the `custodial_deposit.cdc` transaction.
+You can find automated tests in the `lib/go/test/token_test.go` file. It uses the transaction templates that are contained in the `lib/go/templates/transaction_templates.go` file. Currently, these rely on a dependency from a private dapper labs repository to run, so external users will not be able to run them. We are working on making all of this public so anyone can run tests, but haven't completed this work yet.
 
 ## License 
 

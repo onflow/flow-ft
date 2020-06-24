@@ -10,7 +10,8 @@ import (
 	"github.com/onflow/flow-go-sdk/crypto"
 	"github.com/onflow/flow-go-sdk/test"
 
-	"github.com/onflow/flow-ft/contracts"
+	"github.com/onflow/flow-ft/lib/go/contracts"
+	"github.com/onflow/flow-ft/lib/go/templates"
 )
 
 func TestTokenDeployment(t *testing.T) {
@@ -22,7 +23,7 @@ func TestTokenDeployment(t *testing.T) {
 	fungibleAddr, exampleTokenAddr, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	t.Run("Should have initialized Supply field correctly", func(t *testing.T) {
-		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
 	})
 }
 
@@ -39,7 +40,7 @@ func TestCreateToken(t *testing.T) {
 
 	t.Run("Should be able to create empty Vault that doesn't affect supply", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
+			SetScript(templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -52,9 +53,9 @@ func TestCreateToken(t *testing.T) {
 			false,
 		)
 
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
 
-		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
 	})
 }
 
@@ -71,7 +72,7 @@ func TestExternalTransfers(t *testing.T) {
 
 	// then deploy the tokens to an account
 	tx := flow.NewTransaction().
-		SetScript(GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
+		SetScript(templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 		SetGasLimit(100).
 		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
@@ -87,7 +88,7 @@ func TestExternalTransfers(t *testing.T) {
 	t.Run("Shouldn't be able to deposit an empty Vault", func(t *testing.T) {
 
 		tx := flow.NewTransaction().
-			SetScript(GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0)).
+			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -101,14 +102,14 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
 
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
 	})
 
 	t.Run("Shouldn't be able to withdraw more than the balance of the Vault", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 30000)).
+			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 30000)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -122,14 +123,14 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
 
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
 	})
 
 	t.Run("Should be able to withdraw and deposit tokens from a vault", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300)).
+			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -143,17 +144,17 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 700))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 700))
 
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300))
 
-		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
 	})
 
 	t.Run("Should be able to transfer tokens through a forwarder from a vault", func(t *testing.T) {
 
 		tx := flow.NewTransaction().
-			SetScript(GenerateCreateForwarderScript(fungibleAddr, forwardingAddr, exampleTokenAddr, "ExampleToken")).
+			SetScript(templates.GenerateCreateForwarderScript(fungibleAddr, forwardingAddr, exampleTokenAddr, "ExampleToken")).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -167,7 +168,7 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		tx = flow.NewTransaction().
-			SetScript(GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300)).
+			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -181,11 +182,11 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 700))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 700))
 
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300))
 
-		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
 	})
 }
 
@@ -202,7 +203,7 @@ func TestVaultDestroy(t *testing.T) {
 
 	// then deploy the tokens to an account
 	tx := flow.NewTransaction().
-		SetScript(GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
+		SetScript(templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 		SetGasLimit(100).
 		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
@@ -216,7 +217,7 @@ func TestVaultDestroy(t *testing.T) {
 	)
 
 	tx = flow.NewTransaction().
-		SetScript(GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300)).
+		SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300)).
 		SetGasLimit(100).
 		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
@@ -231,7 +232,7 @@ func TestVaultDestroy(t *testing.T) {
 
 	t.Run("Should subtract tokens from supply when they are destroyed", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(GenerateDestroyVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 100)).
+			SetScript(templates.GenerateDestroyVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 100)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -245,14 +246,14 @@ func TestVaultDestroy(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 600))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 600))
 
-		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 900))
+		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 900))
 	})
 
 	t.Run("Should subtract tokens from supply when they are destroyed by a different account", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(GenerateDestroyVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 100)).
+			SetScript(templates.GenerateDestroyVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 100)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -266,9 +267,9 @@ func TestVaultDestroy(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 200))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 200))
 
-		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 800))
+		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 800))
 	})
 
 }
@@ -286,7 +287,7 @@ func TestMintingAndBurning(t *testing.T) {
 
 	// then deploy the tokens to an account
 	tx := flow.NewTransaction().
-		SetScript(GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
+		SetScript(templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 		SetGasLimit(100).
 		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
@@ -301,7 +302,7 @@ func TestMintingAndBurning(t *testing.T) {
 
 	t.Run("Shouldn't be able to mint zero tokens", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0)).
+			SetScript(templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -315,17 +316,17 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
 
-		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
 	})
 
 	t.Run("Shouldn't be able to mint more than the allowed amount", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 101)).
+			SetScript(templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 101)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -339,17 +340,17 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
 
-		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
 	})
 
 	t.Run("Should mint tokens, deposit, and update balance and total supply", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 50)).
+			SetScript(templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 50)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -363,17 +364,17 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 50))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 50))
 
-		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1050))
+		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1050))
 	})
 
 	t.Run("Should burn tokens and update balance and total supply", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(GenerateBurnTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 50)).
+			SetScript(templates.GenerateBurnTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 50)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -387,9 +388,9 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 950))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 950))
 
-		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
 	})
 }
 
@@ -457,7 +458,7 @@ func TestCreateCustomToken(t *testing.T) {
 
 	t.Run("Should be able to create empty Vault that doesn't affect supply", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(GenerateCreateTokenScript(fungibleAddr, tokenAddr, "UtilityCoin")).
+			SetScript(templates.GenerateCreateTokenScript(fungibleAddr, tokenAddr, "UtilityCoin")).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -470,14 +471,14 @@ func TestCreateCustomToken(t *testing.T) {
 			false,
 		)
 
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, tokenAddr, joshAddress, "UtilityCoin", 0))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, joshAddress, "UtilityCoin", 0))
 
-		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin", 1000))
 	})
 
 	t.Run("Should mint tokens, deposit, and update balance and total supply", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(GenerateMintTokensScript(fungibleAddr, tokenAddr, joshAddress, "UtilityCoin", 50)).
+			SetScript(templates.GenerateMintTokensScript(fungibleAddr, tokenAddr, joshAddress, "UtilityCoin", 50)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -491,17 +492,17 @@ func TestCreateCustomToken(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, tokenAddr, tokenAddr, "UtilityCoin", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, tokenAddr, "UtilityCoin", 1000))
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, tokenAddr, joshAddress, "UtilityCoin", 50))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, joshAddress, "UtilityCoin", 50))
 
-		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin", 1050))
+		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin", 1050))
 	})
 
 	t.Run("Shouldn't be able to transfer token from a vault to a differenly typed vault", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(GenerateTransferInvalidVaultScript(fungibleAddr, tokenAddr, badTokenAddr, badTokenAddr, "UtilityCoin", "BadCoin", 20)).
+			SetScript(templates.GenerateTransferInvalidVaultScript(fungibleAddr, tokenAddr, badTokenAddr, badTokenAddr, "UtilityCoin", "BadCoin", 20)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -515,12 +516,12 @@ func TestCreateCustomToken(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, tokenAddr, tokenAddr, "UtilityCoin", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, tokenAddr, "UtilityCoin", 1000))
 
-		executeScriptAndCheck(t, b, GenerateInspectVaultScript(fungibleAddr, badTokenAddr, badTokenAddr, "BadCoin", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, badTokenAddr, badTokenAddr, "BadCoin", 1000))
 
-		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin", 1050))
+		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin", 1050))
 
-		executeScriptAndCheck(t, b, GenerateInspectSupplyScript(fungibleAddr, badTokenAddr, "BadCoin", 1000))
+		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, badTokenAddr, "BadCoin", 1000))
 	})
 }

@@ -1,4 +1,4 @@
-module github.com/onflow/flow-ft/contracts
+module github.com/onflow/flow-ft/lib/go/templates
 
 go 1.14
 
@@ -15,3 +15,5 @@ require (
 	golang.org/x/tools v0.0.0-20200323144430-8dcfad9e016e // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
+
+replace github.com/onflow/flow-ft/lib/go/templates => ../templates
