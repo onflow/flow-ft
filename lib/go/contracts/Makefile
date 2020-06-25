@@ -11,4 +11,4 @@ check-generated:
 	git diff --exit-code
 
 .PHONY: ci
-ci: generate check-generated test
+ci: generate test
