@@ -23,7 +23,7 @@ Steps to set up accounts with token forwarder:
     getting the Receiver from the account that is the recipient.
 */
 
-import FungibleToken from 0x02
+import FungibleToken from 0xee82856bf20e2aa6
 import FlowToken from 0x03
 import TokenForwarding from 0x04
 

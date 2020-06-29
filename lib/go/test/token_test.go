@@ -6,6 +6,7 @@ import (
 	emulator "github.com/dapperlabs/flow-emulator"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
 	"github.com/onflow/flow-go-sdk/test"
@@ -88,7 +89,9 @@ func TestExternalTransfers(t *testing.T) {
 	t.Run("Shouldn't be able to deposit an empty Vault", func(t *testing.T) {
 
 		tx := flow.NewTransaction().
-			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0)).
+			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
+			AddArgument(cadence.UFix64(0_00000000)).
+			AddArgument(cadence.NewAddress(joshAddress)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -109,7 +112,9 @@ func TestExternalTransfers(t *testing.T) {
 
 	t.Run("Shouldn't be able to withdraw more than the balance of the Vault", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 30000)).
+			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
+			AddArgument(cadence.UFix64(30000_00000000)).
+			AddArgument(cadence.NewAddress(joshAddress)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -130,7 +135,9 @@ func TestExternalTransfers(t *testing.T) {
 
 	t.Run("Should be able to withdraw and deposit tokens from a vault", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300)).
+			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
+			AddArgument(cadence.UFix64(300_00000000)).
+			AddArgument(cadence.NewAddress(joshAddress)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -168,7 +175,9 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		tx = flow.NewTransaction().
-			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300)).
+			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
+			AddArgument(cadence.UFix64(300_00000000)).
+			AddArgument(cadence.NewAddress(joshAddress)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -217,7 +226,9 @@ func TestVaultDestroy(t *testing.T) {
 	)
 
 	tx = flow.NewTransaction().
-		SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300)).
+		SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
+		AddArgument(cadence.UFix64(300_00000000)).
+		AddArgument(cadence.NewAddress(joshAddress)).
 		SetGasLimit(100).
 		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
