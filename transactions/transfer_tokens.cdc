@@ -5,10 +5,10 @@
 // The withdraw amount and the account from getAccount
 // would be the parameters to the transaction
 
-import FungibleToken from 0x02
-import ExampleToken from 0x03
+import FungibleToken from 0xee82856bf20e2aa6
+import ExampleToken from 0xTOKENADDRESS
 
-transaction {
+transaction(amount: UFix64, to: Address) {
 
     // The Vault resource that holds the tokens that are being transferred
     let sentVault: @FungibleToken.Vault
@@ -16,26 +16,24 @@ transaction {
     prepare(signer: AuthAccount) {
 
         // Get a reference to the signer's stored vault
-        let storedVault = signer.borrow<&ExampleToken.Vault>(from: /storage/exampleTokenVault)
-            ?? panic("Unable to borrow a reference to the sender's Vault")
+        let vaultRef = signer.borrow<&ExampleToken.Vault>(from: /storage/exampleTokenVault)
+			?? panic("Could not borrow reference to the owner's Vault!")
 
-        // Withdraw 10 tokens from the signer's stored vault
-        self.sentVault <- storedVault.withdraw(amount: 10.0)
+        // Withdraw tokens from the signer's stored vault
+        self.sentVault <- vaultRef.withdraw(amount: amount)
     }
 
     execute {
 
         // Get the recipient's public account object
-        let recipient = getAccount(0x04)
+        let recipient = getAccount(to)
 
         // Get a reference to the recipient's Receiver
-        let receiver = recipient
-            .getCapability(/public/exampleTokenReceiver)!
-            .borrow<&ExampleToken.Vault{FungibleToken.Receiver}>()
-            ?? panic("Unable to borrow receiver reference for recipient")
+        let receiverRef = recipient.getCapability(/public/exampleTokenReceiver)!.borrow<&{FungibleToken.Receiver}>()
+			?? panic("Could not borrow receiver reference to the recipient's Vault")
 
         // Deposit the withdrawn tokens in the recipient's receiver
-        receiver.deposit(from: <-self.sentVault)
+        receiverRef.deposit(from: <-self.sentVault)
     }
 }
  

@@ -1,11 +1,28 @@
 package templates
 
+//go:generate go run github.com/kevinburke/go-bindata/go-bindata -prefix ../../../transactions -o internal/assets/assets.go -pkg assets -nometadata -nomemcopy ../../../transactions
+
 import (
 	"bytes"
 	"fmt"
 	"strings"
 
 	"github.com/onflow/flow-go-sdk"
+
+	"github.com/onflow/flow-ft/lib/go/templates/internal/assets"
+)
+
+const (
+	defaultTokenName         = "ExampleToken"
+	defaultTokenStorage      = "exampleToken"
+	defaultFungibleTokenAddr = "ee82856bf20e2aa6"
+	defaultTokenAddr         = "TOKENADDRESS"
+
+	transferTokensFilename  = "transfer_tokens.cdc"
+	setupAccountFilename    = "setup_account.cdc"
+	mintTokensFilename      = "mint_tokens.cdc"
+	createForwarderFilename = "create_forwarder.cdc"
+	burnTokensFilename      = "burn_tokens.cdc"
 )
 
 // GenerateCreateTokenScript creates a script that instantiates
@@ -61,31 +78,38 @@ func GenerateDestroyVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName 
 
 // GenerateTransferVaultScript creates a script that withdraws an tokens from an account
 // and deposits it to another account's vault
-func GenerateTransferVaultScript(fungibleAddr, tokenAddr flow.Address, receiverAddr flow.Address, tokenName string, amount int) []byte {
+func GenerateTransferVaultScript(fungibletokenAddr, tokenAddr flow.Address, tokenName string) []byte {
 	storageName := MakeFirstLowerCase(tokenName)
 
-	template := `
-		import FungibleToken from 0x%s 
-		import %s from 0x%s
+	code := assets.MustAssetString(transferTokensFilename)
 
-		transaction {
-			prepare(acct: AuthAccount) {
-				let recipient = getAccount(0x%s)
+	code = strings.ReplaceAll(
+		code,
+		"0x"+defaultFungibleTokenAddr,
+		"0x"+fungibletokenAddr.String(),
+	)
 
-				let providerRef = acct.borrow<&{FungibleToken.Provider}>(from: /storage/%sVault)
-					?? panic("Could not borrow Provider reference to the Vault!")
+	code = strings.ReplaceAll(
+		code,
+		"0x"+defaultTokenAddr,
+		"0x"+tokenAddr.String(),
+	)
 
-				let receiverRef = recipient.getCapability(/public/%sReceiver)!.borrow<&{FungibleToken.Receiver}>()
-					?? panic("Could not borrow receiver reference to the recipient's Vault")
+	code = strings.ReplaceAll(
+		code,
+		defaultTokenName,
+		tokenName,
+	)
 
-				let tokens <- providerRef.withdraw(amount: %d.0)
+	code = strings.ReplaceAll(
+		code,
+		defaultTokenStorage,
+		storageName,
+	)
 
-				receiverRef.deposit(from: <-tokens)
-			}
-		}
-	`
+	//fmt.Println(code)
 
-	return []byte(fmt.Sprintf(template, fungibleAddr, tokenName, tokenAddr, receiverAddr, storageName, storageName, amount))
+	return []byte(code)
 }
 
 // GenerateMintTokensScript creates a script that uses the admin resource
