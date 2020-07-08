@@ -90,12 +90,13 @@ func TestExternalTransfers(t *testing.T) {
 
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
-			AddArgument(cadence.UFix64(0_00000000)).
-			AddArgument(cadence.NewAddress(joshAddress)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
+
+		_ = tx.AddArgument(cadence.UFix64(0_00000000))
+		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
 
 		signAndSubmit(
 			t, b, tx,
@@ -113,12 +114,13 @@ func TestExternalTransfers(t *testing.T) {
 	t.Run("Shouldn't be able to withdraw more than the balance of the Vault", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
-			AddArgument(cadence.UFix64(30000_00000000)).
-			AddArgument(cadence.NewAddress(joshAddress)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
+
+		_ = tx.AddArgument(cadence.UFix64(30000_00000000))
+		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
 
 		signAndSubmit(
 			t, b, tx,
@@ -136,12 +138,13 @@ func TestExternalTransfers(t *testing.T) {
 	t.Run("Should be able to withdraw and deposit tokens from a vault", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
-			AddArgument(cadence.UFix64(300_00000000)).
-			AddArgument(cadence.NewAddress(joshAddress)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
+
+		_ = tx.AddArgument(cadence.UFix64(300_00000000))
+		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
 
 		signAndSubmit(
 			t, b, tx,
@@ -176,12 +179,13 @@ func TestExternalTransfers(t *testing.T) {
 
 		tx = flow.NewTransaction().
 			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
-			AddArgument(cadence.UFix64(300_00000000)).
-			AddArgument(cadence.NewAddress(joshAddress)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
+
+		_ = tx.AddArgument(cadence.UFix64(300_00000000))
+		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
 
 		signAndSubmit(
 			t, b, tx,
@@ -227,12 +231,13 @@ func TestVaultDestroy(t *testing.T) {
 
 	tx = flow.NewTransaction().
 		SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
-		AddArgument(cadence.UFix64(300_00000000)).
-		AddArgument(cadence.NewAddress(joshAddress)).
 		SetGasLimit(100).
 		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
 		AddAuthorizer(exampleTokenAddr)
+
+	_ = tx.AddArgument(cadence.UFix64(300_00000000))
+	_ = tx.AddArgument(cadence.NewAddress(joshAddress))
 
 	signAndSubmit(
 		t, b, tx,
