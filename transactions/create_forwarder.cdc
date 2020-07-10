@@ -23,32 +23,22 @@ Steps to set up accounts with token forwarder:
     getting the Receiver from the account that is the recipient.
 */
 
-import FungibleToken from 0xee82856bf20e2aa6
-import FlowToken from 0x03
-import TokenForwarding from 0x04
+import FungibleToken from 0xFUNGIBLETOKENADDRESS
+import ExampleToken from 0xTOKENADDRESS
+import TokenForwarding from 0xFORWARDINGADDRESS
 
-transaction {
+transaction(receiver: Address) {
 
-    prepare(signer: AuthAccount) {
+    prepare(acct: AuthAccount) {
+        let recipient = getAccount(receiver).getCapability<&{FungibleToken.Receiver}>(/public/exampleTokenReceiver)!
 
-        let recipient = getAccount(0x04)
+        let vault <- TokenForwarding.createNewForwarder(recipient: recipient)
+        acct.save(<-vault, to: /storage/exampleTokenForwarder)
 
-        // Get a Receiver reference for the account that will be the recipient of the forwarded tokens
-
-        let recipientReceiver = recipient
-            .getCapability(/public/flowTokenReceiver)!
-            .borrow<&FlowToken.Vault{FungibleToken.Receiver}>()
-            ?? panic("Could not borrow receiver reference from the capability")
-
-        // Create a new Forwarder resource and store it in the signer's storage
-        let forwarder <- TokenForwarding.createNewForwarder(recipient: recipientReceiver)
-        signer.save(<-forwarder, to: /storage/flowTokenReceiver)
-
-        // Publish a Receiver capability for the signer, which is linked to the Forwarder
-        signer.link<&FlowToken.Vault{FungibleToken.Receiver}>(
-            /public/flowTokenReceiver,
-            target: /storage/flowTokenReceiver
-        )
+        if acct.getCapability(/public/exampleTokenReceiver)!.borrow<&{FungibleToken.Receiver}>() != nil {
+            acct.unlink(/public/exampleTokenReceiver)
+        }
+        acct.link<&{FungibleToken.Receiver}>(/public/exampleTokenReceiver, target: /storage/exampleTokenForwarder)
     }
 }
  

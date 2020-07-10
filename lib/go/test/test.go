@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/onflow/cadence"
 	"github.com/onflow/cadence/runtime/cmd"
 	"github.com/onflow/flow-go-sdk"
 
@@ -84,12 +85,14 @@ func Submit(
 }
 
 // executeScriptAndCheck executes a script and checks to make sure that it succeeded.
-func executeScriptAndCheck(t *testing.T, b *emulator.Blockchain, script []byte) {
+func executeScriptAndCheck(t *testing.T, b *emulator.Blockchain, script []byte) cadence.Value {
 	result, err := b.ExecuteScript(script, nil)
 	require.NoError(t, err)
 	if !assert.True(t, result.Succeeded()) {
 		t.Log(result.Error.Error())
 	}
+
+	return result.Value
 }
 
 func readFile(path string) []byte {

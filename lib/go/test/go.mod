@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/dapperlabs/flow-emulator v0.5.0
-	github.com/onflow/cadence v0.5.0
+	github.com/onflow/cadence v0.5.1
 	github.com/onflow/flow v0.1.4-0.20200601215056-34a11def1d6b // indirect
 	github.com/onflow/flow-ft/contracts v0.1.3
 	github.com/onflow/flow-ft/lib/go/contracts v0.1.3

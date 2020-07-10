@@ -3,14 +3,14 @@
 // to add a Vault resource to their account
 // so that they can use the exampleToken
 
-import FungibleToken from 0x02
-import ExampleToken from 0x03
+import FungibleToken from 0xFUNGIBLETOKENADDRESS
+import ExampleToken from 0xTOKENADDRESS
 
 transaction {
 
     prepare(signer: AuthAccount) {
 
-        if signer.borrow<&ExampleToken.Vault>(from: /storage/exampleTokenVault) != nil {
+        if signer.borrow<&ExampleToken.Vault>(from: /storage/exampleTokenVault) == nil {
             // Create a new exampleToken Vault and put it in storage
             signer.save(<-ExampleToken.createEmptyVault(), to: /storage/exampleTokenVault)
 
