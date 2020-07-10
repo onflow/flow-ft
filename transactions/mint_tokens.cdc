@@ -26,7 +26,7 @@ transaction {
 
     execute {
         let minter <- self.tokenAdmin.createNewMinter(allowedAmount: 100.0)
-        let mintedVault <- minter.mintTokens(amount: 10)
+        let mintedVault <- minter.mintTokens(amount: 10.0)
 
         self.tokenReceiver.deposit(from: <-mintedVault)
 
