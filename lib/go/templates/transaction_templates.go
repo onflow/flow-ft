@@ -30,29 +30,12 @@ const (
 func replaceAddresses(code string, fungibleAddr, tokenAddr, tokenName string) string {
 	storageName := MakeFirstLowerCase(tokenName)
 
-	code = strings.ReplaceAll(
-		code,
-		"0x"+defaultFungibleTokenAddr,
-		"0x"+fungibleAddr,
-	)
+	replacer := strings.NewReplacer("0x"+defaultFungibleTokenAddr, "0x"+fungibleAddr,
+		"0x"+defaultTokenAddr, "0x"+tokenAddr,
+		defaultTokenName, tokenName,
+		defaultTokenStorage, storageName)
 
-	code = strings.ReplaceAll(
-		code,
-		"0x"+defaultTokenAddr,
-		"0x"+tokenAddr,
-	)
-
-	code = strings.ReplaceAll(
-		code,
-		defaultTokenName,
-		tokenName,
-	)
-
-	code = strings.ReplaceAll(
-		code,
-		defaultTokenStorage,
-		storageName,
-	)
+	code = replacer.Replace(code)
 
 	return code
 }

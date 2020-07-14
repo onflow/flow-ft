@@ -102,3 +102,14 @@ func readFile(path string) []byte {
 	}
 	return contents
 }
+
+// CadenceUFix64 returns a UFix64 value
+func CadenceUFix64(value string) cadence.Value {
+	newValue, err := cadence.NewUFix64(value)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return newValue
+}
