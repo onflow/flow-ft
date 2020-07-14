@@ -4,10 +4,10 @@
 //
 // The burning amount would be a parameter to the transaction
 
-import FungibleToken from 0xee82856bf20e2aa6
-import ExampleToken from 0x03
+import FungibleToken from 0xFUNGIBLETOKENADDRESS
+import ExampleToken from 0xTOKENADDRESS
 
-transaction {
+transaction(amount: UFix64) {
 
     // Vault resource that holds the tokens that are being burned
     let vault: @FungibleToken.Vault
@@ -18,7 +18,7 @@ transaction {
 
         // Withdraw 10 tokens from the admin vault in storage
         self.vault <- signer.borrow<&ExampleToken.Vault>(from: /storage/exampleTokenVault)!
-            .withdraw(amount: UFix64(10.0))
+            .withdraw(amount: amount)
 
         // Create a reference to the admin admin resource in storage
         self.admin = signer.borrow<&ExampleToken.Administrator>(from: /storage/exampleTokenAdmin)

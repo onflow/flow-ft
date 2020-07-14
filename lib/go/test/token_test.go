@@ -5,8 +5,10 @@ import (
 
 	emulator "github.com/dapperlabs/flow-emulator"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/onflow/cadence"
+	jsoncdc "github.com/onflow/cadence/encoding/json"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
 	"github.com/onflow/flow-go-sdk/test"
@@ -14,6 +16,35 @@ import (
 	"github.com/onflow/flow-ft/lib/go/contracts"
 	"github.com/onflow/flow-ft/lib/go/templates"
 )
+
+func DeployTokenContracts(b *emulator.Blockchain, t *testing.T, key []*flow.AccountKey) (flow.Address, flow.Address, flow.Address) {
+
+	// Should be able to deploy a contract as a new account with no keys.
+	fungibleTokenCode := contracts.FungibleToken()
+	fungibleAddr, err := b.CreateAccount(nil, fungibleTokenCode)
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
+	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String())
+
+	tokenAddr, err := b.CreateAccount(key, []byte(exampleTokenCode))
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
+	forwardingCode := contracts.TokenForwarding(fungibleAddr.String())
+
+	forwardingAddr, err := b.CreateAccount(key, []byte(forwardingCode))
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
+	return fungibleAddr, tokenAddr, forwardingAddr
+}
 
 func TestTokenDeployment(t *testing.T) {
 	b := newEmulator()
@@ -24,7 +55,8 @@ func TestTokenDeployment(t *testing.T) {
 	fungibleAddr, exampleTokenAddr, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	t.Run("Should have initialized Supply field correctly", func(t *testing.T) {
-		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
+		supply := executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken"))
+		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("1000.0"))
 	})
 }
 
@@ -54,9 +86,17 @@ func TestCreateToken(t *testing.T) {
 			false,
 		)
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
+		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(joshAddress))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("0.0"))
+
+		supply := executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken"))
+		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("1000.0"))
 	})
 }
 
@@ -90,12 +130,13 @@ func TestExternalTransfers(t *testing.T) {
 
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
-			AddArgument(cadence.UFix64(0_00000000)).
-			AddArgument(cadence.NewAddress(joshAddress)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
+
+		_ = tx.AddArgument(CadenceUFix64("0.0"))
+		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
 
 		signAndSubmit(
 			t, b, tx,
@@ -105,20 +146,33 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
+		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(exampleTokenAddr))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("1000.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
+		result, err = b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(joshAddress))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance = result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("0.0"))
 	})
 
 	t.Run("Shouldn't be able to withdraw more than the balance of the Vault", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
-			AddArgument(cadence.UFix64(30000_00000000)).
-			AddArgument(cadence.NewAddress(joshAddress)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
+
+		_ = tx.AddArgument(CadenceUFix64("30000.0"))
+		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
 
 		signAndSubmit(
 			t, b, tx,
@@ -128,20 +182,33 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
+		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(exampleTokenAddr))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("1000.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
+		result, err = b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(joshAddress))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance = result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("0.0"))
 	})
 
 	t.Run("Should be able to withdraw and deposit tokens from a vault", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
-			AddArgument(cadence.UFix64(300_00000000)).
-			AddArgument(cadence.NewAddress(joshAddress)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
+
+		_ = tx.AddArgument(CadenceUFix64("300.0"))
+		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
 
 		signAndSubmit(
 			t, b, tx,
@@ -151,11 +218,24 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 700))
+		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(exampleTokenAddr))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("700.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300))
+		result, err = b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(joshAddress))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance = result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("300.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
+		supply := executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken"))
+		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("1000.0"))
 	})
 
 	t.Run("Should be able to transfer tokens through a forwarder from a vault", func(t *testing.T) {
@@ -167,6 +247,8 @@ func TestExternalTransfers(t *testing.T) {
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(joshAddress)
 
+		_ = tx.AddArgument(cadence.NewAddress(exampleTokenAddr))
+
 		signAndSubmit(
 			t, b, tx,
 			[]flow.Address{b.ServiceKey().Address, joshAddress},
@@ -176,12 +258,13 @@ func TestExternalTransfers(t *testing.T) {
 
 		tx = flow.NewTransaction().
 			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
-			AddArgument(cadence.UFix64(300_00000000)).
-			AddArgument(cadence.NewAddress(joshAddress)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
+
+		_ = tx.AddArgument(CadenceUFix64("300.0"))
+		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
 
 		signAndSubmit(
 			t, b, tx,
@@ -191,11 +274,24 @@ func TestExternalTransfers(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 700))
+		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(exampleTokenAddr))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("700.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 300))
+		result, err = b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(joshAddress))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance = result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("300.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
+		supply := executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken"))
+		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("1000.0"))
 	})
 }
 
@@ -227,12 +323,13 @@ func TestVaultDestroy(t *testing.T) {
 
 	tx = flow.NewTransaction().
 		SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
-		AddArgument(cadence.UFix64(300_00000000)).
-		AddArgument(cadence.NewAddress(joshAddress)).
 		SetGasLimit(100).
 		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
 		AddAuthorizer(exampleTokenAddr)
+
+	_ = tx.AddArgument(CadenceUFix64("300.0"))
+	_ = tx.AddArgument(cadence.NewAddress(joshAddress))
 
 	signAndSubmit(
 		t, b, tx,
@@ -257,9 +354,16 @@ func TestVaultDestroy(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 600))
+		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(exampleTokenAddr))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("600.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 900))
+		supply := executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken"))
+		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("900.0"))
 	})
 
 	t.Run("Should subtract tokens from supply when they are destroyed by a different account", func(t *testing.T) {
@@ -278,9 +382,16 @@ func TestVaultDestroy(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 200))
+		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(joshAddress))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("200.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 800))
+		supply := executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken"))
+		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("800.0"))
 	})
 
 }
@@ -313,11 +424,14 @@ func TestMintingAndBurning(t *testing.T) {
 
 	t.Run("Shouldn't be able to mint zero tokens", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0)).
+			SetScript(templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
+
+		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
+		_ = tx.AddArgument(CadenceUFix64("0.0"))
 
 		signAndSubmit(
 			t, b, tx,
@@ -327,21 +441,37 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
+		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(exampleTokenAddr))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("1000.0"))
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
+		result, err = b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(joshAddress))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance = result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("0.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
+		supply := executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken"))
+		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("1000.0"))
 	})
 
 	t.Run("Shouldn't be able to mint more than the allowed amount", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 101)).
+			SetScript(templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
+
+		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
+		_ = tx.AddArgument(CadenceUFix64("101.0"))
 
 		signAndSubmit(
 			t, b, tx,
@@ -351,21 +481,37 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
+		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(exampleTokenAddr))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("1000.0"))
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 0))
+		result, err = b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(joshAddress))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance = result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("0.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
+		supply := executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken"))
+		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("1000.0"))
 	})
 
 	t.Run("Should mint tokens, deposit, and update balance and total supply", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 50)).
+			SetScript(templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
+
+		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
+		_ = tx.AddArgument(CadenceUFix64("50.0"))
 
 		signAndSubmit(
 			t, b, tx,
@@ -375,21 +521,36 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 1000))
+		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(exampleTokenAddr))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("1000.0"))
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, joshAddress, "ExampleToken", 50))
+		result, err = b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(joshAddress))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance = result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("50.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1050))
+		supply := executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken"))
+		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("1050.0"))
 	})
 
 	t.Run("Should burn tokens and update balance and total supply", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(templates.GenerateBurnTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 50)).
+			SetScript(templates.GenerateBurnTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
+
+		_ = tx.AddArgument(CadenceUFix64("50.0"))
 
 		signAndSubmit(
 			t, b, tx,
@@ -399,39 +560,17 @@ func TestMintingAndBurning(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken", 950))
+		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(exampleTokenAddr))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("950.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 1000))
+		supply := executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken"))
+		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("1000.0"))
 	})
-}
-
-func DeployTokenContracts(b *emulator.Blockchain, t *testing.T, key []*flow.AccountKey) (flow.Address, flow.Address, flow.Address) {
-
-	// Should be able to deploy a contract as a new account with no keys.
-	fungibleTokenCode := contracts.FungibleToken()
-	fungibleAddr, err := b.CreateAccount(nil, fungibleTokenCode)
-	assert.NoError(t, err)
-
-	_, err = b.CommitBlock()
-	assert.NoError(t, err)
-
-	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String())
-
-	tokenAddr, err := b.CreateAccount(key, []byte(exampleTokenCode))
-	assert.NoError(t, err)
-
-	_, err = b.CommitBlock()
-	assert.NoError(t, err)
-
-	forwardingCode := contracts.TokenForwarding(fungibleAddr.String())
-
-	forwardingAddr, err := b.CreateAccount(key, []byte(forwardingCode))
-	assert.NoError(t, err)
-
-	_, err = b.CommitBlock()
-	assert.NoError(t, err)
-
-	return fungibleAddr, tokenAddr, forwardingAddr
 }
 
 func TestCreateCustomToken(t *testing.T) {
@@ -482,18 +621,28 @@ func TestCreateCustomToken(t *testing.T) {
 			false,
 		)
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, joshAddress, "UtilityCoin", 0))
+		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, "UtilityCoin"), [][]byte{jsoncdc.MustEncode(cadence.Address(joshAddress))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("0.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin", 1000))
+		supply := executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin"))
+		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("1000.0"))
 	})
 
 	t.Run("Should mint tokens, deposit, and update balance and total supply", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(templates.GenerateMintTokensScript(fungibleAddr, tokenAddr, joshAddress, "UtilityCoin", 50)).
+			SetScript(templates.GenerateMintTokensScript(fungibleAddr, tokenAddr, "UtilityCoin")).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(tokenAddr)
+
+		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
+		_ = tx.AddArgument(CadenceUFix64("50.0"))
 
 		signAndSubmit(
 			t, b, tx,
@@ -503,12 +652,25 @@ func TestCreateCustomToken(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, tokenAddr, "UtilityCoin", 1000))
+		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, "UtilityCoin"), [][]byte{jsoncdc.MustEncode(cadence.Address(tokenAddr))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("1000.0"))
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, joshAddress, "UtilityCoin", 50))
+		result, err = b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, "UtilityCoin"), [][]byte{jsoncdc.MustEncode(cadence.Address(joshAddress))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance = result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("50.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin", 1050))
+		supply := executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin"))
+		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("1050.0"))
 	})
 
 	t.Run("Shouldn't be able to transfer token from a vault to a differenly typed vault", func(t *testing.T) {
@@ -527,12 +689,26 @@ func TestCreateCustomToken(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, tokenAddr, "UtilityCoin", 1000))
+		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, "UtilityCoin"), [][]byte{jsoncdc.MustEncode(cadence.Address(tokenAddr))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("1000.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectVaultScript(fungibleAddr, badTokenAddr, badTokenAddr, "BadCoin", 1000))
+		result, err = b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, badTokenAddr, "BadCoin"), [][]byte{jsoncdc.MustEncode(cadence.Address(badTokenAddr))})
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance = result.Value
+		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("1000.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin", 1050))
+		supply := executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin"))
+		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("1050.0"))
 
-		executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, badTokenAddr, "BadCoin", 1000))
+		supply = executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, badTokenAddr, "BadCoin"))
+		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("1000.0"))
 	})
 }
