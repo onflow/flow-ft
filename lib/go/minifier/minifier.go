@@ -67,7 +67,15 @@ func minify(inputFile, outputFile string) error {
 		if line == "" || strings.HasPrefix(line, commentsPrefix) {
 			continue
 		}
-		_, err = writer.WriteString(line + "\n")
+		_, err = writer.WriteString(line)
+		if err != nil {
+			return err
+		}
+
+		_, err = writer.WriteRune('\n')
+		if err != nil {
+			return err
+		}
 		if err != nil {
 			return err
 		}
