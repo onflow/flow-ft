@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -29,13 +28,14 @@ receiverRef.deposit(from: <-self.sentVault)
 `
 // Test to test the minifier function
 func TestMinify(t *testing.T) {
-	inputFile := "../../../transactions/transfer_tokens.cdc"
+	inputFileName := "../../../transactions/transfer_tokens.cdc"
 	outputFile, err := ioutil.TempFile("", "minified*.cdc")
 	require.NoError(t, err)
-	defer os.Remove(outputFile.Name())
-	err = minify(inputFile, outputFile.Name())
+	outputFileName := outputFile.Name()
+	defer os.Remove(outputFileName)
+	err = minify(inputFileName, outputFileName)
 	require.NoError(t, err)
-	output, err := ioutil.ReadFile(outputFile.Name())
+	actualOutput, err := ioutil.ReadFile(outputFileName)
 	require.NoError(t, err)
-	assert.Equal(t, expectedOutput, string(output))
+	assert.Equal(t, expectedOutput, string(actualOutput))
 }
