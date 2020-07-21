@@ -32,7 +32,6 @@ func TestMinify(t *testing.T) {
 	inputFile := "../../../transactions/transfer_tokens.cdc"
 	outputFile, err := ioutil.TempFile("", "minified*.cdc")
 	require.NoError(t, err)
-	fmt.Println(outputFile.Name())
 	defer os.Remove(outputFile.Name())
 	err = minify(inputFile, outputFile.Name())
 	require.NoError(t, err)
