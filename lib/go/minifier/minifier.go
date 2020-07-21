@@ -37,6 +37,7 @@ func main() {
 
 	log.Println("done")
 }
+
 func minify(inputFile, outputFile string) error {
 	input, err := os.Open(inputFile)
 	if err != nil {
