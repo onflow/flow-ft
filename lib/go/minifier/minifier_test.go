@@ -30,7 +30,7 @@ receiverRef.deposit(from: <-self.sentVault)
 // Test to test the minifier function
 func TestMinify(t *testing.T) {
 	inputFile := "../../../transactions/transfer_tokens.cdc"
-	outputFile, err := ioutil.TempFile("/tmp", "minified*.cdc")
+	outputFile, err := ioutil.TempFile("", "minified*.cdc")
 	require.NoError(t, err)
 	fmt.Println(outputFile.Name())
 	defer os.Remove(outputFile.Name())
