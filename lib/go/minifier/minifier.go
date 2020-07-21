@@ -64,7 +64,7 @@ func minify(inputFile, outputFile string) error {
 		}
 
 		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, commentsPrefix){
+		if line == "" || strings.HasPrefix(line, commentsPrefix) {
 			continue
 		}
 		_, err = writer.WriteString(line + "\n")
