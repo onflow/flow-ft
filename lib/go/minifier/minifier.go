@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const commentsPrefix  = "//"
+const commentsPrefix = "//"
 
 // A minifier to minify a Cadence script file. Currently, it only removes comments and new lines.
 // Usage: go run minifier.go -i inputfile.cdc -o outputfile.cdc
