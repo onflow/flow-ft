@@ -2,6 +2,7 @@ package test
 
 import (
 	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/onflow/flow-go-sdk/crypto"
@@ -76,7 +77,7 @@ func Submit(
 	} else {
 		if !assert.True(t, result.Succeeded()) {
 			t.Log(result.Error.Error())
-			cmd.PrettyPrintError(result.Error, "", map[string]string{"": ""})
+			cmd.PrettyPrintError(os.Stdout, result.Error, "", map[string]string{"": ""})
 		}
 	}
 

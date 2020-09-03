@@ -462,46 +462,6 @@ func TestMintingAndBurning(t *testing.T) {
 		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("1000.0"))
 	})
 
-	t.Run("Shouldn't be able to mint more than the allowed amount", func(t *testing.T) {
-		tx := flow.NewTransaction().
-			SetScript(templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
-			SetGasLimit(100).
-			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
-			SetPayer(b.ServiceKey().Address).
-			AddAuthorizer(exampleTokenAddr)
-
-		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
-		_ = tx.AddArgument(CadenceUFix64("101.0"))
-
-		signAndSubmit(
-			t, b, tx,
-			[]flow.Address{b.ServiceKey().Address, exampleTokenAddr},
-			[]crypto.Signer{b.ServiceKey().Signer(), exampleTokenSigner},
-			true,
-		)
-
-		// Assert that the vaults' balances are correct
-		result, err := b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(exampleTokenAddr))})
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
-		balance := result.Value
-		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("1000.0"))
-
-		// Assert that the vaults' balances are correct
-		result, err = b.ExecuteScript(templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken"), [][]byte{jsoncdc.MustEncode(cadence.Address(joshAddress))})
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
-		balance = result.Value
-		assert.Equal(t, balance.(cadence.UFix64), CadenceUFix64("0.0"))
-
-		supply := executeScriptAndCheck(t, b, templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken"))
-		assert.Equal(t, supply.(cadence.UFix64), CadenceUFix64("1000.0"))
-	})
-
 	t.Run("Should mint tokens, deposit, and update balance and total supply", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
