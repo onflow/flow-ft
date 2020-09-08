@@ -119,12 +119,7 @@ pub contract interface FungibleToken {
 
         /// deposit takes a Vault and deposits it into the implementing resource type
         ///
-        pub fun deposit(from: @Vault) {
-            pre {
-                from.balance > UFix64(0):
-                    "Deposit balance must be positive"
-            }
-        }
+        pub fun deposit(from: @Vault)
     }
 
     /// Balance
