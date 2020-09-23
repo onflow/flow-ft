@@ -119,12 +119,7 @@ pub contract interface FungibleToken {
 
         /// deposit takes a Vault and deposits it into the implementing resource type
         ///
-        pub fun deposit(from: @Vault) {
-            pre {
-                from.balance > UFix64(0):
-                    "Deposit balance must be positive"
-            }
-        }
+        pub fun deposit(from: @Vault)
     }
 
     /// Balance
@@ -135,7 +130,7 @@ pub contract interface FungibleToken {
     ///
     pub resource interface Balance {
 
-        /// The total balance of the account's tokens
+        /// The total balance of a vault
         ///
         pub var balance: UFix64
 
@@ -158,7 +153,7 @@ pub contract interface FungibleToken {
         // must define a concrete `Vault` resource that conforms to the `Provider`, `Receiver`,
         // and `Balance` interfaces, and declares their required fields and functions
 
-        /// The total balance of the accounts tokens
+        /// The total balance of the vault
         ///
         pub var balance: UFix64
 
@@ -198,7 +193,7 @@ pub contract interface FungibleToken {
     ///
     pub fun createEmptyVault(): @Vault {
         post {
-            result.balance == UFix64(0): "The newly created Vault must have zero balance"
+            result.balance == 0.0: "The newly created Vault must have zero balance"
         }
     }
 }
