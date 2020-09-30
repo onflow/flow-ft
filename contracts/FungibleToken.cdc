@@ -197,9 +197,3 @@ pub contract interface FungibleToken {
         }
     }
 }
-
-// This contract declaration is just here to allow us to deploy the FungibleToken
-// contract interface above, because contract interfaces cannot be deployed
-// on their own at the moment
-//
-pub contract Dummy {}
