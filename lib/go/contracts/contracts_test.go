@@ -3,13 +3,12 @@ package contracts_test
 import (
 	"testing"
 
-	"github.com/onflow/flow-go-sdk"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/onflow/flow-ft/lib/go/contracts"
 )
 
-var addrA = flow.HexToAddress("0A")
+const addrA = "0x0A"
 
 func TestFungibleTokenContract(t *testing.T) {
 	contract := contracts.FungibleToken()
@@ -17,25 +16,25 @@ func TestFungibleTokenContract(t *testing.T) {
 }
 
 func TestExampleTokenContract(t *testing.T) {
-	contract := contracts.ExampleToken(addrA.Hex())
+	contract := contracts.ExampleToken(addrA)
 	assert.NotNil(t, contract)
-	assert.Contains(t, string(contract), addrA.Hex())
+	assert.Contains(t, string(contract), addrA)
 }
 
 func TestCustomExampleTokenContract(t *testing.T) {
-	contract := contracts.CustomToken(addrA.Hex(), "UtilityCoin", "utilityCoin", "100.0")
+	contract := contracts.CustomToken(addrA, "UtilityCoin", "utilityCoin", "100.0")
 	assert.NotNil(t, contract)
-	assert.Contains(t, string(contract), addrA.Hex())
+	assert.Contains(t, string(contract), addrA)
 }
 
 func TestTokenForwardingContract(t *testing.T) {
-	contract := contracts.TokenForwarding(addrA.Hex())
+	contract := contracts.TokenForwarding(addrA)
 	assert.NotNil(t, contract)
-	assert.Contains(t, string(contract), addrA.Hex())
+	assert.Contains(t, string(contract), addrA)
 }
 
 func TestCustomTokenForwardingContract(t *testing.T) {
-	contract := contracts.CustomTokenForwarding(addrA.Hex(), "UtilityCoin", "utilityCoin")
+	contract := contracts.CustomTokenForwarding(addrA, "UtilityCoin", "utilityCoin")
 	assert.NotNil(t, contract)
-	assert.Contains(t, string(contract), addrA.Hex())
+	assert.Contains(t, string(contract), addrA)
 }

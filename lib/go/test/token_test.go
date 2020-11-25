@@ -3,7 +3,8 @@ package test
 import (
 	"testing"
 
-	emulator "github.com/dapperlabs/flow-emulator"
+	emulator "github.com/onflow/flow-emulator"
+	templates2 "github.com/onflow/flow-go-sdk/templates"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -21,7 +22,12 @@ func DeployTokenContracts(b *emulator.Blockchain, t *testing.T, key []*flow.Acco
 
 	// Should be able to deploy a contract as a new account with no keys.
 	fungibleTokenCode := contracts.FungibleToken()
-	fungibleAddr, err := b.CreateAccount(nil, fungibleTokenCode)
+	fungibleAddr, err := b.CreateAccount(nil, []templates2.Contract{
+		{
+			Name: "FungibleToken",
+			Source: string(fungibleTokenCode),
+		},
+	})
 	assert.NoError(t, err)
 
 	_, err = b.CommitBlock()
@@ -29,7 +35,12 @@ func DeployTokenContracts(b *emulator.Blockchain, t *testing.T, key []*flow.Acco
 
 	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String())
 
-	tokenAddr, err := b.CreateAccount(key, []byte(exampleTokenCode))
+	tokenAddr, err := b.CreateAccount(key, []templates2.Contract{
+		{
+			Name: "ExampleToken",
+			Source: string(exampleTokenCode),
+		},
+	})
 	assert.NoError(t, err)
 
 	_, err = b.CommitBlock()
@@ -37,7 +48,12 @@ func DeployTokenContracts(b *emulator.Blockchain, t *testing.T, key []*flow.Acco
 
 	forwardingCode := contracts.TokenForwarding(fungibleAddr.String())
 
-	forwardingAddr, err := b.CreateAccount(key, []byte(forwardingCode))
+	forwardingAddr, err := b.CreateAccount(key,[]templates2.Contract{
+		{
+			Name: "TokenForwarding",
+			Source: string(forwardingCode),
+		},
+	})
 	assert.NoError(t, err)
 
 	_, err = b.CommitBlock()
@@ -75,7 +91,7 @@ func TestCreateToken(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 			SetGasLimit(100).
-			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(joshAddress)
 
@@ -115,7 +131,7 @@ func TestExternalTransfers(t *testing.T) {
 	tx := flow.NewTransaction().
 		SetScript(templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 		SetGasLimit(100).
-		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
 		AddAuthorizer(joshAddress)
 
@@ -130,7 +146,7 @@ func TestExternalTransfers(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 			SetGasLimit(100).
-			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
 
@@ -166,7 +182,7 @@ func TestExternalTransfers(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 			SetGasLimit(100).
-			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
 
@@ -206,7 +222,7 @@ func TestExternalTransfers(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateCreateForwarderScript(fungibleAddr, forwardingAddr, exampleTokenAddr, "ExampleToken")).
 			SetGasLimit(100).
-			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(joshAddress)
 
@@ -222,7 +238,7 @@ func TestExternalTransfers(t *testing.T) {
 		tx = flow.NewTransaction().
 			SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 			SetGasLimit(100).
-			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
 
@@ -273,7 +289,7 @@ func TestVaultDestroy(t *testing.T) {
 	tx := flow.NewTransaction().
 		SetScript(templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 		SetGasLimit(100).
-		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
 		AddAuthorizer(joshAddress)
 
@@ -287,7 +303,7 @@ func TestVaultDestroy(t *testing.T) {
 	tx = flow.NewTransaction().
 		SetScript(templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 		SetGasLimit(100).
-		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
 		AddAuthorizer(exampleTokenAddr)
 
@@ -305,7 +321,7 @@ func TestVaultDestroy(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateDestroyVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 100)).
 			SetGasLimit(100).
-			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
 
@@ -333,7 +349,7 @@ func TestVaultDestroy(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateDestroyVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 100)).
 			SetGasLimit(100).
-			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(joshAddress)
 
@@ -374,7 +390,7 @@ func TestMintingAndBurning(t *testing.T) {
 	tx := flow.NewTransaction().
 		SetScript(templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 		SetGasLimit(100).
-		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
 		AddAuthorizer(joshAddress)
 
@@ -389,7 +405,7 @@ func TestMintingAndBurning(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 			SetGasLimit(100).
-			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
 
@@ -429,7 +445,7 @@ func TestMintingAndBurning(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 			SetGasLimit(100).
-			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
 
@@ -469,7 +485,7 @@ func TestMintingAndBurning(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateBurnTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken")).
 			SetGasLimit(100).
-			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
 
@@ -504,15 +520,24 @@ func TestCreateCustomToken(t *testing.T) {
 	exampleTokenAccountKey, tokenSigner := accountKeys.NewWithSigner()
 	// Should be able to deploy a contract as a new account with no keys.
 	fungibleTokenCode := contracts.FungibleToken()
-	fungibleAddr, err := b.CreateAccount(nil, fungibleTokenCode)
+	fungibleAddr, err := b.CreateAccount(nil, []templates2.Contract{
+		{
+			Name: "FungibleToken",
+			Source: string(fungibleTokenCode),
+		},
+	})
 	assert.NoError(t, err)
 
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
-	exampleTokenCode := contracts.CustomToken(fungibleAddr.String(), "UtilityCoin", "utilityCoin", "1000.0")
-
-	tokenAddr, err := b.CreateAccount([]*flow.AccountKey{exampleTokenAccountKey}, exampleTokenCode)
+	customTokenCode := contracts.CustomToken(fungibleAddr.String(), "UtilityCoin", "utilityCoin", "1000.0")
+	tokenAddr, err := b.CreateAccount([]*flow.AccountKey{exampleTokenAccountKey}, []templates2.Contract{
+		{
+			Name: "UtilityCoin",
+			Source: string(customTokenCode),
+		},
+	})
 	assert.NoError(t, err)
 
 	_, err = b.CommitBlock()
@@ -520,7 +545,12 @@ func TestCreateCustomToken(t *testing.T) {
 
 	badTokenCode := contracts.CustomToken(fungibleAddr.String(), "BadCoin", "badCoin", "1000.0")
 	badTokenAccountKey, _ := accountKeys.NewWithSigner()
-	badTokenAddr, err := b.CreateAccount([]*flow.AccountKey{badTokenAccountKey}, badTokenCode)
+	badTokenAddr, err := b.CreateAccount([]*flow.AccountKey{badTokenAccountKey}, []templates2.Contract{
+		{
+			Name: "BadCoin",
+			Source: string(badTokenCode),
+		},
+	})
 	assert.NoError(t, err)
 
 	_, err = b.CommitBlock()
@@ -533,7 +563,7 @@ func TestCreateCustomToken(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateCreateTokenScript(fungibleAddr, tokenAddr, "UtilityCoin")).
 			SetGasLimit(100).
-			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(joshAddress)
 
@@ -560,7 +590,7 @@ func TestCreateCustomToken(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateMintTokensScript(fungibleAddr, tokenAddr, "UtilityCoin")).
 			SetGasLimit(100).
-			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(tokenAddr)
 
@@ -600,7 +630,7 @@ func TestCreateCustomToken(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(templates.GenerateTransferInvalidVaultScript(fungibleAddr, tokenAddr, badTokenAddr, badTokenAddr, "UtilityCoin", "BadCoin", 20)).
 			SetGasLimit(100).
-			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().ID, b.ServiceKey().SequenceNumber).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(tokenAddr)
 
