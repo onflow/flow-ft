@@ -3,8 +3,8 @@ package test
 import (
 	"testing"
 
-	emulator "github.com/onflow/flow-emulator"
-	templates2 "github.com/onflow/flow-go-sdk/templates"
+	"github.com/onflow/flow-emulator"
+	sdktemplates "github.com/onflow/flow-go-sdk/templates"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -22,7 +22,7 @@ func DeployTokenContracts(b *emulator.Blockchain, t *testing.T, key []*flow.Acco
 
 	// Should be able to deploy a contract as a new account with no keys.
 	fungibleTokenCode := contracts.FungibleToken()
-	fungibleAddr, err := b.CreateAccount(nil, []templates2.Contract{
+	fungibleAddr, err := b.CreateAccount(nil, []sdktemplates.Contract{
 		{
 			Name: "FungibleToken",
 			Source: string(fungibleTokenCode),
@@ -35,7 +35,7 @@ func DeployTokenContracts(b *emulator.Blockchain, t *testing.T, key []*flow.Acco
 
 	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String())
 
-	tokenAddr, err := b.CreateAccount(key, []templates2.Contract{
+	tokenAddr, err := b.CreateAccount(key, []sdktemplates.Contract{
 		{
 			Name: "ExampleToken",
 			Source: string(exampleTokenCode),
@@ -48,7 +48,7 @@ func DeployTokenContracts(b *emulator.Blockchain, t *testing.T, key []*flow.Acco
 
 	forwardingCode := contracts.TokenForwarding(fungibleAddr.String())
 
-	forwardingAddr, err := b.CreateAccount(key,[]templates2.Contract{
+	forwardingAddr, err := b.CreateAccount(key,[]sdktemplates.Contract{
 		{
 			Name: "TokenForwarding",
 			Source: string(forwardingCode),
@@ -520,7 +520,7 @@ func TestCreateCustomToken(t *testing.T) {
 	exampleTokenAccountKey, tokenSigner := accountKeys.NewWithSigner()
 	// Should be able to deploy a contract as a new account with no keys.
 	fungibleTokenCode := contracts.FungibleToken()
-	fungibleAddr, err := b.CreateAccount(nil, []templates2.Contract{
+	fungibleAddr, err := b.CreateAccount(nil, []sdktemplates.Contract{
 		{
 			Name: "FungibleToken",
 			Source: string(fungibleTokenCode),
@@ -532,7 +532,7 @@ func TestCreateCustomToken(t *testing.T) {
 	assert.NoError(t, err)
 
 	customTokenCode := contracts.CustomToken(fungibleAddr.String(), "UtilityCoin", "utilityCoin", "1000.0")
-	tokenAddr, err := b.CreateAccount([]*flow.AccountKey{exampleTokenAccountKey}, []templates2.Contract{
+	tokenAddr, err := b.CreateAccount([]*flow.AccountKey{exampleTokenAccountKey}, []sdktemplates.Contract{
 		{
 			Name: "UtilityCoin",
 			Source: string(customTokenCode),
@@ -545,7 +545,7 @@ func TestCreateCustomToken(t *testing.T) {
 
 	badTokenCode := contracts.CustomToken(fungibleAddr.String(), "BadCoin", "badCoin", "1000.0")
 	badTokenAccountKey, _ := accountKeys.NewWithSigner()
-	badTokenAddr, err := b.CreateAccount([]*flow.AccountKey{badTokenAccountKey}, []templates2.Contract{
+	badTokenAddr, err := b.CreateAccount([]*flow.AccountKey{badTokenAccountKey}, []sdktemplates.Contract{
 		{
 			Name: "BadCoin",
 			Source: string(badTokenCode),
