@@ -272,9 +272,9 @@ type bintree struct {
 }
 
 var _bintree = &bintree{nil, map[string]*bintree{
-	"ExampleToken.cdc":    &bintree{exampletokenCdc, map[string]*bintree{}},
-	"FungibleToken.cdc":   &bintree{fungibletokenCdc, map[string]*bintree{}},
-	"TokenForwarding.cdc": &bintree{tokenforwardingCdc, map[string]*bintree{}},
+	"ExampleToken.cdc": {exampletokenCdc, map[string]*bintree{}},
+	"FungibleToken.cdc": {fungibletokenCdc, map[string]*bintree{}},
+	"TokenForwarding.cdc": {tokenforwardingCdc, map[string]*bintree{}},
 }}
 
 // RestoreAsset restores an asset under the given directory.
