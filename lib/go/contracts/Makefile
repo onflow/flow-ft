@@ -7,7 +7,7 @@ generate:
 	go generate
 
 .PHONY: check-tidy
-check-tidy:
+check-tidy: generate
 	go mod tidy
 	git diff --exit-code
 
