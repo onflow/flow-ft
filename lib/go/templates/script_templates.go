@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	scriptsPath         = "../../../transactions/scripts/"
+	scriptsPath         = "scripts/"
 	readBalanceFilename = "get_balance.cdc"
 	readSupplyFilename  = "get_supply.cdc"
 )
