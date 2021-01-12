@@ -37,7 +37,7 @@ pub contract TokenForwarding {
             let receiverRef = self.recipient.borrow<&{FungibleToken.Receiver}>()!
 
             let balance = from.balance
-          
+
             receiverRef.deposit(from: <-from)
 
             emit ForwardedDeposit(amount: balance, from: self.owner?.address)
