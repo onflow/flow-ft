@@ -6,14 +6,13 @@ transaction(recipient: Address, amount: UFix64) {
     let tokenReceiver: &{FungibleToken.Receiver}
 
     prepare(signer: AuthAccount) {
-        self.tokenAdmin = signer
-        .borrow<&ExampleToken.Administrator>(from: /storage/exampleTokenAdmin) 
-        ?? panic("Signer is not the token admin")
+        self.tokenAdmin = signer.borrow<&ExampleToken.Administrator>(from: /storage/exampleTokenAdmin)
+            ?? panic("Signer is not the token admin")
 
         self.tokenReceiver = getAccount(recipient)
-        .getCapability(/public/exampleTokenReceiver)!
-        .borrow<&{FungibleToken.Receiver}>()
-        ?? panic("Unable to borrow receiver reference")
+            .getCapability(/public/exampleTokenReceiver)
+            .borrow<&{FungibleToken.Receiver}>()
+            ?? panic("Unable to borrow receiver reference")
     }
 
     execute {
