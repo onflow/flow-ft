@@ -27,10 +27,9 @@ transaction(amount: UFix64) {
 
     execute {
         let burner <- self.admin.createNewBurner()
-        
+
         burner.burnTokens(from: <-self.vault)
 
         destroy burner
     }
 }
- 

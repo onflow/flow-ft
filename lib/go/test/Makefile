@@ -1,7 +1,6 @@
 .PHONY: test
 test:
-	go test ./...
+	go test -v ./...
 
 .PHONY: ci
-ci:
-	echo "TODO: enable unit tests once flow-emulator is public"
+ci: test

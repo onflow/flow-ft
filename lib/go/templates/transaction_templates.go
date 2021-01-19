@@ -1,6 +1,6 @@
 package templates
 
-//go:generate go run github.com/kevinburke/go-bindata/go-bindata -prefix ../../../transactions/... -o internal/assets/assets.go -pkg assets -nometadata -nomemcopy ../../../transactions/...
+//go:generate go run github.com/kevinburke/go-bindata/go-bindata -prefix ../../../transactions -o internal/assets/assets.go -pkg assets -nometadata -nomemcopy ../../../transactions/...
 
 import (
 	"bytes"
@@ -19,7 +19,6 @@ const (
 	defaultTokenAddr         = "TOKENADDRESS"
 	defaultForwardingAddr    = "FORWARDINGADDRESS"
 
-	transactionsPath        = "../../../transactions/"
 	transferTokensFilename  = "transfer_tokens.cdc"
 	setupAccountFilename    = "setup_account.cdc"
 	mintTokensFilename      = "mint_tokens.cdc"
@@ -46,7 +45,7 @@ func replaceAddresses(code string, fungibleAddr, tokenAddr, tokenName string) st
 // The Vault must have been deployed already.
 func GenerateCreateTokenScript(fungibleAddr, tokenAddr flow.Address, tokenName string) []byte {
 
-	code := assets.MustAssetString(transactionsPath + setupAccountFilename)
+	code := assets.MustAssetString(setupAccountFilename)
 
 	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
 
@@ -83,7 +82,7 @@ func GenerateDestroyVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName 
 // and deposits it to another account's vault
 func GenerateTransferVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName string) []byte {
 
-	code := assets.MustAssetString(transactionsPath + transferTokensFilename)
+	code := assets.MustAssetString(transferTokensFilename)
 
 	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
 
@@ -94,7 +93,7 @@ func GenerateTransferVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName
 // to mint new tokens and deposit them in a Vault
 func GenerateMintTokensScript(fungibleAddr, tokenAddr flow.Address, tokenName string) []byte {
 
-	code := assets.MustAssetString(transactionsPath + mintTokensFilename)
+	code := assets.MustAssetString(mintTokensFilename)
 
 	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
 
@@ -104,7 +103,7 @@ func GenerateMintTokensScript(fungibleAddr, tokenAddr flow.Address, tokenName st
 // GenerateBurnTokensScript creates a script that uses the admin resource
 // to destroy tokens and deposit them in a Vault
 func GenerateBurnTokensScript(fungibleAddr, tokenAddr flow.Address, tokenName string) []byte {
-	code := assets.MustAssetString(transactionsPath + burnTokensFilename)
+	code := assets.MustAssetString(burnTokensFilename)
 
 	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
 
@@ -146,7 +145,7 @@ func GenerateTransferInvalidVaultScript(fungibleAddr, tokenAddr, otherTokenAddr,
 // GenerateCreateForwarderScript creates a script that instantiates
 // a new forwarder instance in an account
 func GenerateCreateForwarderScript(fungibleAddr, forwardingAddr, tokenAddr flow.Address, tokenName string) []byte {
-	code := assets.MustAssetString(transactionsPath + createForwarderFilename)
+	code := assets.MustAssetString(createForwarderFilename)
 
 	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
 
