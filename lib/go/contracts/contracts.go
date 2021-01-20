@@ -9,11 +9,12 @@ import (
 )
 
 const (
-	fungibleTokenFilename       = "FungibleToken.cdc"
-	flowTokenFilename           = "FlowToken.cdc"
-	exampleTokenFilename        = "ExampleToken.cdc"
-	defaultFungibleTokenAddress = "FUNGIBLETOKENADDRESS"
-	tokenForwardingFilename     = "TokenForwarding.cdc"
+	fungibleTokenFilename            = "FungibleToken.cdc"
+	flowTokenFilename                = "FlowToken.cdc"
+	exampleTokenFilename             = "ExampleToken.cdc"
+	defaultFungibleTokenAddress      = "FUNGIBLETOKENADDRESS"
+	tokenForwardingFilename          = "utilityContracts/TokenForwarding.cdc"
+	privateReceiverForwarderFilename = "PrivateReceiverForwarder.cdc"
 )
 
 // FungibleToken returns the FungibleToken contract interface.
@@ -106,6 +107,18 @@ func CustomTokenForwarding(fungibleTokenAddr, tokenName, storageName string) []b
 		code,
 		"exampleToken",
 		storageName,
+	)
+
+	return []byte(code)
+}
+
+func PrivateReceiverForwarder(fungibleTokenAddr string) []byte {
+	code := assets.MustAssetString(privateReceiverForwarderFilename)
+
+	code = strings.ReplaceAll(
+		code,
+		"0x"+defaultFungibleTokenAddress,
+		"0x"+fungibleTokenAddr,
 	)
 
 	return []byte(code)

@@ -19,11 +19,12 @@ const (
 	defaultTokenAddr         = "TOKENADDRESS"
 	defaultForwardingAddr    = "FORWARDINGADDRESS"
 
-	transferTokensFilename  = "transfer_tokens.cdc"
-	setupAccountFilename    = "setup_account.cdc"
-	mintTokensFilename      = "mint_tokens.cdc"
-	createForwarderFilename = "create_forwarder.cdc"
-	burnTokensFilename      = "burn_tokens.cdc"
+	transferTokensFilename       = "transfer_tokens.cdc"
+	transferManyAccountsFilename = "transfer_many_accounts.cdc"
+	setupAccountFilename         = "setup_account.cdc"
+	mintTokensFilename           = "mint_tokens.cdc"
+	createForwarderFilename      = "create_forwarder.cdc"
+	burnTokensFilename           = "burn_tokens.cdc"
 )
 
 func replaceAddresses(code string, fungibleAddr, tokenAddr, tokenName string) string {
@@ -83,6 +84,17 @@ func GenerateDestroyVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName 
 func GenerateTransferVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName string) []byte {
 
 	code := assets.MustAssetString(transferTokensFilename)
+
+	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
+
+	return []byte(code)
+}
+
+// GenerateTransferManyAccountsScript creates a script that transfers the same number of tokens
+// to a list of accounts
+func GenerateTransferManyAccountsScript(fungibleAddr, tokenAddr flow.Address, tokenName string) []byte {
+
+	code := assets.MustAssetString(transferManyAccountsFilename)
 
 	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
 
