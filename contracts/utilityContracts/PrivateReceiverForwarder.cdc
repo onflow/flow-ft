@@ -7,7 +7,7 @@ whose deposit function is only callable by an admin through a public capability.
 
 */
 
-// import FungibleToken from 0xFUNGIBLETOKENADDRESS
+import FungibleToken from 0xFUNGIBLETOKENADDRESS
 
 pub contract PrivateReceiverForwarder {
 
@@ -24,7 +24,7 @@ pub contract PrivateReceiverForwarder {
         // This is where the deposited tokens will be sent.
         // The type indicates that it is a reference to a receiver
         //
-        access(self) var recipient: Capability
+        access(self) var recipient: Capability<&{FungibleToken.Receiver}>
 
         // deposit
         //
@@ -32,7 +32,7 @@ pub contract PrivateReceiverForwarder {
         // it to the recipient's Vault using the stored reference
         //
         access(contract) fun deposit(from: @FungibleToken.Vault) {
-            let receiverRef = self.recipient.borrow<&{FungibleToken.Receiver}>()!
+            let receiverRef = self.recipient.borrow()!
 
             let balance = from.balance
 
@@ -41,9 +41,9 @@ pub contract PrivateReceiverForwarder {
             emit PrivateDeposit(amount: balance, to: self.owner?.address)
         }
 
-        init(recipient: Capability) {
+        init(recipient: Capability<&{FungibleToken.Receiver}>) {
             pre {
-                recipient.borrow<&{FungibleToken.Receiver}>() != nil: "Could not borrow Receiver reference from the Capability"
+                recipient.borrow() != nil: "Could not borrow Receiver reference from the Capability"
             }
             self.recipient = recipient
         }
@@ -51,7 +51,7 @@ pub contract PrivateReceiverForwarder {
 
     // createNewForwarder creates a new Forwarder reference with the provided recipient
     //
-    pub fun createNewForwarder(recipient: Capability): @Forwarder {
+    pub fun createNewForwarder(recipient: Capability<&{FungibleToken.Receiver}>): @Forwarder {
         return <-create Forwarder(recipient: recipient)
     }
 
@@ -61,7 +61,7 @@ pub contract PrivateReceiverForwarder {
 
             let account = getAccount(address)
 
-            let privateReceiver = account.getCapability<@PrivateReceiverForwarder.Forwarder>(PrivateReceiverForwarder.PrivateReceiverPublicPath)!
+            let privateReceiver = account.getCapability<&PrivateReceiverForwarder.Forwarder>(PrivateReceiverForwarder.PrivateReceiverPublicPath)
                 .borrow() ?? panic("Could not borrow reference to private forwarder")
 
             privateReceiver.deposit(from: <-tokens)

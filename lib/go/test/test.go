@@ -120,3 +120,13 @@ func CadenceUFix64(value string) cadence.Value {
 
 	return newValue
 }
+
+func bytesToCadenceArray(b []byte) cadence.Array {
+	values := make([]cadence.Value, len(b))
+
+	for i, v := range b {
+		values[i] = cadence.NewUInt8(v)
+	}
+
+	return cadence.NewArray(values)
+}

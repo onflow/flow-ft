@@ -3,7 +3,6 @@ package test
 import (
 	"testing"
 
-	"github.com/onflow/flow-emulator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -11,7 +10,6 @@ import (
 	jsoncdc "github.com/onflow/cadence/encoding/json"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
-	sdktemplates "github.com/onflow/flow-go-sdk/templates"
 	"github.com/onflow/flow-go-sdk/test"
 
 	"github.com/onflow/flow-ft/lib/go/contracts"
@@ -28,56 +26,36 @@ func TestPrivateForwarder(t *testing.T) {
 		DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	forwardingCode := contracts.PrivateReceiverForwarder(fungibleAddr.String())
+	cadenceCode := bytesToCadenceArray(forwardingCode)
 
-	forwardingAccountKey, forwardingSigner := accountKeys.NewWithSigner()
-	forwardingAddr, err := b.CreateAccount(
-		[]*flow.AccountKey{forwardingAccountKey},
-		[]sdktemplates.Contract{
-			{
-				Name:   "PrivateReceiverForwarder",
-				Source: string(forwardingCode),
-			},
-		},
+	tx := flow.NewTransaction().
+		SetScript(templates.GenerateDeployPrivateForwardingScript()).
+		SetGasLimit(100).
+		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
+		SetPayer(b.ServiceKey().Address).
+		AddAuthorizer(exampleTokenAddr).
+		AddRawArgument(jsoncdc.MustEncode(cadence.NewString("PrivateReceiverForwarder"))).
+		AddRawArgument(jsoncdc.MustEncode(cadenceCode))
+
+	_ = tx.AddArgument(cadence.Path{Domain: "storage", Identifier: "privateForwardingSender"})
+	_ = tx.AddArgument(cadence.Path{Domain: "storage", Identifier: "privateForwardingStorage"})
+	_ = tx.AddArgument(cadence.Path{Domain: "public", Identifier: "privateForwardingPublic"})
+
+	signAndSubmit(
+		t, b, tx,
+		[]flow.Address{b.ServiceKey().Address, exampleTokenAddr},
+		[]crypto.Signer{b.ServiceKey().Signer(), exampleTokenSigner},
+		false,
 	)
-	assert.NoError(t, err)
-
-	_, err = b.CommitBlock()
-	assert.NoError(t, err)
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
 	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
 
-	// then deploy the tokens to an account
-	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
-	tx := flow.NewTransaction().
-		SetScript(script).
-		SetGasLimit(100).
-		SetProposalKey(
-			b.ServiceKey().Address,
-			b.ServiceKey().Index,
-			b.ServiceKey().SequenceNumber,
-		).
-		SetPayer(b.ServiceKey().Address).
-		AddAuthorizer(joshAddress)
+	t.Run("Should be able to set up an account to accept private deposits", func(t *testing.T) {
 
-	signAndSubmit(
-		t, b, tx,
-		[]flow.Address{
-			b.ServiceKey().Address,
-			joshAddress,
-		},
-		[]crypto.Signer{
-			b.ServiceKey().Signer(),
-			joshSigner,
-		},
-		false,
-	)
-
-	t.Run("Should be able to transfer tokens through a forwarder from a vault", func(t *testing.T) {
-
-		script := templates.GenerateCreateForwarderScript(
+		script := templates.GenerateSetupAccountPrivateForwarderScript(
 			fungibleAddr,
-			forwardingAddr,
+			exampleTokenAddr,
 			exampleTokenAddr,
 			"ExampleToken",
 		)
@@ -93,8 +71,6 @@ func TestPrivateForwarder(t *testing.T) {
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(joshAddress)
 
-		_ = tx.AddArgument(cadence.NewAddress(exampleTokenAddr))
-
 		signAndSubmit(
 			t, b, tx,
 			[]flow.Address{
@@ -107,8 +83,11 @@ func TestPrivateForwarder(t *testing.T) {
 			},
 			false,
 		)
+	})
 
-		script = templates.GenerateTransferVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+	t.Run("Should be able to transfer private tokens to an account", func(t *testing.T) {
+
+		script := templates.GenerateTransferPrivateManyAccountsScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken")
 		tx = flow.NewTransaction().
 			SetScript(script).
 			SetGasLimit(100).
@@ -121,7 +100,11 @@ func TestPrivateForwarder(t *testing.T) {
 			AddAuthorizer(exampleTokenAddr)
 
 		_ = tx.AddArgument(CadenceUFix64("300.0"))
-		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
+
+		recipientArray := make([]cadence.Value, 1)
+		recipientArray[0] = cadence.Address(joshAddress)
+
+		_ = tx.AddArgument(cadence.NewArray(recipientArray))
 
 		signAndSubmit(
 			t, b, tx,

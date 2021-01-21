@@ -2,13 +2,20 @@ import FungibleToken from 0xFUNGIBLETOKENADDRESS
 import ExampleToken from 0xTOKENADDRESS
 import PrivateReceiverForwarder from 0xPRIVATEFORWARDINGADDRESS
 
-transaction(receiver: Address) {
+// This transaction creates a new private receiver in an account that 
+// doesn't already have a private receiver or a public token receiver
+// but does already have a Vault
+
+transaction {
 
     prepare(acct: AuthAccount) {
-        let recipient = getAccount(receiver)
-            .getCapability<&{FungibleToken.Receiver}>(/public/exampleTokenReceiver)
+        receiverCapability = signer.link<&ExampleToken.Vault{FungibleToken.Receiver}>(
+            /private/exampleTokenReceiver,
+            target: /storage/exampleTokenVault
+        )
 
-        let vault <- PrivateReceiverForwarder.createNewForwarder(recipient: recipient)
+        let vault <- PrivateReceiverForwarder.createNewForwarder(recipient: receiverCapability)
+
         acct.save(<-vault, to: PrivateReceiverForwarder.PrivateReceiverStoragePath)
 
         signer.link<&{PrivateReceiverForwarder.Forwarder}>(

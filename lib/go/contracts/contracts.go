@@ -1,6 +1,6 @@
 package contracts
 
-//go:generate go run github.com/kevinburke/go-bindata/go-bindata -prefix ../../../contracts -o internal/assets/assets.go -pkg assets -nometadata -nomemcopy ../../../contracts
+//go:generate go run github.com/kevinburke/go-bindata/go-bindata -prefix ../../../contracts -o internal/assets/assets.go -pkg assets -nometadata -nomemcopy ../../../contracts/...
 
 import (
 	"strings"
@@ -14,7 +14,7 @@ const (
 	exampleTokenFilename             = "ExampleToken.cdc"
 	defaultFungibleTokenAddress      = "FUNGIBLETOKENADDRESS"
 	tokenForwardingFilename          = "utilityContracts/TokenForwarding.cdc"
-	privateReceiverForwarderFilename = "PrivateReceiverForwarder.cdc"
+	privateReceiverForwarderFilename = "utilityContracts/PrivateReceiverForwarder.cdc"
 )
 
 // FungibleToken returns the FungibleToken contract interface.

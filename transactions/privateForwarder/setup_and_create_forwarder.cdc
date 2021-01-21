@@ -3,6 +3,9 @@ import FungibleToken from 0xFUNGIBLETOKENADDRESS
 import ExampleToken from 0xTOKENADDRESS
 import PrivateReceiverForwarder from 0xPRIVATEFORWARDINGADDRESS
 
+// This transaction adds a Vault, a private receiver forwarder
+// a balance capability, and a public capability for the receiver
+
 transaction {
 
     prepare(signer: AuthAccount) {
@@ -15,10 +18,12 @@ transaction {
             )
         }
 
-        receiverCapability = signer.link<&ExampleToken.Vault{FungibleToken.Receiver}>(
+        signer.link<&{FungibleToken.Receiver}>(
             /private/exampleTokenReceiver,
             target: /storage/exampleTokenVault
         )
+
+        let receiverCapability = signer.getCapability<&{FungibleToken.Receiver}>(/private/exampleTokenReceiver)
 
         // Create a public capability to the Vault that only exposes
         // the balance field through the Balance interface
@@ -27,11 +32,11 @@ transaction {
             target: /storage/exampleTokenVault
         )
 
-        let vault <- PrivateReceiverForwarder.createNewForwarder(recipient: receiverCapability)
+        let forwarder <- PrivateReceiverForwarder.createNewForwarder(recipient: receiverCapability)
 
-        signer.save(<-vault, to: PrivateReceiverForwarder.PrivateReceiverStoragePath)
+        signer.save(<-forwarder, to: PrivateReceiverForwarder.PrivateReceiverStoragePath)
 
-        signer.link<&{PrivateReceiverForwarder.Forwarder}>(
+        signer.link<&PrivateReceiverForwarder.Forwarder>(
             PrivateReceiverForwarder.PrivateReceiverPublicPath,
             target: PrivateReceiverForwarder.PrivateReceiverStoragePath
         )

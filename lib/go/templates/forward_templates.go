@@ -11,10 +11,22 @@ import (
 )
 
 const (
+	deployPrivateForwardingFilanems = "privateForwarder/deploy_forwarder_contract.cdc"
+
 	createPrivateForwarderFilename       = "privateForwarder/create_private_forwarder.cdc"
 	setupAccountPrivateForwarderFilename = "privateForwarder/setup_and_create_forwarder.cdc"
 	transferPrivateManyAccountsFilename  = "privateForwarder/transfer_private_many_accounts.cdc"
 )
+
+const (
+	defaultPrivateForwardAddr = "PRIVATEFORWARDINGADDRESS"
+)
+
+func GenerateDeployPrivateForwardingScript() []byte {
+	code := assets.MustAssetString(deployPrivateForwardingFilanems)
+
+	return []byte(code)
+}
 
 // GenerateCreateForwarderScript creates a script that instantiates
 // a new forwarder instance in an account
@@ -25,7 +37,7 @@ func GenerateCreatePrivateForwarderScript(fungibleAddr, forwardingAddr, tokenAdd
 
 	code = strings.ReplaceAll(
 		code,
-		"0x"+defaultForwardingAddr,
+		"0x"+defaultPrivateForwardAddr,
 		"0x"+forwardingAddr.String(),
 	)
 
@@ -39,7 +51,7 @@ func GenerateSetupAccountPrivateForwarderScript(fungibleAddr, forwardingAddr, to
 
 	code = strings.ReplaceAll(
 		code,
-		"0x"+defaultForwardingAddr,
+		"0x"+defaultPrivateForwardAddr,
 		"0x"+forwardingAddr.String(),
 	)
 
@@ -53,7 +65,7 @@ func GenerateTransferPrivateManyAccountsScript(fungibleAddr, forwardingAddr, tok
 
 	code = strings.ReplaceAll(
 		code,
-		"0x"+defaultForwardingAddr,
+		"0x"+defaultPrivateForwardAddr,
 		"0x"+forwardingAddr.String(),
 	)
 

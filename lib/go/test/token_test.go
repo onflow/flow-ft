@@ -3,7 +3,7 @@ package test
 import (
 	"testing"
 
-	"github.com/onflow/flow-emulator"
+	emulator "github.com/onflow/flow-emulator"
 	sdktemplates "github.com/onflow/flow-go-sdk/templates"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -35,7 +35,7 @@ func DeployTokenContracts(
 		nil,
 		[]sdktemplates.Contract{
 			{
-				Name: "FungibleToken",
+				Name:   "FungibleToken",
 				Source: string(fungibleTokenCode),
 			},
 		},
@@ -51,7 +51,7 @@ func DeployTokenContracts(
 		key,
 		[]sdktemplates.Contract{
 			{
-				Name: "ExampleToken",
+				Name:   "ExampleToken",
 				Source: string(exampleTokenCode),
 			},
 		},
@@ -67,7 +67,7 @@ func DeployTokenContracts(
 		key,
 		[]sdktemplates.Contract{
 			{
-				Name: "TokenForwarding",
+				Name:   "TokenForwarding",
 				Source: string(forwardingCode),
 			},
 		},
@@ -314,6 +314,74 @@ func TestExternalTransfers(t *testing.T) {
 		assert.Equal(t, CadenceUFix64("1000.0"), supply)
 	})
 
+	t.Run("Should be able to transfer to multiple accounts ", func(t *testing.T) {
+		script := templates.GenerateTransferManyAccountsScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+
+		tx := flow.NewTransaction().
+			SetScript(script).
+			SetGasLimit(100).
+			SetProposalKey(
+				b.ServiceKey().Address,
+				b.ServiceKey().Index,
+				b.ServiceKey().SequenceNumber,
+			).
+			SetPayer(b.ServiceKey().Address).
+			AddAuthorizer(exampleTokenAddr)
+
+		_ = tx.AddArgument(CadenceUFix64("300.0"))
+
+		recipientArray := make([]cadence.Value, 1)
+		recipientArray[0] = cadence.Address(joshAddress)
+
+		_ = tx.AddArgument(cadence.NewArray(recipientArray))
+
+		signAndSubmit(
+			t, b, tx,
+			[]flow.Address{
+				b.ServiceKey().Address,
+				exampleTokenAddr,
+			},
+			[]crypto.Signer{
+				b.ServiceKey().Signer(),
+				exampleTokenSigner,
+			},
+			false,
+		)
+
+		// Assert that the vaults' balances are correct
+		script = templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+		result, err := b.ExecuteScript(
+			script,
+			[][]byte{
+				jsoncdc.MustEncode(cadence.Address(exampleTokenAddr)),
+			},
+		)
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, CadenceUFix64("400.0"), balance)
+
+		script = templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+		result, err = b.ExecuteScript(
+			script,
+			[][]byte{
+				jsoncdc.MustEncode(cadence.Address(joshAddress)),
+			},
+		)
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance = result.Value
+		assert.Equal(t, CadenceUFix64("600.0"), balance)
+
+		script = templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+		supply := executeScriptAndCheck(t, b, script)
+		assert.Equal(t, CadenceUFix64("1000.0"), supply)
+	})
+
 	t.Run("Should be able to transfer tokens through a forwarder from a vault", func(t *testing.T) {
 
 		script := templates.GenerateCreateForwarderScript(
@@ -390,7 +458,7 @@ func TestExternalTransfers(t *testing.T) {
 			t.Log(result.Error.Error())
 		}
 		balance := result.Value
-		assert.Equal(t, CadenceUFix64("700.0"), balance)
+		assert.Equal(t, CadenceUFix64("400.0"), balance)
 
 		script = templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
 		result, err = b.ExecuteScript(
@@ -404,7 +472,7 @@ func TestExternalTransfers(t *testing.T) {
 			t.Log(result.Error.Error())
 		}
 		balance = result.Value
-		assert.Equal(t, CadenceUFix64("300.0"), balance)
+		assert.Equal(t, CadenceUFix64("600.0"), balance)
 
 		script = templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
 		supply := executeScriptAndCheck(t, b, script)
@@ -791,7 +859,7 @@ func TestCreateCustomToken(t *testing.T) {
 		nil,
 		[]sdktemplates.Contract{
 			{
-				Name: "FungibleToken",
+				Name:   "FungibleToken",
 				Source: string(fungibleTokenCode),
 			},
 		},
@@ -806,7 +874,7 @@ func TestCreateCustomToken(t *testing.T) {
 		[]*flow.AccountKey{exampleTokenAccountKey},
 		[]sdktemplates.Contract{
 			{
-				Name: "UtilityCoin",
+				Name:   "UtilityCoin",
 				Source: string(customTokenCode),
 			},
 		},
@@ -822,7 +890,7 @@ func TestCreateCustomToken(t *testing.T) {
 		[]*flow.AccountKey{badTokenAccountKey},
 		[]sdktemplates.Contract{
 			{
-				Name: "BadCoin",
+				Name:   "BadCoin",
 				Source: string(badTokenCode),
 			},
 		},

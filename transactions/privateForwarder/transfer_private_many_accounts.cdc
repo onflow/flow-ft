@@ -24,7 +24,7 @@ transaction(amount: UFix64, to: [Address]) {
 
         for address in to {
 
-            sender.sendPrivateTokens(address, tokens: <-self.vaultRef.withdraw(amount: amount))
+            self.privateForwardingSender.sendPrivateTokens(address, tokens: <-self.vaultRef.withdraw(amount: amount))
 
         }
     }
