@@ -13,9 +13,10 @@ import (
 const (
 	deployPrivateForwardingFilanems = "privateForwarder/deploy_forwarder_contract.cdc"
 
-	createPrivateForwarderFilename       = "privateForwarder/create_private_forwarder.cdc"
-	setupAccountPrivateForwarderFilename = "privateForwarder/setup_and_create_forwarder.cdc"
-	transferPrivateManyAccountsFilename  = "privateForwarder/transfer_private_many_accounts.cdc"
+	createPrivateForwarderFilename        = "privateForwarder/create_private_forwarder.cdc"
+	setupAccountPrivateForwarderFilename  = "privateForwarder/setup_and_create_forwarder.cdc"
+	transferPrivateManyAccountsFilename   = "privateForwarder/transfer_private_many_accounts.cdc"
+	createAccountPrivateForwarderFilename = "privateForwarder/create_account_private_forwarder.cdc"
 )
 
 const (
@@ -60,6 +61,20 @@ func GenerateSetupAccountPrivateForwarderScript(fungibleAddr, forwardingAddr, to
 
 func GenerateTransferPrivateManyAccountsScript(fungibleAddr, forwardingAddr, tokenAddr flow.Address, tokenName string) []byte {
 	code := assets.MustAssetString(transferPrivateManyAccountsFilename)
+
+	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
+
+	code = strings.ReplaceAll(
+		code,
+		"0x"+defaultPrivateForwardAddr,
+		"0x"+forwardingAddr.String(),
+	)
+
+	return []byte(code)
+}
+
+func GenerateCreateAccountPrivateForwarderScript(fungibleAddr, forwardingAddr, tokenAddr flow.Address, tokenName string) []byte {
+	code := assets.MustAssetString(createAccountPrivateForwarderFilename)
 
 	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
 

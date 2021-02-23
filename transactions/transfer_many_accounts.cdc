@@ -1,7 +1,7 @@
 import FungibleToken from 0xFUNGIBLETOKENADDRESS
 import ExampleToken from 0xTOKENADDRESS
 
-transaction(amount: UFix64, to: [Address]) {
+transaction(addressAmountMap: {Address: UFix64}) {
 
     // The Vault resource that holds the tokens that are being transferred
     let vaultRef: &ExampleToken.Vault
@@ -15,10 +15,10 @@ transaction(amount: UFix64, to: [Address]) {
 
     execute {
 
-        for address in to {
+        for address in addressAmountMap.keys {
 
             // Withdraw tokens from the signer's stored vault
-            let sentVault <- self.vaultRef.withdraw(amount: amount)
+            let sentVault <- self.vaultRef.withdraw(amount: addressAmountMap[address]!)
 
             // Get the recipient's public account object
             let recipient = getAccount(address)

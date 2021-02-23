@@ -17,7 +17,7 @@ import (
 )
 
 func TestPrivateForwarder(t *testing.T) {
-	b := newEmulator()
+	b := newBlockchain()
 
 	accountKeys := test.AccountKeyGenerator()
 
@@ -87,6 +87,13 @@ func TestPrivateForwarder(t *testing.T) {
 
 	t.Run("Should be able to transfer private tokens to an account", func(t *testing.T) {
 
+		recipient1Address := cadence.Address(joshAddress)
+		recipient1Amount := CadenceUFix64("300.0")
+
+		pair := cadence.KeyValuePair{Key: recipient1Address, Value: recipient1Amount}
+		recipientPairs := make([]cadence.KeyValuePair, 1)
+		recipientPairs[0] = pair
+
 		script := templates.GenerateTransferPrivateManyAccountsScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken")
 		tx = flow.NewTransaction().
 			SetScript(script).
@@ -99,12 +106,7 @@ func TestPrivateForwarder(t *testing.T) {
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(exampleTokenAddr)
 
-		_ = tx.AddArgument(CadenceUFix64("300.0"))
-
-		recipientArray := make([]cadence.Value, 1)
-		recipientArray[0] = cadence.Address(joshAddress)
-
-		_ = tx.AddArgument(cadence.NewArray(recipientArray))
+		_ = tx.AddArgument(cadence.NewDictionary(recipientPairs))
 
 		signAndSubmit(
 			t, b, tx,
@@ -132,7 +134,7 @@ func TestPrivateForwarder(t *testing.T) {
 			t.Log(result.Error.Error())
 		}
 		balance := result.Value
-		assert.Equal(t, CadenceUFix64("700.0"), balance)
+		assertEqual(t, CadenceUFix64("700.0"), balance)
 
 		script = templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
 		result, err = b.ExecuteScript(
@@ -146,10 +148,39 @@ func TestPrivateForwarder(t *testing.T) {
 			t.Log(result.Error.Error())
 		}
 		balance = result.Value
-		assert.Equal(t, CadenceUFix64("300.0"), balance)
+		assertEqual(t, CadenceUFix64("300.0"), balance)
 
 		script = templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
-		supply := executeScriptAndCheck(t, b, script)
-		assert.Equal(t, CadenceUFix64("1000.0"), supply)
+		supply := executeScriptAndCheck(t, b, script, nil)
+		assertEqual(t, CadenceUFix64("1000.0"), supply)
+	})
+
+	t.Run("Should be able to create a new account with private forwarder", func(t *testing.T) {
+
+		script := templates.GenerateCreateAccountPrivateForwarderScript(fungibleAddr, exampleTokenAddr, flow.HexToAddress("0ae53cb6e3f42a79"), "FlowToken")
+		tx = flow.NewTransaction().
+			SetScript(script).
+			SetGasLimit(100).
+			SetProposalKey(
+				b.ServiceKey().Address,
+				b.ServiceKey().Index,
+				b.ServiceKey().SequenceNumber,
+			).
+			SetPayer(b.ServiceKey().Address).
+			AddAuthorizer(exampleTokenAddr)
+
+		signAndSubmit(
+			t, b, tx,
+			[]flow.Address{
+				b.ServiceKey().Address,
+				exampleTokenAddr,
+			},
+			[]crypto.Signer{
+				b.ServiceKey().Signer(),
+				exampleTokenSigner,
+			},
+			false,
+		)
+
 	})
 }

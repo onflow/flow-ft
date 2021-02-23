@@ -2,7 +2,7 @@ import FungibleToken from 0xFUNGIBLETOKENADDRESS
 import ExampleToken from 0xTOKENADDRESS
 import PrivateReceiverForwarder from 0xPRIVATEFORWARDINGADDRESS
 
-transaction(amount: UFix64, to: [Address]) {
+transaction(addressAmountMap: {Address: UFix64}) {
 
     // The Vault resource that holds the tokens that are being transferred
     let vaultRef: &ExampleToken.Vault
@@ -22,9 +22,9 @@ transaction(amount: UFix64, to: [Address]) {
 
     execute {
 
-        for address in to {
+        for address in addressAmountMap.keys {
 
-            self.privateForwardingSender.sendPrivateTokens(address, tokens: <-self.vaultRef.withdraw(amount: amount))
+            self.privateForwardingSender.sendPrivateTokens(address, tokens: <-self.vaultRef.withdraw(amount: addressAmountMap[address]!))
 
         }
     }
