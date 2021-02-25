@@ -3,9 +3,10 @@ package test
 import (
 	"testing"
 
-	"github.com/onflow/flow-emulator"
+	emulator "github.com/onflow/flow-emulator"
 	sdktemplates "github.com/onflow/flow-go-sdk/templates"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/onflow/cadence"
 	jsoncdc "github.com/onflow/cadence/encoding/json"
@@ -256,6 +257,77 @@ func TestExternalTransfers(t *testing.T) {
 		assert.Equal(t, CadenceUFix64("1000.0"), supply)
 	})
 
+	t.Run("Should be able to transfer to multiple accounts ", func(t *testing.T) {
+
+		recipient1Address := cadence.Address(joshAddress)
+		recipient1Amount := CadenceUFix64("300.0")
+
+		pair := cadence.KeyValuePair{Key: recipient1Address, Value: recipient1Amount}
+		recipientPairs := make([]cadence.KeyValuePair, 1)
+		recipientPairs[0] = pair
+
+		script := templates.GenerateTransferManyAccountsScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+
+		tx := flow.NewTransaction().
+			SetScript(script).
+			SetGasLimit(100).
+			SetProposalKey(
+				b.ServiceKey().Address,
+				b.ServiceKey().Index,
+				b.ServiceKey().SequenceNumber,
+			).
+			SetPayer(b.ServiceKey().Address).
+			AddAuthorizer(exampleTokenAddr)
+
+		_ = tx.AddArgument(cadence.NewDictionary(recipientPairs))
+
+		signAndSubmit(
+			t, b, tx,
+			[]flow.Address{
+				b.ServiceKey().Address,
+				exampleTokenAddr,
+			},
+			[]crypto.Signer{
+				b.ServiceKey().Signer(),
+				exampleTokenSigner,
+			},
+			false,
+		)
+
+		// Assert that the vaults' balances are correct
+		script = templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+		result, err := b.ExecuteScript(
+			script,
+			[][]byte{
+				jsoncdc.MustEncode(cadence.Address(exampleTokenAddr)),
+			},
+		)
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance := result.Value
+		assert.Equal(t, CadenceUFix64("400.0"), balance)
+
+		script = templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+		result, err = b.ExecuteScript(
+			script,
+			[][]byte{
+				jsoncdc.MustEncode(cadence.Address(joshAddress)),
+			},
+		)
+		require.NoError(t, err)
+		if !assert.True(t, result.Succeeded()) {
+			t.Log(result.Error.Error())
+		}
+		balance = result.Value
+		assert.Equal(t, CadenceUFix64("600.0"), balance)
+
+		script = templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+		supply := executeScriptAndCheck(t, b, script, nil)
+		assert.Equal(t, CadenceUFix64("1000.0"), supply)
+	})
+
 	t.Run("Should be able to transfer tokens through a forwarder from a vault", func(t *testing.T) {
 
 		script := templates.GenerateCreateForwarderScript(
@@ -309,8 +381,7 @@ func TestExternalTransfers(t *testing.T) {
 				jsoncdc.MustEncode(cadence.Address(exampleTokenAddr)),
 			},
 		)
-
-		assert.Equal(t, CadenceUFix64("700.0"), result)
+		assertEqual(t, CadenceUFix64("400.0"), result)
 
 		script = templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
 		result = executeScriptAndCheck(t, b,
@@ -319,12 +390,11 @@ func TestExternalTransfers(t *testing.T) {
 				jsoncdc.MustEncode(cadence.Address(joshAddress)),
 			},
 		)
-
-		assert.Equal(t, CadenceUFix64("300.0"), result)
+		assertEqual(t, CadenceUFix64("600.0"), result)
 
 		script = templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
 		supply := executeScriptAndCheck(t, b, script, nil)
-		assert.Equal(t, CadenceUFix64("1000.0"), supply)
+		assertEqual(t, CadenceUFix64("1000.0"), supply)
 	})
 }
 
