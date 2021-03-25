@@ -9,6 +9,10 @@ import PrivateReceiverForwarder from 0xPRIVATEFORWARDINGADDRESS
 transaction {
 
     prepare(signer: AuthAccount) {
+        if signer.getCapability<&PrivateReceiverForwarder.Forwarder>(PrivateReceiverForwarder.PrivateReceiverPublicPath).check() {
+            // private forwarder was already set up
+            return
+        }
 
         if signer.borrow<&ExampleToken.Vault>(from: /storage/exampleTokenVault) == nil {
             // Create a new ExampleToken Vault and put it in storage

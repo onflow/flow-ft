@@ -183,4 +183,39 @@ func TestPrivateForwarder(t *testing.T) {
 		)
 
 	})
+
+	t.Run("Should be able to do account setup a second time without change", func(t *testing.T) {
+
+		script := templates.GenerateSetupAccountPrivateForwarderScript(
+			fungibleAddr,
+			exampleTokenAddr,
+			exampleTokenAddr,
+			"ExampleToken",
+		)
+
+		// send the same transaction one more time for the same address that's already set up
+		tx := flow.NewTransaction().
+			SetScript(script).
+			SetGasLimit(100).
+			SetProposalKey(
+				b.ServiceKey().Address,
+				b.ServiceKey().Index,
+				b.ServiceKey().SequenceNumber,
+			).
+			SetPayer(b.ServiceKey().Address).
+			AddAuthorizer(joshAddress)
+
+		signAndSubmit(
+			t, b, tx,
+			[]flow.Address{
+				b.ServiceKey().Address,
+				joshAddress,
+			},
+			[]crypto.Signer{
+				b.ServiceKey().Signer(),
+				joshSigner,
+			},
+			false,
+		)
+	})
 }
