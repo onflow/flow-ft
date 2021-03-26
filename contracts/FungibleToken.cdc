@@ -182,6 +182,12 @@ pub contract interface FungibleToken {
         /// deposit takes a Vault and adds its balance to the balance of this Vault
         ///
         pub fun deposit(from: @Vault) {
+            // Assert that the concrete type of the deposited vault is the same
+            // as the vault that is accepting the deposit
+            pre {
+                from.getType().identifier.slice(from: 0, upTo: 18) == self.getType().identifier.slice(from: 0, upTo: 18): 
+                    "Cannot deposit an incompatible token type"
+            }
             post {
                 self.balance == before(self.balance) + before(from.balance):
                     "New Vault balance must be the sum of the previous balance and the deposited Vault"
