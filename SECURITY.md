@@ -66,7 +66,7 @@ We're happy to acknowledge contributors. Security acknowledgements can be found 
 
 ## Rewards
 
-We run closed bug bounty programs, but beyond that we also pay out rewards, once per eligible bug, to the first responsibly disclosing third party.  Rewards are based on the seriousness of the bug, but the minimum is $100 and we have and are willing to pay $5,000 or more at our sole discretion.
+We run closed bug bounty programs, but beyond that we also pay out rewards, once per eligible bug, to the first responsibly disclosing third party.  Rewards are based on the seriousness of the bug, but the minimum is $2,500 USD value and we have and are willing to pay $100,000 or more at our sole discretion.
 
 ### **Elligibility**
 
