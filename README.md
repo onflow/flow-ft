@@ -100,10 +100,10 @@ Right now we are using unsigned 64-bit fixed point numbers `UFix64` as the type 
 - Users could create custom `Receiver`s to trigger special code when transfers to them happen, like forwarding the tokens
   to another account, splitting them up, and much more.
 
-- **ATTENTION**: It is VITALLY important that if you are making your own implementation of the fungible token interface that
+- It is important that if you are making your own implementation of the fungible token interface that
   you cast the input to `deposit` as the type of your token.
   `let vault <- from as! @ExampleToken.Vault`
-  Because the interface specifies the argument as `@FungibleToken.Vault`, any resource that satisfies this can be sent to the deposit function. If you do not cast it as the type of your token, others could deposit different tokens into your Vault maliciously to change the balance.
+  The interface specifies the argument as `@FungibleToken.Vault`, any resource that satisfies this can be sent to the deposit function. The interface checks that the concrete types match, but you'll still need to cast the `Vault` before storing it.
 
 5 - Creating an empty Vault resource
 

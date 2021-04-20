@@ -127,7 +127,7 @@ func GenerateBurnTokensScript(fungibleAddr, tokenAddr flow.Address, tokenName st
 func GenerateTransferInvalidVaultScript(fungibleAddr, tokenAddr, otherTokenAddr, receiverAddr flow.Address, tokenName, otherTokenName string, amount int) []byte {
 	storageName := MakeFirstLowerCase(tokenName)
 
-	otherStorageName := MakeFirstLowerCase(tokenName)
+	otherStorageName := MakeFirstLowerCase(otherTokenName)
 
 	template := `
 		import FungibleToken from 0x%s 
