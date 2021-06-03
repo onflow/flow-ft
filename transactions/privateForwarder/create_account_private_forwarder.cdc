@@ -6,18 +6,17 @@ import PrivateReceiverForwarder from 0xPRIVATEFORWARDINGADDRESS
 
 transaction {
     prepare(payer: AuthAccount) {
-        // Pay for the account creation with the Dapper payer
         let acct = AuthAccount(payer: payer)
 
-        // Destroy Dapper user's FLOW token receiver
-        acct.unlink(/public/flowTokenReceiver)
+        acct.save(<-ExampleToken.createEmptyVault(),
+            to: /storage/exampleTokenVault
+        )
 
         // Create a private receiver
-        acct.link<&{FungibleToken.Receiver}>(
-            /private/flowTokenReceiver,
-            target: /storage/flowTokenVault
-        )
-        let receiverCapability = acct.getCapability<&{FungibleToken.Receiver}>(/private/flowTokenReceiver)
+        let receiverCapability = acct.link<&{FungibleToken.Receiver}>(
+            /private/exampleTokenReceiver,
+            target: /storage/exampleTokenVault
+        )!
 
         // Use the private receiver to create a private forwarder
         let forwarder <- PrivateReceiverForwarder.createNewForwarder(recipient: receiverCapability)
