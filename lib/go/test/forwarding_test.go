@@ -157,7 +157,12 @@ func TestPrivateForwarder(t *testing.T) {
 
 	t.Run("Should be able to create a new account with private forwarder", func(t *testing.T) {
 
-		script := templates.GenerateCreateAccountPrivateForwarderScript(fungibleAddr, exampleTokenAddr, flow.HexToAddress("0ae53cb6e3f42a79"), "FlowToken")
+		script := templates.GenerateCreateAccountPrivateForwarderScript(
+			fungibleAddr,
+			exampleTokenAddr,
+			exampleTokenAddr,
+			"ExampleToken",
+		)
 		tx = flow.NewTransaction().
 			SetScript(script).
 			SetGasLimit(100).
