@@ -74,7 +74,11 @@ pub contract ExampleToken: FungibleToken {
         ///
         pub fun withdraw(amount: UFix64): @FungibleToken.Vault {
             self.balance = self.balance - amount
-            emit TokensWithdrawn(amount: amount, from: self.owner?.address)
+
+            if amount > 0.0 && self.owner != nil {
+                emit TokensWithdrawn(amount: amount, from: self.owner?.address)
+            }
+
             return <-create Vault(balance: amount)
         }
 
@@ -90,8 +94,11 @@ pub contract ExampleToken: FungibleToken {
         pub fun deposit(from: @FungibleToken.Vault) {
             let vault <- from as! @ExampleToken.Vault
             self.balance = self.balance + vault.balance
-            emit TokensDeposited(amount: vault.balance, to: self.owner?.address)
-            vault.balance = 0.0
+
+            if vault.balance > 0.0 && self.owner != nil {
+                emit TokensDeposited(amount: vault.balance, to: self.owner?.address)
+                vault.balance = 0.0
+            }
             destroy vault
         }
 
@@ -148,12 +155,15 @@ pub contract ExampleToken: FungibleToken {
         ///
         pub fun mintTokens(amount: UFix64): @ExampleToken.Vault {
             pre {
-                amount > 0.0: "Amount minted must be greater than zero"
                 amount <= self.allowedAmount: "Amount minted must be less than the allowed amount"
             }
-            ExampleToken.totalSupply = ExampleToken.totalSupply + amount
-            self.allowedAmount = self.allowedAmount - amount
-            emit TokensMinted(amount: amount)
+
+            if amount > 0.0 {
+                ExampleToken.totalSupply = ExampleToken.totalSupply + amount
+                self.allowedAmount = self.allowedAmount - amount
+                emit TokensMinted(amount: amount)
+            }
+
             return <-create Vault(balance: amount)
         }
 
@@ -177,9 +187,10 @@ pub contract ExampleToken: FungibleToken {
         ///
         pub fun burnTokens(from: @FungibleToken.Vault) {
             let vault <- from as! @ExampleToken.Vault
-            let amount = vault.balance
+            if vault.balance > 0.0 {
+                emit TokensBurned(amount: vault.balance)
+            }
             destroy vault
-            emit TokensBurned(amount: amount)
         }
     }
 

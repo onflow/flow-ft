@@ -564,7 +564,7 @@ func TestMintingAndBurning(t *testing.T) {
 		false,
 	)
 
-	t.Run("Shouldn't be able to mint zero tokens", func(t *testing.T) {
+	t.Run("Should be able to mint zero tokens and no balances are increased", func(t *testing.T) {
 		script := templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
 		tx := createTxWithTemplateAndAuthorizer(
 			b, script, exampleTokenAddr)
@@ -582,7 +582,7 @@ func TestMintingAndBurning(t *testing.T) {
 				b.ServiceKey().Signer(),
 				exampleTokenSigner,
 			},
-			true,
+			false,
 		)
 
 		// Assert that the vaults' balances are correct
