@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/onflow/flow-ft/lib/go/contracts/internal/assets"
+
+	_ "github.com/kevinburke/go-bindata"
 )
 
 const (
