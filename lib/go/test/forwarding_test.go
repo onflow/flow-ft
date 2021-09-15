@@ -28,13 +28,15 @@ func TestPrivateForwarder(t *testing.T) {
 	forwardingCode := contracts.PrivateReceiverForwarder(fungibleAddr.String())
 	cadenceCode := bytesToCadenceArray(forwardingCode)
 
+	name, _ := cadence.NewString("PrivateReceiverForwarder")
+
 	tx := flow.NewTransaction().
 		SetScript(templates.GenerateDeployPrivateForwardingScript()).
 		SetGasLimit(100).
 		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
 		AddAuthorizer(exampleTokenAddr).
-		AddRawArgument(jsoncdc.MustEncode(cadence.NewString("PrivateReceiverForwarder"))).
+		AddRawArgument(jsoncdc.MustEncode(name)).
 		AddRawArgument(jsoncdc.MustEncode(cadenceCode))
 
 	_ = tx.AddArgument(cadence.Path{Domain: "storage", Identifier: "privateForwardingSender"})
