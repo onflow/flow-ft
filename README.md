@@ -203,6 +203,6 @@ You can find automated tests in the `lib/go/test/token_test.go` file. It uses th
 
 The works in these folders are under the [Unlicense](https://github.com/onflow/flow-ft/blob/master/LICENSE):
 
-- [src/contracts](https://github.com/onflow/flow-ft/tree/master/src/contracts)
+- [/contracts](https://github.com/onflow/flow-ft/blob/master/contracts/)
 
 
