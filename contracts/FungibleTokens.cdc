@@ -51,6 +51,9 @@ pub contract interface FungibleTokens {
     // Map of total token supply in existence by type
     pub var totalSupplyByID: {UInt64: UFix64}
 
+    // Path to store collection of FungibleTokens minted from implementing contract
+    pub var CollectionStoragePath: StoragePath
+
     // Event that emitted when the TokenVault contract is initialized
     //
     pub event ContractInitialized()
@@ -66,8 +69,8 @@ pub contract interface FungibleTokens {
     ///
     pub resource interface Provider {
 
-        /// withdraw subtracts tokens from the owner's Vault
-        /// and returns a Vault with the removed tokens.
+        /// withdraw subtracts tokens from the owner's TokenVault
+        /// and returns a TokenVault with the removed tokens.
         ///
         /// The function's access level is public, but this is not a problem
         /// because only the owner storing the resource in their account
@@ -85,7 +88,7 @@ pub contract interface FungibleTokens {
             post {
                 // `result` refers to the return value
                 result.balance == amount:
-                    "Withdrawal amount must be the same as the balance of the withdrawn Vault"
+                    "Withdrawal amount must be the same as the balance of the withdrawn TokenVault"
             }
         }
     }
@@ -102,20 +105,20 @@ pub contract interface FungibleTokens {
     ///
     pub resource interface Receiver {
 
-        /// deposit takes a Vault and deposits it into the implementing resource type
+        /// deposit takes a TokenVault and deposits it into the implementing resource type
         ///
         pub fun deposit(from: @TokenVault) 
     }
 
     /// Balance
     ///
-    /// The interface that contains the `balance` field of the Vault
-    /// and enforces that when new Vaults are created, the balance
-    /// is initialized correctly.
+    /// The interface that contains the `balance` field of the TokenVault
+    /// and enforces that when new TokenVaults are created, the balance and ID
+    /// are initialized correctly.
     ///
     pub resource interface Balance {
 
-        /// The total balance of a vault
+        /// The total balance of a TokenVault
         ///
         pub var balance: UFix64
         pub let tokenID: UInt64
@@ -137,48 +140,48 @@ pub contract interface FungibleTokens {
 
         // The declaration of a concrete type in a contract interface means that
         // every Fungible Token contract that implements the FungibleToken interface
-        // must define a concrete `Vault` resource that conforms to the `Provider`, `Receiver`,
+        // must define a concrete `TokenVault` resource that conforms to the `Provider`, `Receiver`,
         // and `Balance` interfaces, and declares their required fields and functions
 
-        /// The total balance of the vault
+        /// The total balance of the TokenVault
         ///
         pub var balance: UFix64
         pub let tokenID: UInt64
 
         // The conforming type must declare an initializer
-        // that allows prioviding the initial balance of the Vault
+        // that allows prioviding the initial balance of the TokenVault
         //
         init(tokenID: UInt64, balance: UFix64)
 
-        /// withdraw subtracts `amount` from the Vault's balance
-        /// and returns a new Vault with the subtracted balance
+        /// withdraw subtracts `amount` from the TokenVault's balance
+        /// and returns a new TokenVault with the subtracted balance
         ///
         pub fun withdraw(amount: UFix64): @TokenVault {
             pre {
                 self.balance >= amount:
-                    "Amount withdrawn must be less than or equal than the balance of the Vault"
+                    "Amount withdrawn must be less than or equal than the balance of the TokenVault"
             }
             post {
                 // use the special function `before` to get the value of the `balance` field
                 // at the beginning of the function execution
                 //
                 self.balance == before(self.balance) - amount:
-                    "New Vault balance must be the difference of the previous balance and the withdrawn Vault"
+                    "New TokenVault balance must be the difference of the previous balance and the withdrawn TokenVault"
             }
         }
 
-        /// deposit takes a Vault and adds its balance to the balance of this Vault
+        /// deposit takes a TokenVault and adds its balance to the balance of this TokenVault
         ///
         pub fun deposit(from: @TokenVault) {
-            // Assert that the concrete type of the deposited vault is the same
-            // as the vault that is accepting the deposit
+            // Assert that the concrete type of the deposited TokenVault is the same
+            // as the TokenVault that is accepting the deposit
             pre {
                 from.isInstance(self.getType()): 
                     "Cannot deposit an incompatible token type"
             }
             post {
                 self.balance == before(self.balance) + before(from.balance):
-                    "New Vault balance must be the sum of the previous balance and the deposited Vault"
+                    "New TokenVault balance must be the sum of the previous balance and the deposited TokenVault"
             }
         }
     }
@@ -186,15 +189,18 @@ pub contract interface FungibleTokens {
     // Interface that an account would commonly 
     // publish for their collection
     pub resource interface CollectionPublic {
-        pub fun deposit(token: @TokenVault)
+        pub fun deposit(token: @TokenVault)          
         pub fun getIDs(): [UInt64]
+    }
+
+    pub resource interface CollectionPrivate {
         pub fun borrowTokenVault(id: UInt64): &TokenVault
     }
 
     // Requirement for the the concrete resource type
     // to be declared in the implementing contract
     //
-    pub resource Collection: CollectionPublic {
+    pub resource Collection: CollectionPublic, CollectionPrivate {
 
         // Dictionary to hold the TokenVaults in the Collection
         pub var ownedTokenVaults: @{UInt64: TokenVault}
@@ -213,7 +219,7 @@ pub contract interface FungibleTokens {
                 self.ownedTokenVaults[id] != nil: "TokenVault does not exist in the collection!"
             }
             post {
-                result.tokenID == id: "Incorrect tokenID returned!"
+                result.tokenID == id: "Vault with incorrect tokenID returned!"
             }
         }
     }
@@ -225,4 +231,18 @@ pub contract interface FungibleTokens {
             result.getIDs().length == 0: "The created collection must be empty!"
         }
     }
+
+    /// createEmptyVault allows any user to create a new TokenVault that has a zero balance (if the tokenID exists)
+    ///
+    pub fun createEmptyVault(tokenID: UInt64): @TokenVault {
+        pre {
+            self.totalSupplyByID[tokenID] != nil:
+                "Token ID does not exist in contract"
+        }
+        post {
+            result.balance == 0.0: "The newly created Vault must have zero balance"
+            result.tokenID == tokenID : "The newly created Vault must have correct tokenID"
+        }
+    }
+
 }
