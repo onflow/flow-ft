@@ -234,7 +234,7 @@ pub contract interface FungibleTokens {
 
     /// createEmptyVault allows any user to create a new TokenVault that has a zero balance (if the tokenID exists)
     ///
-    pub fun createEmptyVault(tokenID: UInt64): @TokenVault {
+    pub fun createEmptyTokenVault(tokenID: UInt64): @TokenVault {
         pre {
             self.totalSupplyByID[tokenID] != nil:
                 "Token ID does not exist in contract"

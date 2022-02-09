@@ -113,7 +113,7 @@ pub contract ExampleTokens: FungibleTokens {
     /// and store the returned Vault in their storage in order to allow their
     /// account to be able to receive deposits of this token type.
     ///
-    pub fun createEmptyVault(tokenID: UInt64): @TokenVault {
+    pub fun createEmptyTokenVault(tokenID: UInt64): @TokenVault {
         return <-create TokenVault(tokenID: tokenID, balance: 0.0)
     }
 
