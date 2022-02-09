@@ -3,7 +3,7 @@ import FungibleTokens from "./FungibleTokens.cdc" // 0xFungibleTokensADDRESS
 pub contract ExampleTokens: FungibleTokens {
 
     /// Total supply of ExampleTokenSets in existence
-    pub var totalSupplyByID: {UInt64: UFix64}
+    access(contract) var totalSupplyByID: {UInt64: UFix64}
 
     pub var CollectionStoragePath: StoragePath
 

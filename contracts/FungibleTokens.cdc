@@ -49,7 +49,7 @@ Collection to complete the transfer.
 pub contract interface FungibleTokens {
 
     // Map of total token supply in existence by type
-    pub var totalSupplyByID: {UInt64: UFix64}
+    access(contract) var totalSupplyByID: {UInt64: UFix64}
 
     // Path to store collection of FungibleTokens minted from implementing contract
     pub var CollectionStoragePath: StoragePath
