@@ -8,7 +8,7 @@ import (
 	"github.com/onflow/flow-ft/lib/go/contracts"
 )
 
-const addrA = "0x0A"
+const addrA = "0A"
 
 func TestFungibleTokenContract(t *testing.T) {
 	contract := contracts.FungibleToken()

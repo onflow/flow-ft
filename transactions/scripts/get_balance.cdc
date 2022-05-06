@@ -1,7 +1,7 @@
 // This script reads the balance field of an account's FlowToken Balance
 
-import FungibleToken from 0xFUNGIBLETOKENADDRESS
-import ExampleToken from 0xTOKENADDRESS
+import FungibleToken from "../../contracts/FungibleToken.cdc"
+import ExampleToken from "../../contracts/ExampleToken.cdc"
 
 pub fun main(account: Address): UFix64 {
     let acct = getAccount(account)
