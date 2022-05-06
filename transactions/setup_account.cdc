@@ -3,8 +3,8 @@
 // to add a Vault resource to their account
 // so that they can use the exampleToken
 
-import FungibleToken from "./../contracts/FungibleToken.cdc"
-import ExampleToken from "./../contracts/ExampleToken.cdc"
+import FungibleToken from 0xFUNGIBLETOKENADDRESS
+import ExampleToken from 0xTOKENADDRESS
 
 transaction {
 

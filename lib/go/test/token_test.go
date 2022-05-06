@@ -3,6 +3,7 @@ package test
 import (
 	"testing"
 
+	emulator "github.com/onflow/flow-emulator"
 	sdktemplates "github.com/onflow/flow-go-sdk/templates"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -11,13 +12,78 @@ import (
 	jsoncdc "github.com/onflow/cadence/encoding/json"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
+	"github.com/onflow/flow-go-sdk/test"
 
 	"github.com/onflow/flow-ft/lib/go/contracts"
 	"github.com/onflow/flow-ft/lib/go/templates"
 )
 
+func DeployTokenContracts(
+	b *emulator.Blockchain,
+	t *testing.T,
+	key []*flow.AccountKey,
+) (
+	fungibleAddr flow.Address,
+	tokenAddr flow.Address,
+	forwardingAddr flow.Address,
+) {
+	var err error
+
+	// Should be able to deploy a contract as a new account with no keys.
+	fungibleTokenCode := contracts.FungibleToken()
+	fungibleAddr, err = b.CreateAccount(
+		nil,
+		[]sdktemplates.Contract{
+			{
+				Name:   "FungibleToken",
+				Source: string(fungibleTokenCode),
+			},
+		},
+	)
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
+	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String())
+
+	tokenAddr, err = b.CreateAccount(
+		key,
+		[]sdktemplates.Contract{
+			{
+				Name:   "ExampleToken",
+				Source: string(exampleTokenCode),
+			},
+		},
+	)
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
+	forwardingCode := contracts.TokenForwarding(fungibleAddr.String())
+
+	forwardingAddr, err = b.CreateAccount(
+		key,
+		[]sdktemplates.Contract{
+			{
+				Name:   "TokenForwarding",
+				Source: string(forwardingCode),
+			},
+		},
+	)
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
+	return fungibleAddr, tokenAddr, forwardingAddr
+}
+
 func TestTokenDeployment(t *testing.T) {
-	b, accountKeys := newTestSetup(t)
+	b := newBlockchain()
+
+	accountKeys := test.AccountKeyGenerator()
 
 	exampleTokenAccountKey, _ := accountKeys.NewWithSigner()
 	fungibleAddr, exampleTokenAddr, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
@@ -30,7 +96,9 @@ func TestTokenDeployment(t *testing.T) {
 }
 
 func TestCreateToken(t *testing.T) {
-	b, accountKeys := newTestSetup(t)
+	b := newBlockchain()
+
+	accountKeys := test.AccountKeyGenerator()
 
 	exampleTokenAccountKey, _ := accountKeys.NewWithSigner()
 	fungibleAddr, exampleTokenAddr, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
@@ -72,7 +140,9 @@ func TestCreateToken(t *testing.T) {
 }
 
 func TestExternalTransfers(t *testing.T) {
-	b, accountKeys := newTestSetup(t)
+	b := newBlockchain()
+
+	accountKeys := test.AccountKeyGenerator()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
 	fungibleAddr, exampleTokenAddr, forwardingAddr :=
@@ -329,7 +399,9 @@ func TestExternalTransfers(t *testing.T) {
 }
 
 func TestVaultDestroy(t *testing.T) {
-	b, accountKeys := newTestSetup(t)
+	b := newBlockchain()
+
+	accountKeys := test.AccountKeyGenerator()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
 	fungibleAddr, exampleTokenAddr, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
@@ -456,7 +528,9 @@ func TestVaultDestroy(t *testing.T) {
 }
 
 func TestMintingAndBurning(t *testing.T) {
-	b, accountKeys := newTestSetup(t)
+	b := newBlockchain()
+
+	accountKeys := test.AccountKeyGenerator()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
 	fungibleAddr, exampleTokenAddr, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
@@ -624,7 +698,9 @@ func TestMintingAndBurning(t *testing.T) {
 }
 
 func TestCreateCustomToken(t *testing.T) {
-	b, accountKeys := newTestSetup(t)
+	b := newBlockchain()
+
+	accountKeys := test.AccountKeyGenerator()
 
 	exampleTokenAccountKey, tokenSigner := accountKeys.NewWithSigner()
 	// Should be able to deploy a contract as a new account with no keys.

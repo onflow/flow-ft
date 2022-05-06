@@ -17,7 +17,9 @@ const (
 func GenerateInspectVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName string) []byte {
 	code := assets.MustAssetString(scriptsPath + readBalanceFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, tokenName)
+	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
+
+	return []byte(code)
 }
 
 // GenerateInspectSupplyScript creates a script that reads
@@ -27,5 +29,7 @@ func GenerateInspectSupplyScript(fungibleAddr, tokenAddr flow.Address, tokenName
 
 	code := assets.MustAssetString(scriptsPath + readSupplyFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, tokenName)
+	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
+
+	return []byte(code)
 }

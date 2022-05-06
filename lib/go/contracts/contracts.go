@@ -3,7 +3,6 @@ package contracts
 //go:generate go run github.com/kevinburke/go-bindata/go-bindata -prefix ../../../contracts -o internal/assets/assets.go -pkg assets -nometadata -nomemcopy ../../../contracts/...
 
 import (
-	"regexp"
 	"strings"
 
 	"github.com/onflow/flow-ft/lib/go/contracts/internal/assets"
@@ -11,30 +10,31 @@ import (
 	_ "github.com/kevinburke/go-bindata"
 )
 
-var (
-	placeholderFungibleToken = regexp.MustCompile(`"[^"\s].*/FungibleToken.cdc"`)
-	placeholderExampleToken  = regexp.MustCompile(`"[^"\s].*/ExampleToken.cdc"`)
-)
-
 const (
-	filenameFungibleToken    = "FungibleToken.cdc"
-	filenameExampleToken     = "ExampleToken.cdc"
-	filenameTokenForwarding  = "utilityContracts/TokenForwarding.cdc"
-	filenamePrivateForwarder = "utilityContracts/PrivateReceiverForwarder.cdc"
+	fungibleTokenFilename            = "FungibleToken.cdc"
+	flowTokenFilename                = "FlowToken.cdc"
+	exampleTokenFilename             = "ExampleToken.cdc"
+	defaultFungibleTokenAddress      = "FUNGIBLETOKENADDRESS"
+	tokenForwardingFilename          = "utilityContracts/TokenForwarding.cdc"
+	privateReceiverForwarderFilename = "utilityContracts/PrivateReceiverForwarder.cdc"
 )
 
 // FungibleToken returns the FungibleToken contract interface.
 func FungibleToken() []byte {
-	return assets.MustAsset(filenameFungibleToken)
+	return assets.MustAsset(fungibleTokenFilename)
 }
 
 // ExampleToken returns the ExampleToken contract.
 //
 // The returned contract will import the FungibleToken interface from the specified address.
 func ExampleToken(fungibleTokenAddr string) []byte {
-	code := assets.MustAssetString(filenameExampleToken)
+	code := assets.MustAssetString(exampleTokenFilename)
 
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = strings.ReplaceAll(
+		code,
+		"0x"+defaultFungibleTokenAddress,
+		"0x"+fungibleTokenAddr,
+	)
 
 	return []byte(code)
 }
@@ -43,9 +43,13 @@ func ExampleToken(fungibleTokenAddr string) []byte {
 //
 // The returned contract will import the FungibleToken interface from the specified address.
 func CustomToken(fungibleTokenAddr, tokenName, storageName, initialBalance string) []byte {
-	code := assets.MustAssetString(filenameExampleToken)
+	code := assets.MustAssetString(exampleTokenFilename)
 
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = strings.ReplaceAll(
+		code,
+		"0x"+defaultFungibleTokenAddress,
+		"0x"+fungibleTokenAddr,
+	)
 
 	code = strings.ReplaceAll(
 		code,
@@ -72,9 +76,13 @@ func CustomToken(fungibleTokenAddr, tokenName, storageName, initialBalance strin
 //
 // The returned contract will import the FungibleToken contract from the specified address.
 func TokenForwarding(fungibleTokenAddr string) []byte {
-	code := assets.MustAssetString(filenameTokenForwarding)
+	code := assets.MustAssetString(tokenForwardingFilename)
 
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = strings.ReplaceAll(
+		code,
+		"0x"+defaultFungibleTokenAddress,
+		"0x"+fungibleTokenAddr,
+	)
 
 	return []byte(code)
 }
@@ -83,9 +91,13 @@ func TokenForwarding(fungibleTokenAddr string) []byte {
 //
 // The returned contract will import the FungibleToken interface from the specified address.
 func CustomTokenForwarding(fungibleTokenAddr, tokenName, storageName string) []byte {
-	code := assets.MustAssetString(filenameTokenForwarding)
+	code := assets.MustAssetString(tokenForwardingFilename)
 
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = strings.ReplaceAll(
+		code,
+		"0x"+defaultFungibleTokenAddress,
+		"0x"+fungibleTokenAddr,
+	)
 
 	code = strings.ReplaceAll(
 		code,
@@ -103,9 +115,13 @@ func CustomTokenForwarding(fungibleTokenAddr, tokenName, storageName string) []b
 }
 
 func PrivateReceiverForwarder(fungibleTokenAddr string) []byte {
-	code := assets.MustAssetString(filenamePrivateForwarder)
+	code := assets.MustAssetString(privateReceiverForwarderFilename)
 
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = strings.ReplaceAll(
+		code,
+		"0x"+defaultFungibleTokenAddress,
+		"0x"+fungibleTokenAddr,
+	)
 
 	return []byte(code)
 }

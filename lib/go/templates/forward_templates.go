@@ -20,7 +20,7 @@ const (
 )
 
 const (
-	defaultPrivateForwardAddr = "\"../../contracts/PrivateReceiverForwarder.cdc\""
+	defaultPrivateForwardAddr = "PRIVATEFORWARDINGADDRESS"
 )
 
 func GenerateDeployPrivateForwardingScript() []byte {
@@ -34,47 +34,55 @@ func GenerateDeployPrivateForwardingScript() []byte {
 func GenerateCreatePrivateForwarderScript(fungibleAddr, forwardingAddr, tokenAddr flow.Address, tokenName string) []byte {
 	code := assets.MustAssetString(createPrivateForwarderFilename)
 
+	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
+
 	code = strings.ReplaceAll(
 		code,
-		defaultPrivateForwardAddr,
+		"0x"+defaultPrivateForwardAddr,
 		"0x"+forwardingAddr.String(),
 	)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, tokenName)
+	return []byte(code)
 }
 
 func GenerateSetupAccountPrivateForwarderScript(fungibleAddr, forwardingAddr, tokenAddr flow.Address, tokenName string) []byte {
 	code := assets.MustAssetString(setupAccountPrivateForwarderFilename)
 
+	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
+
 	code = strings.ReplaceAll(
 		code,
-		defaultPrivateForwardAddr,
+		"0x"+defaultPrivateForwardAddr,
 		"0x"+forwardingAddr.String(),
 	)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, tokenName)
+	return []byte(code)
 }
 
 func GenerateTransferPrivateManyAccountsScript(fungibleAddr, forwardingAddr, tokenAddr flow.Address, tokenName string) []byte {
 	code := assets.MustAssetString(transferPrivateManyAccountsFilename)
 
+	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
+
 	code = strings.ReplaceAll(
 		code,
-		defaultPrivateForwardAddr,
+		"0x"+defaultPrivateForwardAddr,
 		"0x"+forwardingAddr.String(),
 	)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, tokenName)
+	return []byte(code)
 }
 
 func GenerateCreateAccountPrivateForwarderScript(fungibleAddr, forwardingAddr, tokenAddr flow.Address, tokenName string) []byte {
 	code := assets.MustAssetString(createAccountPrivateForwarderFilename)
 
+	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
+
 	code = strings.ReplaceAll(
 		code,
-		defaultPrivateForwardAddr,
+		"0x"+defaultPrivateForwardAddr,
 		"0x"+forwardingAddr.String(),
 	)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, tokenName)
+	return []byte(code)
 }

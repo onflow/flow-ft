@@ -6,31 +6,12 @@ import (
 	"testing"
 
 	"github.com/onflow/cadence"
-	jsoncdc "github.com/onflow/cadence/encoding/json"
 	"github.com/onflow/flow-emulator"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
-	sdktemplates "github.com/onflow/flow-go-sdk/templates"
-	"github.com/onflow/flow-go-sdk/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-// Sets up testing and emulator objects and initialize the emulator default addresses
-//
-func newTestSetup(t *testing.T) (*emulator.Blockchain, *test.AccountKeys) {
-	// Set for parallel processing
-	t.Parallel()
-
-	// Create a new emulator instance
-	b := newBlockchain()
-
-	// Create a new account key generator object to generate keys
-	// for test accounts
-	accountKeys := test.AccountKeyGenerator()
-
-	return b, accountKeys
-}
 
 // newBlockchain returns an emulator blockchain for testing.
 func newBlockchain(opts ...emulator.Option) *emulator.Blockchain {
@@ -48,38 +29,6 @@ func newBlockchain(opts ...emulator.Option) *emulator.Blockchain {
 	return b
 }
 
-// Create a new, empty account for testing
-// and return the address, public keys, and signer objects
-func newAccountWithAddress(b *emulator.Blockchain, accountKeys *test.AccountKeys) (flow.Address, *flow.AccountKey, crypto.Signer) {
-	newAccountKey, newSigner := accountKeys.NewWithSigner()
-	newAddress, _ := b.CreateAccount([]*flow.AccountKey{newAccountKey}, nil)
-
-	return newAddress, newAccountKey, newSigner
-}
-
-// Deploy a contract to a new account with the specified name, code, and keys
-func deploy(
-	t *testing.T,
-	b *emulator.Blockchain,
-	name string,
-	code []byte,
-	keys ...*flow.AccountKey,
-) flow.Address {
-	address, err := b.CreateAccount(
-		keys,
-		[]sdktemplates.Contract{
-			{
-				Name:   name,
-				Source: string(code),
-			},
-		},
-	)
-	assert.NoError(t, err)
-
-	return address
-}
-
-// Create a transaction object with the specified address as the authorizer
 func createTxWithTemplateAndAuthorizer(
 	b *emulator.Blockchain,
 	script []byte,
@@ -159,7 +108,6 @@ func Submit(
 func executeScriptAndCheck(t *testing.T, b *emulator.Blockchain, script []byte, arguments [][]byte) cadence.Value {
 	result, err := b.ExecuteScript(script, arguments)
 	require.NoError(t, err)
-
 	if !assert.True(t, result.Succeeded()) {
 		t.Log(result.Error.Error())
 	}
@@ -167,7 +115,6 @@ func executeScriptAndCheck(t *testing.T, b *emulator.Blockchain, script []byte, 
 	return result.Value
 }
 
-// Read a file from the specified path
 func readFile(path string) []byte {
 	contents, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -218,11 +165,4 @@ func assertEqual(t *testing.T, expected, actual interface{}) bool {
 	)
 
 	return assert.Fail(t, message)
-}
-
-func toJson(t *testing.T, target cadence.Value) string {
-	actualJSONBytes, err := jsoncdc.Encode(target)
-	require.NoError(t, err)
-	actualJSON := string(actualJSONBytes)
-	return actualJSON
 }

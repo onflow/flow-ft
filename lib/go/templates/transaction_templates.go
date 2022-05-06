@@ -3,7 +3,9 @@ package templates
 //go:generate go run github.com/kevinburke/go-bindata/go-bindata -prefix ../../../transactions -o internal/assets/assets.go -pkg assets -nometadata -nomemcopy ../../../transactions/...
 
 import (
+	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/onflow/flow-go-sdk"
 
@@ -13,6 +15,12 @@ import (
 )
 
 const (
+	defaultTokenName         = "ExampleToken"
+	defaultTokenStorage      = "exampleToken"
+	defaultFungibleTokenAddr = "FUNGIBLETOKENADDRESS"
+	defaultTokenAddr         = "TOKENADDRESS"
+	defaultForwardingAddr    = "FORWARDINGADDRESS"
+
 	transferTokensFilename       = "transfer_tokens.cdc"
 	transferManyAccountsFilename = "transfer_many_accounts.cdc"
 	setupAccountFilename         = "setup_account.cdc"
@@ -20,6 +28,19 @@ const (
 	createForwarderFilename      = "create_forwarder.cdc"
 	burnTokensFilename           = "burn_tokens.cdc"
 )
+
+func replaceAddresses(code string, fungibleAddr, tokenAddr, tokenName string) string {
+	storageName := MakeFirstLowerCase(tokenName)
+
+	replacer := strings.NewReplacer("0x"+defaultFungibleTokenAddr, "0x"+fungibleAddr,
+		"0x"+defaultTokenAddr, "0x"+tokenAddr,
+		defaultTokenName, tokenName,
+		defaultTokenStorage, storageName)
+
+	code = replacer.Replace(code)
+
+	return code
+}
 
 // GenerateCreateTokenScript creates a script that instantiates
 // a new Vault instance and stores it in storage.
@@ -29,7 +50,9 @@ func GenerateCreateTokenScript(fungibleAddr, tokenAddr flow.Address, tokenName s
 
 	code := assets.MustAssetString(setupAccountFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, tokenName)
+	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
+
+	return []byte(code)
 }
 
 // GenerateDestroyVaultScript creates a script that withdraws
@@ -64,7 +87,9 @@ func GenerateTransferVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName
 
 	code := assets.MustAssetString(transferTokensFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, tokenName)
+	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
+
+	return []byte(code)
 }
 
 // GenerateTransferManyAccountsScript creates a script that transfers the same number of tokens
@@ -73,7 +98,9 @@ func GenerateTransferManyAccountsScript(fungibleAddr, tokenAddr flow.Address, to
 
 	code := assets.MustAssetString(transferManyAccountsFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, tokenName)
+	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
+
+	return []byte(code)
 }
 
 // GenerateMintTokensScript creates a script that uses the admin resource
@@ -82,7 +109,9 @@ func GenerateMintTokensScript(fungibleAddr, tokenAddr flow.Address, tokenName st
 
 	code := assets.MustAssetString(mintTokensFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, tokenName)
+	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
+
+	return []byte(code)
 }
 
 // GenerateBurnTokensScript creates a script that uses the admin resource
@@ -90,7 +119,9 @@ func GenerateMintTokensScript(fungibleAddr, tokenAddr flow.Address, tokenName st
 func GenerateBurnTokensScript(fungibleAddr, tokenAddr flow.Address, tokenName string) []byte {
 	code := assets.MustAssetString(burnTokensFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, tokenName)
+	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
+
+	return []byte(code)
 }
 
 // GenerateTransferInvalidVaultScript creates a script that withdraws an tokens from an account
@@ -130,5 +161,28 @@ func GenerateTransferInvalidVaultScript(fungibleAddr, tokenAddr, otherTokenAddr,
 func GenerateCreateForwarderScript(fungibleAddr, forwardingAddr, tokenAddr flow.Address, tokenName string) []byte {
 	code := assets.MustAssetString(createForwarderFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, forwardingAddr, tokenName)
+	code = replaceAddresses(code, fungibleAddr.String(), tokenAddr.String(), tokenName)
+
+	code = strings.ReplaceAll(
+		code,
+		"0x"+defaultForwardingAddr,
+		"0x"+forwardingAddr.String(),
+	)
+
+	return []byte(code)
+}
+
+// MakeFirstLowerCase makes the first letter in a string lowercase
+func MakeFirstLowerCase(s string) string {
+
+	if len(s) < 2 {
+		return strings.ToLower(s)
+	}
+
+	bts := []byte(s)
+
+	lc := bytes.ToLower([]byte{bts[0]})
+	rest := bts[1:]
+
+	return string(bytes.Join([][]byte{lc, rest}, nil))
 }

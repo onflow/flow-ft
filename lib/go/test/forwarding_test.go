@@ -10,13 +10,16 @@ import (
 	jsoncdc "github.com/onflow/cadence/encoding/json"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
+	"github.com/onflow/flow-go-sdk/test"
 
 	"github.com/onflow/flow-ft/lib/go/contracts"
 	"github.com/onflow/flow-ft/lib/go/templates"
 )
 
 func TestPrivateForwarder(t *testing.T) {
-	b, accountKeys := newTestSetup(t)
+	b := newBlockchain()
+
+	accountKeys := test.AccountKeyGenerator()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
 	fungibleAddr, exampleTokenAddr, _ :=
