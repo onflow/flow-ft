@@ -1,5 +1,7 @@
-import FungibleToken from 0xFUNGIBLETOKENADDRESS
-import ExampleToken from 0xTOKENADDRESS
+import FungibleToken from "../contracts/FungibleToken.cdc"
+import ExampleToken from "../contracts/ExampleToken.cdc"
+
+/// Transfers tokens to a list of addresses specified in the `addressAmountMap` parameter
 
 transaction(addressAmountMap: {Address: UFix64}) {
 

@@ -23,9 +23,9 @@ Steps to set up accounts with token forwarder:
     getting the Receiver from the account that is the recipient.
 */
 
-import FungibleToken from 0xFUNGIBLETOKENADDRESS
-import ExampleToken from 0xTOKENADDRESS
-import TokenForwarding from 0xFORWARDINGADDRESS
+import FungibleToken from "../../contracts/FungibleToken.cdc"
+import ExampleToken from "../contracts/ExampleToken.cdc"
+import TokenForwarding from "../contracts/utilityContracts/TokenForwarding.cdc"
 
 transaction(receiver: Address) {
 
