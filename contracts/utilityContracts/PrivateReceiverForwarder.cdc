@@ -7,7 +7,7 @@ whose deposit function is only callable by an admin through a public capability.
 
 */
 
-import FungibleToken from 0xFUNGIBLETOKENADDRESS
+import FungibleToken from "./../FungibleToken.cdc"
 
 pub contract PrivateReceiverForwarder {
 

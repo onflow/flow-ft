@@ -1,6 +1,6 @@
-import FungibleToken from 0xFUNGIBLETOKENADDRESS
-import ExampleToken from 0xTOKENADDRESS
-import PrivateReceiverForwarder from 0xPRIVATEFORWARDINGADDRESS
+import FungibleToken from "../../contracts/FungibleToken.cdc"
+import ExampleToken from "../../contracts/ExampleToken.cdc"
+import PrivateReceiverForwarder from "../../contracts/PrivateReceiverForwarder.cdc"
 
 // This transaction is used to create a user's Flow account with a private forwarder
 

@@ -4,8 +4,8 @@
 //
 // The burning amount would be a parameter to the transaction
 
-import FungibleToken from 0xFUNGIBLETOKENADDRESS
-import ExampleToken from 0xTOKENADDRESS
+import FungibleToken from "../../contracts/FungibleToken.cdc"
+import ExampleToken from "../contracts/ExampleToken.cdc"
 
 transaction(amount: UFix64) {
 

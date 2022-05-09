@@ -1,6 +1,8 @@
-import FungibleToken from 0xFUNGIBLETOKENADDRESS
-import ExampleToken from 0xTOKENADDRESS
-import PrivateReceiverForwarder from 0xPRIVATEFORWARDINGADDRESS
+import FungibleToken from "../../contracts/FungibleToken.cdc"
+import ExampleToken from "../../contracts/ExampleToken.cdc"
+import PrivateReceiverForwarder from "../../contracts/PrivateReceiverForwarder.cdc"
+
+// This transaction transfers to many addresses through their private receivers
 
 transaction(addressAmountMap: {Address: UFix64}) {
 
