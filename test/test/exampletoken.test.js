@@ -35,8 +35,8 @@ describe("exampletoken", ()=>{
 
   let fungibleTokenContractAddress;
   let exampleTokenContractAddress;
-  let exampleTokenAdmin;
-  let exampleTokenUser;
+  let exampleTokenUserA;
+  let exampleTokenUserB;
 
   beforeEach(async () => {
     const basePath = path.resolve(__dirname, "../../"); 
@@ -49,16 +49,16 @@ describe("exampletoken", ()=>{
     await emulator.start(port, {logging});
 
     // Deployed at address which has the alias - fungibleToken
-    fungibleTokenContractAddress = await getAccountAddress("fungibleToken");
+    fungibleTokenContractAddress = await getAccountAddress("FungibleToken");
     // Deployed at address which has the alias - exampleToken
-    exampleTokenContractAddress = await getAccountAddress("exampleToken");
+    exampleTokenContractAddress = await getAccountAddress("ExampleToken");
 
 
     await deployContract({ to: fungibleTokenContractAddress,    name: "FungibleToken"});
     await deployContract({ to: exampleTokenContractAddress,       name: "ExampleToken"});
 
-    exampleTokenAdmin = await getAccountAddress("exampleTokenAdmin");
-    exampleTokenUser  = await getAccountAddress("exampleTokenUser");
+    exampleTokenUserA  = await getAccountAddress("exampleTokenUserA");
+    exampleTokenUserB = await getAccountAddress("exampleTokenUserB");
   
   });
 
@@ -67,13 +67,35 @@ describe("exampletoken", ()=>{
     return emulator.stop();
   });
   
-  test("should be able to create an empty vault and create capabilities", async () => {
+  test("should be able to setup account", async () => {
     await shallPass(
       sendTransaction({
         name: "setup_account",
         args: [],
-        signers: [exampleTokenUser]
+        signers: [exampleTokenUserA]
       })
     );
   })
+
+  test("should be able to mint tokens", async () => {
+    
+    await shallPass(
+      sendTransaction({
+        name: "setup_account",
+        args: [],
+        signers: [exampleTokenUserA]
+      })
+    );
+
+    await shallPass(
+      sendTransaction({
+        name: "mint_tokens",
+        args: [exampleTokenUserA, 100],
+        signers: [exampleTokenContractAddress]
+      })
+    );
+    
+  })
+
+  
 })
