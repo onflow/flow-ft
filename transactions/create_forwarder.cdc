@@ -23,25 +23,30 @@ Steps to set up accounts with token forwarder:
     getting the Receiver from the account that is the recipient.
 */
 
-import FungibleToken from "../../contracts/FungibleToken.cdc"
+import FungibleToken from "../contracts/FungibleToken.cdc"
 import ExampleToken from "../contracts/ExampleToken.cdc"
 import TokenForwarding from "../contracts/utilityContracts/TokenForwarding.cdc"
 
 transaction(receiver: Address) {
 
     prepare(acct: AuthAccount) {
-        let recipient = getAccount(receiver)
-            .getCapability<&{FungibleToken.Receiver}>(/public/exampleTokenReceiver)
 
+        // Get the receiver capability for the account being forwarded to
+        let recipient = getAccount(receiver)
+            .getCapability<&{FungibleToken.Receiver}>(ExampleToken.ReceiverPublicPath)
+
+        // Create the forwarder and save it to the account that is doing the forwarding
         let vault <- TokenForwarding.createNewForwarder(recipient: recipient)
         acct.save(<-vault, to: /storage/exampleTokenForwarder)
 
-        if acct.getCapability(/public/exampleTokenReceiver).check<&{FungibleToken.Receiver}>() {
-            acct.unlink(/public/exampleTokenReceiver)
+        // Unlink the existing receiver capability
+        if acct.getCapability(ExampleToken.ReceiverPublicPath).check<&{FungibleToken.Receiver}>() {
+            acct.unlink(ExampleToken.ReceiverPublicPath)
         }
 
+        // Link the new forwarding receiver capability
         acct.link<&{FungibleToken.Receiver}>(
-            /public/exampleTokenReceiver,
+            ExampleToken.ReceiverPublicPath,
             target: /storage/exampleTokenForwarder
         )
     }

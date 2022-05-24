@@ -2,7 +2,7 @@ import FungibleToken from "../../contracts/FungibleToken.cdc"
 import ExampleToken from "../../contracts/ExampleToken.cdc"
 import PrivateReceiverForwarder from "../../contracts/PrivateReceiverForwarder.cdc"
 
-// This transaction transfers to many addresses through their private receivers
+/// This transaction transfers to many addresses through their private receivers
 
 transaction(addressAmountMap: {Address: UFix64}) {
 
@@ -14,7 +14,7 @@ transaction(addressAmountMap: {Address: UFix64}) {
     prepare(signer: AuthAccount) {
 
         // Get a reference to the signer's stored vault
-        self.vaultRef = signer.borrow<&ExampleToken.Vault>(from: /storage/exampleTokenVault)
+        self.vaultRef = signer.borrow<&ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)
 			?? panic("Could not borrow reference to the owner's Vault!")
 
         self.privateForwardingSender = signer.borrow<&PrivateReceiverForwarder.Sender>(from: PrivateReceiverForwarder.SenderStoragePath)
