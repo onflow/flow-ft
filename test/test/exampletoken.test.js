@@ -1,17 +1,11 @@
 import path from "path";
 import { emulator, init, getAccountAddress, deployContractByName, sendTransaction, shallPass, 
   executeScript, shallRevert, getFlowBalance, mintFlow } from "flow-js-testing";
-import fs from "fs";
-
-//const zzz = fs.readFileSync(path.resolve(__dirname, "../mockTransactions/zzz.cdc"), {encoding:'utf8', flag:'r'});
 
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(10000);
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
+// Auxiliary function for deploying the cadence contracts
 async function deployContract(param) {
   const [result, error] = await deployContractByName(param);
   if (error != null) {
@@ -21,24 +15,21 @@ async function deployContract(param) {
   }
 }
 
-async function getCurrentTimestamp() {
-  const code = `
-    pub fun main(): UInt64 {
-      return UInt64(getCurrentBlock().timestamp)
-    }
-  `;
-  return await executeScript({ code });
-}
 
-
+// Defining the test suite for the example token
 describe("exampletoken", ()=>{
 
+  // Variables for holding the account address
   let fungibleTokenContractAddress;
   let exampleTokenContractAddress;
   let exampleTokenUserA;
   let exampleTokenUserB;
 
+  // Before each test...
   beforeEach(async () => {
+    // We do some scafolding...
+
+    // Getting the base path of the project
     const basePath = path.resolve(__dirname, "../../"); 
 		// You can specify different port to parallelize execution of describe blocks
     const port = 8080; 
@@ -48,25 +39,30 @@ describe("exampletoken", ()=>{
     await init(basePath, { port });
     await emulator.start(port, {logging});
 
+    // ...then we deploy the ft and example token contracts using the getAccountAddress function
+    // from the flow-js-testing library...
+
     // Deployed at address which has the alias - fungibleToken
     fungibleTokenContractAddress = await getAccountAddress("FungibleToken");
     // Deployed at address which has the alias - exampleToken
     exampleTokenContractAddress = await getAccountAddress("ExampleToken");
 
-
     await deployContract({ to: fungibleTokenContractAddress,    name: "FungibleToken"});
     await deployContract({ to: exampleTokenContractAddress,       name: "ExampleToken"});
 
+    // ...and finally we get the address for a copuple of regular accounts
     exampleTokenUserA  = await getAccountAddress("exampleTokenUserA");
     exampleTokenUserB = await getAccountAddress("exampleTokenUserB");
   
   });
 
-  // Stop emulator, so it could be restarted
+  // After each test we stop the emulator, so it could be restarted
   afterEach(async () => {
     return emulator.stop();
   });
   
+  // First test is to check if the example token contract is deployed
+  // just sending the tx defined in the transactions folder signed by a regular account
   test("should be able to setup account", async () => {
     await shallPass(
       sendTransaction({
@@ -77,8 +73,9 @@ describe("exampletoken", ()=>{
     );
   })
 
+  // Second test mint tokens from the contract account to a regular account
   test("should be able to mint tokens", async () => {
-    
+    // Step 1: Setup a regular account
     await shallPass(
       sendTransaction({
         name: "setup_account",
@@ -86,7 +83,7 @@ describe("exampletoken", ()=>{
         signers: [exampleTokenUserA]
       })
     );
-
+    // Step 2: Mint tokens signing as example token admin, depositing to a regular account
     await shallPass(
       sendTransaction({
         name: "mint_tokens",
@@ -94,11 +91,12 @@ describe("exampletoken", ()=>{
         signers: [exampleTokenContractAddress]
       })
     );
-    
+
   })
 
+  // Third test transfer tokens between two regular accounts
   test("should be able to transfer tokens", async () => {
-    
+    // Step 1: Setup a regular account
     await shallPass(
       sendTransaction({
         name: "setup_account",
@@ -106,7 +104,7 @@ describe("exampletoken", ()=>{
         signers: [exampleTokenUserA]
       })
     );
-
+    // Step 2: Setup another regular account
     await shallPass(
       sendTransaction({
         name: "setup_account",
@@ -114,7 +112,7 @@ describe("exampletoken", ()=>{
         signers: [exampleTokenUserB]
       })
     );
-
+    // Step 3: Mint tokens signing as example token admin, depositing to the account A
     await shallPass(
       sendTransaction({
         name: "mint_tokens",
@@ -122,7 +120,7 @@ describe("exampletoken", ()=>{
         signers: [exampleTokenContractAddress]
       })
     );
-
+    // Step 4: Transfer 50 tokens from account A to account B
     await shallPass(
       sendTransaction({
         name: "transfer_tokens",
@@ -132,5 +130,24 @@ describe("exampletoken", ()=>{
     );
   })
 
+  // Fourth test burns tokens
+  test("should be able to burn tokens", async () => {
+    // Step 1: Mint tokens to the very example token admin account
+    await shallPass(
+      sendTransaction({
+        name: "mint_tokens",
+        args: [exampleTokenContractAddress, 100],
+        signers: [exampleTokenContractAddress]
+      })
+    );
+    // Step 2: Burn 50 tokens from the example token admin account
+    await shallPass(
+      sendTransaction({
+        name: "burn_tokens",
+        args: [50],
+        signers: [exampleTokenContractAddress]
+      })
+    );
+  })
 
 })
