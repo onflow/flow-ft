@@ -97,5 +97,40 @@ describe("exampletoken", ()=>{
     
   })
 
-  
+  test("should be able to transfer tokens", async () => {
+    
+    await shallPass(
+      sendTransaction({
+        name: "setup_account",
+        args: [],
+        signers: [exampleTokenUserA]
+      })
+    );
+
+    await shallPass(
+      sendTransaction({
+        name: "setup_account",
+        args: [],
+        signers: [exampleTokenUserB]
+      })
+    );
+
+    await shallPass(
+      sendTransaction({
+        name: "mint_tokens",
+        args: [exampleTokenUserA, 100],
+        signers: [exampleTokenContractAddress]
+      })
+    );
+
+    await shallPass(
+      sendTransaction({
+        name: "transfer_tokens",
+        args: [50, exampleTokenUserB],
+        signers: [exampleTokenUserA]
+      })
+    );
+  })
+
+
 })
