@@ -8,15 +8,15 @@ import PrivateReceiverForwarder from "../../contracts/PrivateReceiverForwarder.c
 
 transaction {
 
-    prepare(acct: AuthAccount) {
+    prepare(signer: AuthAccount) {
         receiverCapability = signer.link<&ExampleToken.Vault{FungibleToken.Receiver}>(
             /private/exampleTokenReceiver,
-            target: /storage/exampleTokenVault
+            target: ExampleToken.VaultStoragePath
         )
 
         let vault <- PrivateReceiverForwarder.createNewForwarder(recipient: receiverCapability)
 
-        acct.save(<-vault, to: PrivateReceiverForwarder.PrivateReceiverStoragePath)
+        signer.save(<-vault, to: PrivateReceiverForwarder.PrivateReceiverStoragePath)
 
         signer.link<&{PrivateReceiverForwarder.Forwarder}>(
             PrivateReceiverForwarder.PrivateReceiverPublicPath,

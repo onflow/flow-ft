@@ -3,8 +3,8 @@ import FungibleToken from "../../contracts/FungibleToken.cdc"
 import ExampleToken from "../../contracts/ExampleToken.cdc"
 import PrivateReceiverForwarder from "../../contracts/PrivateReceiverForwarder.cdc"
 
-// This transaction adds a Vault, a private receiver forwarder
-// a balance capability, and a public capability for the receiver
+/// This transaction adds a Vault, a private receiver forwarder
+/// a balance capability, and a public capability for the receiver
 
 transaction {
 
@@ -14,17 +14,17 @@ transaction {
             return
         }
 
-        if signer.borrow<&ExampleToken.Vault>(from: /storage/exampleTokenVault) == nil {
+        if signer.borrow<&ExampleToken.Vault>(from: ExampleToken.VaultStoragePath) == nil {
             // Create a new ExampleToken Vault and put it in storage
             signer.save(
                 <-ExampleToken.createEmptyVault(),
-                to: /storage/exampleTokenVault
+                to: ExampleToken.VaultStoragePath
             )
         }
 
         signer.link<&{FungibleToken.Receiver}>(
             /private/exampleTokenReceiver,
-            target: /storage/exampleTokenVault
+            target: ExampleToken.VaultStoragePath
         )
 
         let receiverCapability = signer.getCapability<&{FungibleToken.Receiver}>(/private/exampleTokenReceiver)
@@ -32,8 +32,8 @@ transaction {
         // Create a public capability to the Vault that only exposes
         // the balance field through the Balance interface
         signer.link<&ExampleToken.Vault{FungibleToken.Balance}>(
-            /public/exampleTokenBalance,
-            target: /storage/exampleTokenVault
+            ExampleToken.BalancePublicPath,
+            target: ExampleToken.VaultStoragePath
         )
 
         let forwarder <- PrivateReceiverForwarder.createNewForwarder(recipient: receiverCapability)
