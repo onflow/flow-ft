@@ -5,6 +5,12 @@ pub contract ExampleToken: FungibleToken {
     /// Total supply of ExampleTokens in existence
     pub var totalSupply: UFix64
 
+    /// Storage and Public Paths
+    pub let VaultStoragePath: StoragePath
+    pub let ReceiverPublicPath: PublicPath
+    pub let BalancePublicPath: PublicPath
+    pub let AdminStoragePath: StoragePath
+
     /// TokensInitialized
     ///
     /// The event that is emitted when the contract is created
@@ -186,29 +192,34 @@ pub contract ExampleToken: FungibleToken {
     init() {
         self.totalSupply = 1000.0
 
+        self.VaultStoragePath = /storage/exampleTokenVault
+        self.ReceiverPublicPath = /public/exampleTokenReceiver
+        self.BalancePublicPath = /public/exampleTokenBalance
+        self.AdminStoragePath = /storage/exampleTokenAdmin
+
         // Create the Vault with the total supply of tokens and save it in storage
         //
         let vault <- create Vault(balance: self.totalSupply)
-        self.account.save(<-vault, to: /storage/exampleTokenVault)
+        self.account.save(<-vault, to: self.VaultStoragePath)
 
         // Create a public capability to the stored Vault that only exposes
         // the `deposit` method through the `Receiver` interface
         //
         self.account.link<&{FungibleToken.Receiver}>(
-            /public/exampleTokenReceiver,
-            target: /storage/exampleTokenVault
+            self.ReceiverPublicPath,
+            target: self.VaultStoragePath
         )
 
         // Create a public capability to the stored Vault that only exposes
         // the `balance` field through the `Balance` interface
         //
         self.account.link<&ExampleToken.Vault{FungibleToken.Balance}>(
-            /public/exampleTokenBalance,
-            target: /storage/exampleTokenVault
+            self.BalancePublicPath,
+            target: self.VaultStoragePath
         )
 
         let admin <- create Administrator()
-        self.account.save(<-admin, to: /storage/exampleTokenAdmin)
+        self.account.save(<-admin, to: self.AdminStoragePath)
 
         // Emit an event that shows that the contract was initialized
         //
