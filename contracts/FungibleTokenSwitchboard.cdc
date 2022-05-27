@@ -4,20 +4,15 @@ pub contract FungibleTokenSwitchboard {
     
     pub let SwitchboardStoragePath: StoragePath
     pub let SwitchboardPublicPath: PublicPath
-    pub let SwitchboardManagerPath: PrivatePath
     
     pub resource interface SwitchboardPublic {
         pub fun getVaultCapabilities(): {Type: Capability<&{FungibleToken.Receiver}>}
-    }
-
-    pub resource interface SwitchboardManager {
-        pub fun addVaultCapability(capability : Capability<&AnyResource{FungibleToken.Receiver}>)
     }
     
     /// Switchboard
     ///
     /// 
-    pub resource Switchboard: FungibleToken.Receiver, SwitchboardPublic, SwitchboardManager {
+    pub resource Switchboard: FungibleToken.Receiver, SwitchboardPublic {
         
         pub var fungibleTokenReceiverCapabilities: {Type: Capability<&{FungibleToken.Receiver}>}
 
@@ -50,17 +45,13 @@ pub contract FungibleTokenSwitchboard {
     init(){
         self.SwitchboardStoragePath = StoragePath(identifier: "fungibleTokenSwitchboard")!
         self.SwitchboardPublicPath = PublicPath(identifier: "fungibleTokenSwitchboardPublic")!
-        self.SwitchboardManagerPath = PrivatePath(identifier: "fungibleTokenSwitchboardManager")!
         let switchboard <- create Switchboard()        
         self.account.save(<- switchboard, to: self.SwitchboardStoragePath)
         self.account.link<&FungibleTokenSwitchboard.Switchboard{FungibleTokenSwitchboard.SwitchboardPublic}>(
             self.SwitchboardPublicPath,
             target: self.SwitchboardStoragePath
         )
-        self.account.link<&FungibleTokenSwitchboard.Switchboard{FungibleTokenSwitchboard.SwitchboardManager}>(
-            self.SwitchboardManagerPath,
-            target: self.SwitchboardStoragePath
-        )
     }
 
 }
+ 
