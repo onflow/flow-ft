@@ -20,8 +20,7 @@ async function deployContract(param) {
 describe("exampletoken", ()=>{
 
   // Variables for holding the account address
-  let fungibleTokenContractAddress;
-  let exampleTokenContractAddress;
+  let serviceAccountAddress;
   let exampleTokenUserA;
   let exampleTokenUserB;
 
@@ -30,7 +29,7 @@ describe("exampletoken", ()=>{
     // We do some scafolding...
 
     // Getting the base path of the project
-    const basePath = path.resolve(__dirname, "../"); 
+    const basePath = path.resolve(__dirname, "../../"); 
 		// You can specify different port to parallelize execution of describe blocks
     const port = 8080; 
 		// Setting logging flag to true will pipe emulator output to console
@@ -42,13 +41,11 @@ describe("exampletoken", ()=>{
     // ...then we deploy the ft and example token contracts using the getAccountAddress function
     // from the flow-js-testing library...
 
-    // Deployed at address which has the alias - fungibleToken
-    fungibleTokenContractAddress = await getAccountAddress("FungibleToken");
-    // Deployed at address which has the alias - exampleToken
-    exampleTokenContractAddress = await getAccountAddress("ExampleToken");
+    // Create a service account and deploy contracts to it
+    serviceAccountAddress = await getAccountAddress("ServiceAccount");
 
-    await deployContract({ to: fungibleTokenContractAddress,    name: "FungibleToken"});
-    await deployContract({ to: exampleTokenContractAddress,       name: "ExampleToken"});
+    await deployContract({ to: serviceAccountAddress,    name: "FungibleToken"});
+    await deployContract({ to: serviceAccountAddress,       name: "ExampleToken"});
 
     // ...and finally we get the address for a copuple of regular accounts
     exampleTokenUserA  = await getAccountAddress("exampleTokenUserA");
@@ -88,7 +85,7 @@ describe("exampletoken", ()=>{
       sendTransaction({
         name: "mint_tokens",
         args: [exampleTokenUserA, 100],
-        signers: [exampleTokenContractAddress]
+        signers: [serviceAccountAddress]
       })
     );
 
@@ -117,7 +114,7 @@ describe("exampletoken", ()=>{
       sendTransaction({
         name: "mint_tokens",
         args: [exampleTokenUserA, 100],
-        signers: [exampleTokenContractAddress]
+        signers: [serviceAccountAddress]
       })
     );
     // Step 4: Transfer 50 tokens from account A to account B
@@ -136,8 +133,8 @@ describe("exampletoken", ()=>{
     await shallPass(
       sendTransaction({
         name: "mint_tokens",
-        args: [exampleTokenContractAddress, 100],
-        signers: [exampleTokenContractAddress]
+        args: [serviceAccountAddress, 100],
+        signers: [serviceAccountAddress]
       })
     );
     // Step 2: Burn 50 tokens from the example token admin account
@@ -145,7 +142,7 @@ describe("exampletoken", ()=>{
       sendTransaction({
         name: "burn_tokens",
         args: [50],
-        signers: [exampleTokenContractAddress]
+        signers: [serviceAccountAddress]
       })
     );
   })

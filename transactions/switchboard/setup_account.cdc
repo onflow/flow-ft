@@ -1,8 +1,5 @@
-// This transaction is a template for a transaction
-// to add a Vault resource to their account
-// so that they can use the exampleToken
+import FungibleTokenSwitchboard from "./../../contracts/FungibleTokenSwitchboard.cdc"
 
-import FungibleTokenSwitchboard from "./../../contracts/fungibleTokenSwitchBoard/FungibleTokenSwitchboard.cdc"
 
 transaction {
 
