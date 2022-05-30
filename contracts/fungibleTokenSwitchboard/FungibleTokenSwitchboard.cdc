@@ -1,6 +1,13 @@
-import FungibleToken from "./FungibleToken.cdc"
+import FungibleToken from "../FungibleToken.cdc"
 
 pub contract FungibleTokenSwitchboard {
+
+    pub event FungibleTokenSwitchboardInitialized()
+    
+    pub event SwitchboardInitialized(switchboardResourceID: UInt64)
+
+    //pub event vaultCapabilityAdded()
+    //pub event vaultCapabilityRemoved()
     
     pub let SwitchboardStoragePath: StoragePath
     pub let SwitchboardPublicPath: PublicPath
@@ -39,18 +46,20 @@ pub contract FungibleTokenSwitchboard {
 
         init(){
             self.fungibleTokenReceiverCapabilities = {}
+
+            emit SwitchboardInitialized(switchboardResourceID: self.uuid)
         }
+    }
+
+    pub fun createSwitchboard(): @Switchboard {
+        return <- create Switchboard()
     }
 
     init(){
         self.SwitchboardStoragePath = StoragePath(identifier: "fungibleTokenSwitchboard")!
         self.SwitchboardPublicPath = PublicPath(identifier: "fungibleTokenSwitchboardPublic")!
-        let switchboard <- create Switchboard()        
-        self.account.save(<- switchboard, to: self.SwitchboardStoragePath)
-        self.account.link<&FungibleTokenSwitchboard.Switchboard{FungibleTokenSwitchboard.SwitchboardPublic}>(
-            self.SwitchboardPublicPath,
-            target: self.SwitchboardStoragePath
-        )
+
+        emit FungibleTokenSwitchboardInitialized()
     }
 
 }

@@ -30,7 +30,7 @@ describe("exampletoken", ()=>{
     // We do some scafolding...
 
     // Getting the base path of the project
-    const basePath = path.resolve(__dirname, "../../"); 
+    const basePath = path.resolve(__dirname, "../"); 
 		// You can specify different port to parallelize execution of describe blocks
     const port = 8080; 
 		// Setting logging flag to true will pipe emulator output to console
