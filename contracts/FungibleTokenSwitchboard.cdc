@@ -11,6 +11,7 @@ pub contract FungibleTokenSwitchboard {
     
     pub let SwitchboardStoragePath: StoragePath
     pub let SwitchboardPublicPath: PublicPath
+    pub let SwitchboardReceiverPublicPath: PublicPath
     
     pub resource interface SwitchboardPublic {
         pub fun getVaultCapabilities(): {Type: Capability<&{FungibleToken.Receiver}>}
@@ -18,25 +19,20 @@ pub contract FungibleTokenSwitchboard {
     
     /// Switchboard
     ///
-    /// 
+    ///
     pub resource Switchboard: FungibleToken.Receiver, SwitchboardPublic {
         
         pub var fungibleTokenReceiverCapabilities: {Type: Capability<&{FungibleToken.Receiver}>}
 
-        pub fun getVaultCapabilities(): {Type: Capability<&{FungibleToken.Receiver}>}{
-            return self.fungibleTokenReceiverCapabilities
+        pub fun addVaultCapability(capability: Capability<&{FungibleToken.Receiver}>) {
+            self.fungibleTokenReceiverCapabilities[capability.getType()] = capability
         }
 
-        pub fun addVaultCapability(capability: Capability<&{FungibleToken.Receiver}>){
-            let vaultRef = capability.borrow()
-            self.fungibleTokenReceiverCapabilities[vaultRef.getType()] = capability
-        }
-
-        pub fun removeVaultCapability(capability: Capability<&{FungibleToken.Receiver}>){
+        pub fun removeVaultCapability(capability: Capability<&{FungibleToken.Receiver}>) {
             self.fungibleTokenReceiverCapabilities.remove(key: capability.getType())
         }
          
-        pub fun deposit(from: @FungibleToken.Vault){
+        pub fun deposit(from: @FungibleToken.Vault) {
             let depositedVaultCapability = self.fungibleTokenReceiverCapabilities[from.getType()] ?? 
                 panic ("The deposited vault is not available on this switchboard")
             let vaultRef = depositedVaultCapability.borrow() ?? 
@@ -44,9 +40,12 @@ pub contract FungibleTokenSwitchboard {
             vaultRef.deposit(from: <- from)
         }
 
-        init(){
-            self.fungibleTokenReceiverCapabilities = {}
+        pub fun getVaultCapabilities(): {Type: Capability<&{FungibleToken.Receiver}>} {
+            return self.fungibleTokenReceiverCapabilities
+        }
 
+        init() {
+            self.fungibleTokenReceiverCapabilities = {}
             emit SwitchboardInitialized(switchboardResourceID: self.uuid)
         }
     }
@@ -55,10 +54,10 @@ pub contract FungibleTokenSwitchboard {
         return <- create Switchboard()
     }
 
-    init(){
+    init() {
         self.SwitchboardStoragePath = StoragePath(identifier: "fungibleTokenSwitchboard")!
         self.SwitchboardPublicPath = PublicPath(identifier: "fungibleTokenSwitchboardPublic")!
-
+        self.SwitchboardReceiverPublicPath = PublicPath(identifier: "fungibleTokenSwitchboardReceiverPublic")!
         emit FungibleTokenSwitchboardInitialized()
     }
 
