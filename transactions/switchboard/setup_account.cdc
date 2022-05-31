@@ -1,4 +1,5 @@
 import FungibleTokenSwitchboard from "./../../contracts/FungibleTokenSwitchboard.cdc"
+import FungibleToken from "./../../contracts/FungibleToken.cdc"
 
 
 transaction {
@@ -11,6 +12,12 @@ transaction {
 
             acct.save(<- switchboard, to: FungibleTokenSwitchboard.SwitchboardStoragePath)
 
+
+            acct.link<&FungibleTokenSwitchboard.Switchboard{FungibleToken.Receiver}>(
+                FungibleTokenSwitchboard.SwitchboardReceiverPublicPath,
+                target: FungibleTokenSwitchboard.SwitchboardStoragePath
+            )
+            
             acct.link<&FungibleTokenSwitchboard.Switchboard{FungibleTokenSwitchboard.SwitchboardPublic}>(
                 FungibleTokenSwitchboard.SwitchboardPublicPath,
                 target: FungibleTokenSwitchboard.SwitchboardStoragePath
