@@ -25,7 +25,8 @@ pub contract FungibleTokenSwitchboard {
         pub var fungibleTokenReceiverCapabilities: {Type: Capability<&{FungibleToken.Receiver}>}
 
         pub fun addVaultCapability(capability: Capability<&{FungibleToken.Receiver}>) {
-            self.fungibleTokenReceiverCapabilities[capability.getType()] = capability
+            let vaultRef = capability.borrow() ?? panic ("Cannot borrow reference to vault from capability")
+            self.fungibleTokenReceiverCapabilities[vaultRef.getType()] = capability
         }
 
         pub fun removeVaultCapability(capability: Capability<&{FungibleToken.Receiver}>) {
