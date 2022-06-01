@@ -68,7 +68,7 @@ describe("exampletoken", ()=>{
         signers: [exampleTokenUserA]
       })
     );
-  })
+  });
 
   // Second test mint tokens from the contract account to a regular account
   test("should be able to mint tokens", async () => {
@@ -88,7 +88,7 @@ describe("exampletoken", ()=>{
         signers: [serviceAccount]
       })
     );
-  })
+  });
 
   // Third test transfer tokens between two regular accounts
   test("should be able to transfer tokens", async () => {
@@ -199,9 +199,8 @@ describe("fungibletokenswitchboard", ()=>{
       })
     );
   });
-   /* 
-  // Second test checks if switchboard user is able to create and remove ft token
-  // vault capabilities
+
+  // Second test checks if switchboard user is able to add ft token vault capabilities
   test("should be able to create and remove vault capability", async () => {
     // First step: setup switchboard
     await shallPass(
@@ -211,7 +210,15 @@ describe("fungibletokenswitchboard", ()=>{
         signers: [fungibleTokenSwitchboardUser]
       })
     );
-    //Second step: create vault capability
+    //Second step: setup example token vault
+    await shallPass(
+      sendTransaction({
+        name: "setup_account",
+        args: [],
+        signers: [fungibleTokenSwitchboardUser]
+      })
+    );
+    //Third step: add example token vault capability
     await shallPass(
       sendTransaction({
         name: "switchboard/add_vault_capability",
@@ -219,6 +226,35 @@ describe("fungibletokenswitchboard", ()=>{
         signers: [fungibleTokenSwitchboardUser]
       })
     );
+  });
+
+  // Third test checks if switchboard user is able to remove ft token vault capabilities
+  test("should be able to create and remove vault capability", async () => {
+    // First step: setup switchboard
+    await shallPass(
+      sendTransaction({
+        name: "switchboard/setup_account",
+        args: [],
+        signers: [fungibleTokenSwitchboardUser]
+      })
+    );
+    //Second step: setup example token vault
+    await shallPass(
+      sendTransaction({
+        name: "setup_account",
+        args: [],
+        signers: [fungibleTokenSwitchboardUser]
+      })
+    );   
+    //Third step: add vault capability
+    await shallPass(
+      sendTransaction({
+        name: "switchboard/add_vault_capability",
+        args: [],
+        signers: [fungibleTokenSwitchboardUser]
+      })
+    );
+    //Third step: remove vault capability
     await shallPass(
       sendTransaction({
         name: "switchboard/remove_vault_capability",
@@ -228,7 +264,7 @@ describe("fungibletokenswitchboard", ()=>{
     );
   });
 
-  // Third test checks if switchboard user is able to receive ft through the
+  // Fourth test checks if switchboard user is able to receive ft through the
   // switchboard deposit function
   test("should be able to receive tokens through switchboard", async () => {
     //First step: setup switchboard
@@ -239,18 +275,18 @@ describe("fungibletokenswitchboard", ()=>{
         signers: [fungibleTokenSwitchboardUser]
       })
     );
-    //Second step: create vault capability
+    //Second step: setup example token vault
     await shallPass(
       sendTransaction({
-        name: "switchboard/add_vault_capability",
+        name: "setup_account",
         args: [],
         signers: [fungibleTokenSwitchboardUser]
       })
     );
-    //Third step: setup ft vault
+    //Third step: add vault capability
     await shallPass(
       sendTransaction({
-        name: "setup_account",
+        name: "switchboard/add_vault_capability",
         args: [],
         signers: [fungibleTokenSwitchboardUser]
       })
@@ -267,9 +303,9 @@ describe("fungibletokenswitchboard", ()=>{
     await shallPass(
       sendTransaction({
         name: "switchboard/transfer_tokens",
-        args: [50, fungibleTokenSwitchboardUser],
+        args: [fungibleTokenSwitchboardUser, 50],
         signers: [serviceAccount]
       })
     );
-  });*/
+  });
 });
