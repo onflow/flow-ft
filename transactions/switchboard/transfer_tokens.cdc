@@ -9,7 +9,7 @@ import FungibleToken from "./../../contracts/FungibleToken.cdc"
 import FungibleTokenSwitchboard from "./../../contracts/FungibleTokenSwitchboard.cdc"
 import ExampleToken from "./../../contracts/ExampleToken.cdc"
 
-transaction(amount: UFix64, to: Address) {
+transaction(to: Address, amount: UFix64) {
 
     // The Vault resource that holds the tokens that are being transferred
     let sentVault: @FungibleToken.Vault
