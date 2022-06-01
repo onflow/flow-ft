@@ -13,7 +13,7 @@ transaction {
             acct.save(<- switchboard, to: FungibleTokenSwitchboard.SwitchboardStoragePath)
 
 
-            acct.link<&{FungibleToken.Receiver}>(
+            acct.link<&FungibleTokenSwitchboard.Switchboard{FungibleToken.Receiver}>(
                 FungibleTokenSwitchboard.SwitchboardReceiverPublicPath,
                 target: FungibleTokenSwitchboard.SwitchboardStoragePath
             )
