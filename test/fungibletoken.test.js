@@ -1,6 +1,7 @@
 import path from "path";
 import { emulator, init, getAccountAddress, deployContractByName, sendTransaction, shallPass, 
-  executeScript, shallRevert, getFlowBalance, mintFlow } from "flow-js-testing";
+  executeScript } from "flow-js-testing";
+  import fs from "fs";
 
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(10000);
@@ -14,6 +15,8 @@ async function deployContract(param) {
     process.exit(1);
   }
 }
+
+const get_vault_capabilities = fs.readFileSync(path.resolve(__dirname, "../transactions/scripts/switchboard/get_vault_capabilities.cdc"), {encoding:'utf8', flag:'r'});
 
 
 // Defining the test suite for the example token
@@ -308,4 +311,44 @@ describe("fungibletokenswitchboard", ()=>{
       })
     );
   });
+
+  // Fifth test checks if vault capabilities could be retrieved from a switchboard
+  test("should be able to retrieve vault capabilities", async () => {
+    //First step: setup switchboard
+    await shallPass(
+      sendTransaction({
+        name: "switchboard/setup_account",
+        args: [],
+        signers: [fungibleTokenSwitchboardUser]
+      })
+    );
+    //Second step: setup example token vault
+    await shallPass(
+      sendTransaction({
+        name: "setup_account",
+        args: [],
+        signers: [fungibleTokenSwitchboardUser]
+      })
+    );
+    //Third step: add vault capability
+    await shallPass(
+      sendTransaction({
+        name: "switchboard/add_vault_capability",
+        args: [],
+        signers: [fungibleTokenSwitchboardUser]
+      })
+    );
+    // Fourth step: verify that capabilities are returned
+    const [result, e] = await executeScript({
+      code: get_vault_capabilities,
+      args: [fungibleTokenSwitchboardUser]
+    });
+    expect(result).not.toBe(null);
+  });
+  
 });
+
+
+
+
+ 
