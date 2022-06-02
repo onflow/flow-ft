@@ -29,14 +29,14 @@ pub contract FungibleTokenSwitchboard {
     /// The event that is emitted when a new vault capacity is added to a
     /// switchboard resource
     ///
-    pub event VaultCapabilityAdded()
+    pub event VaultCapabilityAdded(type: Type)
 
     /// VaultCapacityRemoved
     ///
     /// The event that is emitted vault capacity is added removed from a 
     /// switchboard resource
     ///
-    pub event vaultCapabilityRemoved()
+    pub event VaultCapabilityRemoved(type: Type)
     
     /// SwitchboardPublic
     ///
@@ -71,8 +71,14 @@ pub contract FungibleTokenSwitchboard {
         /// will be added to the switchboard
         ///
         pub fun addVaultCapability(capability: Capability<&{FungibleToken.Receiver}>) {
-            let vaultRef = capability.borrow() ?? panic ("Cannot borrow reference to vault from capability")
+            // Borrow a reference to the vault pointed by the capability we want
+            // store inside the switchboard
+            let vaultRef = capability.borrow() 
+                ?? panic ("Cannot borrow reference to vault from capability")
+            // Use the vault reference type as key for storing the capability
             self.fungibleTokenReceiverCapabilities[vaultRef.getType()] = capability
+            // Emit the event that indicates that a new capability has been added
+            emit VaultCapabilityAdded(type: vaultRef.getType())
         }
 
         /// removeVaultCapability removes a fungible token receiver capability 
@@ -82,7 +88,14 @@ pub contract FungibleTokenSwitchboard {
         ///                         to be removed from the switchboard
         ///
         pub fun removeVaultCapability(capability: Capability<&{FungibleToken.Receiver}>) {
-            self.fungibleTokenReceiverCapabilities.remove(key: capability.getType())
+            // Borrow a reference to the vault pointed by the capability we want
+            // store inside the switchboard            
+            let vaultRef = capability.borrow() 
+                ?? panic ("Cannot borrow reference to vault from capability")
+            // Use the vault reference to find the capability to remove
+            self.fungibleTokenReceiverCapabilities.remove(key: vaultRef.getType())
+            // Emit the event that indicates that a new capability has been removed
+            emit VaultCapabilityRemoved(type: vaultRef.getType())            
         }
         
         /// deposit Takes a fungible token vault and routes it to the proper

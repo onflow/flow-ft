@@ -265,6 +265,12 @@ describe("fungibletokenswitchboard", ()=>{
         signers: [fungibleTokenSwitchboardUser]
       })
     );
+    // Fourth step: verify that capabilities are returned
+    const [result, e] = await executeScript({
+      code: get_vault_capabilities,
+      args: [fungibleTokenSwitchboardUser]
+    });
+    expect(result).toStrictEqual({});
   });
 
   // Fourth test checks if switchboard user is able to receive ft through the
