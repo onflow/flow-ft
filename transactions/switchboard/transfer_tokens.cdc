@@ -1,6 +1,7 @@
 // This transaction is a template for a transaction that
 // could be used by anyone to send tokens to another account
-// that has been set up to receive tokens.
+// through a switchboard, as long as they have set up their
+// switchboard and have add the proper capability to it
 //
 // The withdraw amount and the account from getAccount
 // would be the parameters to the transaction
@@ -29,12 +30,12 @@ transaction(to: Address, amount: UFix64) {
         // Get the recipient's public account object
         let recipient = getAccount(to)
 
-        // Get a reference to the recipient's Receiver
+        // Get a reference to the recipient's Switchboard Receiver
         let switchboardRef = recipient.getCapability(FungibleTokenSwitchboard.SwitchboardReceiverPublicPath)
             .borrow<&{FungibleToken.Receiver}>()
 			?? panic("Could not borrow receiver reference to switchboard!")
 
-        // Deposit the withdrawn tokens in the recipient's receiver
+        // Deposit the withdrawn tokens in the recipient's switchboard receiver
         switchboardRef.deposit(from: <-self.sentVault)
     }
 }
