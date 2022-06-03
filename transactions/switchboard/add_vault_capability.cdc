@@ -16,7 +16,7 @@ transaction {
       self.exampleTokenVaultCapabilty = signer.getCapability<&{FungibleToken.Receiver}>(ExampleToken.ReceiverPublicPath)
       // Get a reference to the signers switchboard
       self.switchboardRef = signer.borrow<&FungibleTokenSwitchboard.Switchboard>
-        (from: FungibleTokenSwitchboard.SwitchboardStoragePath) ?? panic("Could not borrow reference to switchboard")
+        (from: FungibleTokenSwitchboard.StoragePath) ?? panic("Could not borrow reference to switchboard")
     }
 
     execute {

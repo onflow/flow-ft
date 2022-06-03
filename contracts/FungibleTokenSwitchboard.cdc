@@ -8,9 +8,9 @@ import FungibleToken from "./FungibleToken.cdc"
 pub contract FungibleTokenSwitchboard {
     
     // Storage and Public Paths
-    pub let SwitchboardStoragePath: StoragePath
-    pub let SwitchboardPublicPath: PublicPath
-    pub let SwitchboardReceiverPublicPath: PublicPath
+    pub let StoragePath: StoragePath
+    pub let PublicPath: PublicPath
+    pub let ReceiverPublicPath: PublicPath
     
     /// FungibleTokenSwitchboardInitialized
     ///
@@ -140,9 +140,9 @@ pub contract FungibleTokenSwitchboard {
     }
 
     init() {
-        self.SwitchboardStoragePath = StoragePath(identifier: "fungibleTokenSwitchboard")!
-        self.SwitchboardPublicPath = PublicPath(identifier: "fungibleTokenSwitchboardPublic")!
-        self.SwitchboardReceiverPublicPath = PublicPath(identifier: "GenericFTReceiver")!
+        self.StoragePath = StoragePath(identifier: "fungibleTokenSwitchboard")!
+        self.PublicPath = PublicPath(identifier: "fungibleTokenSwitchboardPublic")!
+        self.ReceiverPublicPath = PublicPath(identifier: "GenericFTReceiver")!
         // Emit the event that shows that the contract was initialized
         emit FungibleTokenSwitchboardInitialized()
     }

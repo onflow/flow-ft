@@ -31,7 +31,7 @@ transaction(to: Address, amount: UFix64) {
         let recipient = getAccount(to)
 
         // Get a reference to the recipient's Switchboard Receiver
-        let switchboardRef = recipient.getCapability(FungibleTokenSwitchboard.SwitchboardReceiverPublicPath)
+        let switchboardRef = recipient.getCapability(FungibleTokenSwitchboard.ReceiverPublicPath)
             .borrow<&{FungibleToken.Receiver}>()
 			?? panic("Could not borrow receiver reference to switchboard!")
 
