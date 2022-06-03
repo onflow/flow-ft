@@ -45,7 +45,7 @@ pub contract FungibleTokenSwitchboard {
     
     /// Switchboard
     /// The resource that stores the multiple fungible token receiver capabilities,
-    /// allowing the owner to add and remove then and anyone to deposit any
+    /// allowing the owner to add and remove them and anyone to deposit any
     /// fungible token among the available capabilities
     ///
     pub resource Switchboard: FungibleToken.Receiver, SwitchboardPublic {
