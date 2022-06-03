@@ -51,7 +51,7 @@ pub contract FungibleTokenSwitchboard {
     pub resource Switchboard: FungibleToken.Receiver, SwitchboardPublic {
         
         /// fungibleTokenReceiverCapabilities
-        /// Dictoionary holding the fungible token receiver capabilities, 
+        /// Dictionary holding the fungible token receiver capabilities, 
         /// indexed by the fungible token vault type
         ///
         pub var fungibleTokenReceiverCapabilities: {Type: Capability<&{FungibleToken.Receiver}>}
@@ -66,7 +66,7 @@ pub contract FungibleTokenSwitchboard {
         ///
         pub fun addVaultCapability(capability: Capability<&{FungibleToken.Receiver}>) {
             // Borrow a reference to the vault pointed by the capability we want
-            // store inside the switchboard
+            // to store inside the switchboard
             let vaultRef = capability.borrow() 
                 ?? panic ("Cannot borrow reference to vault from capability")
             // Use the vault reference type as key for storing the capability
