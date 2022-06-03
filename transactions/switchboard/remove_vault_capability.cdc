@@ -22,8 +22,8 @@ transaction {
 
     execute {
       // Remove the capability from the switchboard using the 
-      // removeVaultCapability method
-      self.switchboardRef.removeVaultCapability(capability: self.exampleTokenVaultCapabilty)
+      // removeVault method
+      self.switchboardRef.removeVault(capability: self.exampleTokenVaultCapabilty)
     }
 
 }

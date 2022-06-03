@@ -50,13 +50,13 @@ pub contract FungibleTokenSwitchboard {
     ///
     pub resource Switchboard: FungibleToken.Receiver, SwitchboardPublic {
         
-        /// fungibleTokenReceiverCapabilities
+        /// receiverCapabilities
         /// Dictionary holding the fungible token receiver capabilities, 
         /// indexed by the fungible token vault type
         ///
-        pub var fungibleTokenReceiverCapabilities: {Type: Capability<&{FungibleToken.Receiver}>}
+        pub var receiverCapabilities: {Type: Capability<&{FungibleToken.Receiver}>}
 
-        /// addVaultCapability adds a new fungible token receiver capability
+        /// addNewVault adds a new fungible token receiver capability
         ///                    to the switchboard resource
         ///            
         /// 
@@ -64,30 +64,30 @@ pub contract FungibleTokenSwitchboard {
         /// token vault deposit function through {FungibleToken.Receiver} that
         /// will be added to the switchboard
         ///
-        pub fun addVaultCapability(capability: Capability<&{FungibleToken.Receiver}>) {
+        pub fun addNewVault(capability: Capability<&{FungibleToken.Receiver}>) {
             // Borrow a reference to the vault pointed by the capability we want
             // to store inside the switchboard
             let vaultRef = capability.borrow() 
                 ?? panic ("Cannot borrow reference to vault from capability")
             // Use the vault reference type as key for storing the capability
-            self.fungibleTokenReceiverCapabilities[vaultRef.getType()] = capability
+            self.receiverCapabilities[vaultRef.getType()] = capability
             // Emit the event that indicates that a new capability has been added
             emit VaultCapabilityAdded(type: vaultRef.getType())
         }
 
-        /// removeVaultCapability removes a fungible token receiver capability 
+        /// removeVault removes a fungible token receiver capability 
         ///                       from the switchboard resource
         /// 
         /// Parameters: capability: The capability to a fungible token vault 
         ///                         to be removed from the switchboard
         ///
-        pub fun removeVaultCapability(capability: Capability<&{FungibleToken.Receiver}>) {
+        pub fun removeVault(capability: Capability<&{FungibleToken.Receiver}>) {
             // Borrow a reference to the vault pointed by the capability we want
             // store inside the switchboard            
             let vaultRef = capability.borrow() 
                 ?? panic ("Cannot borrow reference to vault from capability")
             // Use the vault reference to find the capability to remove
-            self.fungibleTokenReceiverCapabilities.remove(key: vaultRef.getType())
+            self.receiverCapabilities.remove(key: vaultRef.getType())
             // Emit the event that indicates that a new capability has been removed
             emit VaultCapabilityRemoved(type: vaultRef.getType())            
         }
@@ -98,7 +98,7 @@ pub contract FungibleTokenSwitchboard {
         /// Parameters: from: The deposited fungible token vault resource
         ///        
         pub fun deposit(from: @FungibleToken.Vault) {
-            let depositedVaultCapability = self.fungibleTokenReceiverCapabilities[from.getType()] ?? 
+            let depositedVaultCapability = self.receiverCapabilities[from.getType()] ?? 
                 panic ("The deposited vault is not available on this switchboard")
             let vaultRef = depositedVaultCapability.borrow() ?? 
                 panic ("Can not borrow a reference to the the vault")
@@ -112,12 +112,12 @@ pub contract FungibleTokenSwitchboard {
         /// capabilities
         ///
         pub fun getVaultCapabilities(): {Type: Capability<&{FungibleToken.Receiver}>} {
-            return self.fungibleTokenReceiverCapabilities
+            return self.receiverCapabilities
         }
 
         init() {
             // Initialize the capabilities dictionary
-            self.fungibleTokenReceiverCapabilities = {}
+            self.receiverCapabilities = {}
             // Emit the event that indicates that a new switchboard resource
             // has been created
             emit SwitchboardInitialized(switchboardResourceID: self.uuid)

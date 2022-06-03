@@ -20,8 +20,8 @@ transaction {
     }
 
     execute {
-      // Add the capability to the switchboard using addVaultCapability method
-      self.switchboardRef.addVaultCapability(capability: self.exampleTokenVaultCapabilty)
+      // Add the capability to the switchboard using addNewVault method
+      self.switchboardRef.addNewVault(capability: self.exampleTokenVaultCapabilty)
     }
 
 }
