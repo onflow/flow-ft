@@ -54,7 +54,7 @@ pub contract FungibleTokenSwitchboard {
         /// Dictionary holding the fungible token receiver capabilities, 
         /// indexed by the fungible token vault type
         ///
-        pub var receiverCapabilities: {Type: Capability<&{FungibleToken.Receiver}>}
+        access(contract) var receiverCapabilities: {Type: Capability<&{FungibleToken.Receiver}>}
 
         /// addNewVault adds a new fungible token receiver capability
         ///                    to the switchboard resource
