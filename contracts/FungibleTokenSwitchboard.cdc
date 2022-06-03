@@ -12,12 +12,6 @@ pub contract FungibleTokenSwitchboard {
     pub let PublicPath: PublicPath
     pub let ReceiverPublicPath: PublicPath
     
-    /// FungibleTokenSwitchboardInitialized
-    ///
-    /// The event emitted when the contract is created
-    ///
-    pub event FungibleTokenSwitchboardInitialized()
-    
     /// SwitchboardInitialized
     ///
     /// The event that is emited when a new Switchboard resource is created
@@ -143,8 +137,6 @@ pub contract FungibleTokenSwitchboard {
         self.StoragePath = StoragePath(identifier: "fungibleTokenSwitchboard")!
         self.PublicPath = PublicPath(identifier: "fungibleTokenSwitchboardPublic")!
         self.ReceiverPublicPath = PublicPath(identifier: "GenericFTReceiver")!
-        // Emit the event that shows that the contract was initialized
-        emit FungibleTokenSwitchboardInitialized()
     }
 
 }
