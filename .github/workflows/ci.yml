@@ -20,4 +20,5 @@ jobs:
         with:
           node-version: 14
           cache: 'npm'
+          cache-dependency-path: lib/js/test/package-lock.json
       - run: make ci
