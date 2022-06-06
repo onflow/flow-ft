@@ -1,6 +1,6 @@
 .PHONY: test
 test:
-	npm run test
+	npm test
 
 .PHONY: ci
 ci: test
