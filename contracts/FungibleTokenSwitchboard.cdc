@@ -11,12 +11,6 @@ pub contract FungibleTokenSwitchboard {
     pub let StoragePath: StoragePath
     pub let PublicPath: PublicPath
     pub let ReceiverPublicPath: PublicPath
-    
-    /// SwitchboardInitialized
-    ///
-    /// The event that is emited when a new Switchboard resource is created
-    ///
-    pub event SwitchboardInitialized(switchboardResourceID: UInt64)
 
     /// VaultCapacityAdded
     ///
@@ -59,7 +53,6 @@ pub contract FungibleTokenSwitchboard {
         /// addNewVault adds a new fungible token receiver capability
         ///                    to the switchboard resource
         ///            
-        /// 
         /// Parameters: capability: The capability to expose a certain fungible
         /// token vault deposit function through {FungibleToken.Receiver} that
         /// will be added to the switchboard
@@ -118,9 +111,6 @@ pub contract FungibleTokenSwitchboard {
         init() {
             // Initialize the capabilities dictionary
             self.receiverCapabilities = {}
-            // Emit the event that indicates that a new switchboard resource
-            // has been created
-            emit SwitchboardInitialized(switchboardResourceID: self.uuid)
         }
     }
 
