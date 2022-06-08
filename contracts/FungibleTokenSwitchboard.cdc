@@ -33,7 +33,7 @@ pub contract FungibleTokenSwitchboard {
     /// deposit method to deposit funds on it
     ///
     pub resource interface SwitchboardPublic {
-        pub fun getVaultCapabilities(): {Type: Capability<&{FungibleToken.Receiver}>}
+        pub fun getVaultTypes(): [Type]
         pub fun deposit(from: @FungibleToken.Vault)
     }
     
@@ -98,14 +98,16 @@ pub contract FungibleTokenSwitchboard {
             vaultRef.deposit(from: <- from)
         }
 
-        /// getVaultCabilities function for get to know which tokens a certain
+        /// getVaultTypes function for get to know which tokens a certain
         /// switchboard resource is prepared to receive
         ///
-        /// Returns: The dictionary of stored {FungibleToken.Receiver} 
+        /// Returns: The keys from the dictionary of stored {FungibleToken.Receiver} 
         /// capabilities
         ///
-        pub fun getVaultCapabilities(): {Type: Capability<&{FungibleToken.Receiver}>} {
-            return self.receiverCapabilities
+        pub fun getVaultTypes(): [Type] {
+            log("Stored vaults types: ")
+            log(self.receiverCapabilities.keys)
+            return self.receiverCapabilities.keys
         }
 
         init() {
@@ -124,9 +126,9 @@ pub contract FungibleTokenSwitchboard {
     }
 
     init() {
-        self.StoragePath = StoragePath(identifier: "fungibleTokenSwitchboard")!
-        self.PublicPath = PublicPath(identifier: "fungibleTokenSwitchboardPublic")!
-        self.ReceiverPublicPath = PublicPath(identifier: "GenericFTReceiver")!
+        self.StoragePath = /storage/fungibleTokenSwitchboard
+        self.PublicPath = /public/fungibleTokenSwitchboardPublic
+        self.ReceiverPublicPath = /public/GenericFTReceiver
     }
 
 }

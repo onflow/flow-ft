@@ -4,13 +4,13 @@
 import FungibleToken from "../../contracts/FungibleToken.cdc"
 import FungibleTokenSwitchboard from "../../contracts/FungibleTokenSwitchboard.cdc"
 
-pub fun main(account: Address): {Type: Capability<&{FungibleToken.Receiver}>} {
+pub fun main(account: Address): [Type] {
     let acct = getAccount(account)
     // Get a reference to the switchboard conforming to SwitchboardPublic
     let switchboardRef = acct.getCapability(FungibleTokenSwitchboard.PublicPath)
         .borrow<&FungibleTokenSwitchboard.Switchboard{FungibleTokenSwitchboard.SwitchboardPublic}>()
         ?? panic("Could not borrow reference to switchboard")
 
-    return switchboardRef.getVaultCapabilities()
+    return switchboardRef.getVaultTypes()
 }
  
