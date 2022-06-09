@@ -35,6 +35,7 @@ pub contract FungibleTokenSwitchboard {
     pub resource interface SwitchboardPublic {
         pub fun getVaultTypes(): [Type]
         pub fun deposit(from: @FungibleToken.Vault)
+        pub fun safeDeposit(from: @FungibleToken.Vault): @FungibleToken.Vault
     }
     
     /// Switchboard
@@ -98,6 +99,36 @@ pub contract FungibleTokenSwitchboard {
             vaultRef.deposit(from: <- from)
         }
 
+        /// safeDeposit Takes a fungible token vault and tries to route it to the
+        ///             proper fungible token receiver capability for depositing
+        ///             the funds, avoiding panicking if the vault is not available
+        ///             
+        /// Parameters: vaultType: The type of the ft vault that wants to be 
+        ///                        deposited
+        ///
+        /// Returns: The deposited fungible token vault resource, without the
+        ///          funds if the deposit was succesful, or still containing the
+        ///          funds if the reference to the needed vault was not found
+        ///
+        pub fun safeDeposit(from: @FungibleToken.Vault): @FungibleToken.Vault {
+            // Try to get the proper vault capability from the switchboard
+            let depositedVaultCapability = self.receiverCapabilities[from.getType()]
+            // If the desired vault is present on the switchboard...
+            if  depositedVaultCapability != nil {
+                // We try to borrow a reference to the vault from the capability
+                let vaultRef = depositedVaultCapability!.borrow()
+                // Finally if we can borrow a reference to the vault...
+                if vaultRef != nil {
+                    // We deposit the funds on said vault
+                    vaultRef!.deposit(from: <- from.withdraw(amount: from.balance) )
+                }
+            }
+            // Either way we return the deposited vault avoiding panicking the tx
+            // if the vault was not found on the switchboard or if the reference
+            // to it could not be borrowed
+            return <- from
+        }
+
         /// getVaultTypes function for get to know which tokens a certain
         /// switchboard resource is prepared to receive
         ///
@@ -105,8 +136,6 @@ pub contract FungibleTokenSwitchboard {
         /// capabilities
         ///
         pub fun getVaultTypes(): [Type] {
-            log("Stored vaults types: ")
-            log(self.receiverCapabilities.keys)
             return self.receiverCapabilities.keys
         }
 
