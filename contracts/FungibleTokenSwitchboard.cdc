@@ -69,6 +69,31 @@ pub contract FungibleTokenSwitchboard {
             emit VaultCapabilityAdded(type: vaultRef.getType())
         }
 
+        /// addNewVaultsByPath adds a number of new fungible token receiver 
+        ///                    capabilities by using the paths where they are
+        ///                    stored
+        ///
+        /// Parameters: paths: The paths where the public capabilities are stored
+        ///             address: The address of the owner of the capabilities
+        ///
+        pub fun addNewVaultsByPath(paths: [PublicPath], address: Address) {
+            // Get the account where the public capabilities are stored
+            let owner = getAccount(address)
+            // For each path, get the saved capability and store it 
+            // into the switchboard's receiver capabilities dictionary 
+            for path in paths {
+                let capability = owner.getCapability<&{FungibleToken.Receiver}>(path)
+                // Borrow a reference to the vault pointed by the capability we want
+                // to store inside the switchboard
+                let vaultRef = capability.borrow() 
+                    ?? panic ("Cannot borrow reference to vault from capability")
+                // Use the vault reference type as key for storing the capability
+                self.receiverCapabilities[vaultRef.getType()] = capability
+                // Emit the event that indicates that a new capability has been added
+                emit VaultCapabilityAdded(type: vaultRef.getType())
+            }
+        }
+
         /// removeVault removes a fungible token receiver capability 
         ///                       from the switchboard resource
         /// 
