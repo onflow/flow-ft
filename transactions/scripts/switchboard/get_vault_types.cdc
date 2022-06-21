@@ -1,8 +1,8 @@
 // This script reads the stored vault capabilities from a switchboard on the
 // passed account
 
-import FungibleToken from "../../contracts/FungibleToken.cdc"
-import FungibleTokenSwitchboard from "../../contracts/FungibleTokenSwitchboard.cdc"
+import FungibleToken from "../../../contracts/FungibleToken.cdc"
+import FungibleTokenSwitchboard from "../../../contracts/FungibleTokenSwitchboard.cdc"
 
 pub fun main(account: Address): [Type] {
     let acct = getAccount(account)
