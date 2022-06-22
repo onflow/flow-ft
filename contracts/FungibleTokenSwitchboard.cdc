@@ -63,10 +63,16 @@ pub contract FungibleTokenSwitchboard {
             // to store inside the switchboard
             let vaultRef = capability.borrow() 
                 ?? panic ("Cannot borrow reference to vault from capability")
-            // Use the vault reference type as key for storing the capability
-            self.receiverCapabilities[vaultRef.getType()] = capability
-            // Emit the event that indicates that a new capability has been added
-            emit VaultCapabilityAdded(type: vaultRef.getType())
+            // We check if there is a previus capability for this token, if not
+            if (self.receiverCapabilities[vaultRef.getType()] == nil){
+                // Use the vault reference type as key for storing the capability
+                self.receiverCapabilities[vaultRef.getType()] = capability
+                // Emit the event that indicates that a new capability has been added
+                emit VaultCapabilityAdded(type: vaultRef.getType())
+            }else{
+                // If there was already a capability for that token, panic
+                panic("There is already a vault in the Switchboard for this token")
+            }
         }
 
         /// addNewVaultsByPath adds a number of new fungible token receiver 
@@ -88,12 +94,15 @@ pub contract FungibleTokenSwitchboard {
                 let vaultRef = capability.borrow()
                 // If the vault was borrowed successfully...
                 if (vaultRef != nil) {
-                    // Use the vault reference type as key for storing the 
-                    // capability
-                    self.receiverCapabilities[vaultRef!.getType()] = capability
-                    // Emit the event that indicates that a new capability has 
-                    // been added
-                    emit VaultCapabilityAdded(type: vaultRef!.getType())
+                    // ...and there is no previous capability added for that token
+                    if (self.receiverCapabilities[vaultRef!.getType()] == nil){    
+                        // Use the vault reference type as key for storing the 
+                        // capability
+                        self.receiverCapabilities[vaultRef!.getType()] = capability
+                        // Emit the event that indicates that a new capability has 
+                        // been added
+                        emit VaultCapabilityAdded(type: vaultRef!.getType())
+                    }
                 }
             }
         }
