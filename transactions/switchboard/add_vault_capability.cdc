@@ -13,10 +13,13 @@ transaction {
 
     prepare(signer: AuthAccount) {
       // Get the example token vault capability from the signer's account
-      self.exampleTokenVaultCapabilty = signer.getCapability<&{FungibleToken.Receiver}>(ExampleToken.ReceiverPublicPath)
+      self.exampleTokenVaultCapabilty = 
+        signer.getCapability<&{FungibleToken.Receiver}>
+                                (ExampleToken.ReceiverPublicPath)
       // Get a reference to the signers switchboard
       self.switchboardRef = signer.borrow<&FungibleTokenSwitchboard.Switchboard>
-        (from: FungibleTokenSwitchboard.StoragePath) ?? panic("Could not borrow reference to switchboard")
+        (from: FungibleTokenSwitchboard.StoragePath) 
+          ?? panic("Could not borrow reference to switchboard")
     }
 
     execute {
