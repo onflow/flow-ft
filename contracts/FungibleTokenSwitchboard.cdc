@@ -61,7 +61,7 @@ pub contract FungibleTokenSwitchboard {
         /// will be added to the switchboard
         ///
         pub fun addNewVault(capability: Capability<&{FungibleToken.Receiver}>) {
-            // Borrow a reference to the vault pointed by the capability we want
+            // Borrow a reference to the vault pointed to by the capability we want
             // to store inside the switchboard
             let vaultRef = capability.borrow() 
                 ?? panic ("Cannot borrow reference to vault from capability")
