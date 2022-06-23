@@ -3,7 +3,9 @@ import FungibleToken from "./FungibleToken.cdc"
 /// FungibleTokenSwitchboard
 ///
 /// The contract that allows an account to receive payments in multiple fungible
-/// tokens using a single {FungibleToken.Receiver}
+/// tokens using a single `{FungibleToken.Receiver}` capability
+/// This capability should ideally be stored at the `FungibleTokenSwitchboard.ReceiverPublicPath = /public/GenericFTReceiver`
+/// but it can be stored anywhere
 ///
 pub contract FungibleTokenSwitchboard {
     
