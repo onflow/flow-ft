@@ -19,14 +19,14 @@ pub contract FungibleTokenSwitchboard {
     /// The event that is emitted when a new vault capacity is added to a
     /// switchboard resource
     ///
-    pub event VaultCapabilityAdded(type: Type)
+    pub event VaultCapabilityAdded(type: Type, switchboardOwner: Address?, capabilityOwner: Address?)
 
     /// VaultCapacityRemoved
     ///
     /// The event that is emitted vault capacity is added removed from a 
     /// switchboard resource
     ///
-    pub event VaultCapabilityRemoved(type: Type)
+    pub event VaultCapabilityRemoved(type: Type,  switchboardOwner: Address?, capabilityOwner: Address?)
     
     /// SwitchboardPublic
     ///
@@ -70,7 +70,8 @@ pub contract FungibleTokenSwitchboard {
                 // Use the vault reference type as key for storing the capability
                 self.receiverCapabilities[vaultRef.getType()] = capability
                 // Emit the event that indicates that a new capability has been added
-                emit VaultCapabilityAdded(type: vaultRef.getType())
+                emit VaultCapabilityAdded(type: vaultRef.getType(),
+                                    switchboardOwner: nil, capabilityOwner: nil)
             }else{
                 // If there was already a capability for that token, panic
                 panic("There is already a vault in the Switchboard for this token")
@@ -103,7 +104,8 @@ pub contract FungibleTokenSwitchboard {
                         self.receiverCapabilities[vaultRef!.getType()] = capability
                         // Emit the event that indicates that a new capability has 
                         // been added
-                        emit VaultCapabilityAdded(type: vaultRef!.getType())
+                        emit VaultCapabilityAdded(type: vaultRef.getType(), 
+                            switchboardOwner: address, capabilityOwner: address)
                     }
                 }
             }
@@ -124,7 +126,8 @@ pub contract FungibleTokenSwitchboard {
             self.receiverCapabilities.remove(key: vaultRef.getType())
             // Emit the event that indicates that a new capability has been 
             // removed
-            emit VaultCapabilityRemoved(type: vaultRef.getType())            
+            emit VaultCapabilityRemoved(type: vaultRef.getType(),
+                                    switchboardOwner: nil, capabilityOwner: nil)       
         }
         
         /// deposit Takes a fungible token vault and routes it to the proper
