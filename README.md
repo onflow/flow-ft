@@ -269,7 +269,9 @@ To use the Flow Token contract as is, you need to follow these steps:
     This function won't panic, instead it will just not add to the `@Switchboard` any capability which can not be retrieved from any of the provided `PublicPath`s. It will also ignore any type of `&{FungibleToken.Receiver}` that is already present on the `@Switchboard`
 
  ## Removing a vault from the switchboard
- If a user no longer wants to be able to receive deposits from a certain FT, or if they want to update the provided capability for one of them, they will need to remove the vault from the switchboard. This can me acomplish by using `removeVault(capability: Capability<&{FungibleToken.Receiver}>)`. As for adding new vaults it is required to first retrieve the vault's capability from the user account and passing it as a parameter. This can be observed in the template transaction `transactions/switchboard/remove_vault_capability.cdc`:
+ If a user no longer wants to be able to receive deposits from a certain FT, or if they want to update the provided capability for one of them, they will need to remove the vault from the switchboard.
+ This can be accomplished by using `removeVault(capability: Capability<&{FungibleToken.Receiver}>)`. 
+This can be observed in the template transaction `transactions/switchboard/remove_vault_capability.cdc`:
  ```cadence
  transaction {
     let exampleTokenVaultCapabilty: Capability<&{FungibleToken.Receiver}>
