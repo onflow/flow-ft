@@ -200,7 +200,10 @@ To use the Flow Token contract as is, you need to follow these steps:
 
  ## How to use it
 
- Users willing to use the Fungible Token Switchboard will need to setup their accounts by creating a new `FungibleTokenSwitchboard.Switchboard` resource and saving it to their accounts. This can be acomplished by executing the transaction found in this repository `transactions/switchboard/setup_account.cdc`. This transaction will create and save a Switchboard resource to the signer's account, and it also will create the needed public capabilities to access it. After setting up their switchboard users will need to add the fungible token's vault with which they are willing to receive payments to their switchboard resource.
+ Users willing to use the Fungible Token Switchboard will need to setup their accounts by creating a new `FungibleTokenSwitchboard.Switchboard` resource and saving it to their accounts at the `FungibleTokenSwitchboard.StoragePath` path.
+ 
+ This can be acomplished by executing the transaction found in this repository `transactions/switchboard/setup_account.cdc`. This transaction will create and save a Switchboard resource to the signer's account,
+ and it also will create the needed public capabilities to access it. After setting up their switchboard, in order to make it support receiving a certain token, users will need to add the desired token's receiver capability to their switchboard resource.
  
  ## Adding a new vault to the switchboard
  When a user wants to receive a new fungible token through their switchboard they will need to add a new public capability linked to said FT to their swichboard resource. This could be acomplished in two different ways:
