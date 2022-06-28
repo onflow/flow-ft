@@ -300,7 +300,9 @@ This can be observed in the template transaction `transactions/switchboard/remov
  ## Transfering tokens through the switchboard
  The Fungible Token Switchboad provides two different ways of depositing tokens to it, using the `deposit(from: @FungibleToken.Vault)` method enforced by the `{FungibleToken.Receiver}` or using the `safeDeposit(from: @FungibleToken.Vault): @FungibleToken`:
 
- 1. Using the first method will be just the same as depositing to `&{FungibleToken.Receiver}`. The path for the Switchboard receiver is defined in `FungibleTokenSwitchboard.ReceiverPublicPath`, the generic receiver path `/public/GenericFTReceiver` that can also be obtained from the NFT MetadataViews contract. An example of how to do this could be find in the transaction template on this repo `transactions/switchboard/transfer_tokens.cdc`
+ 1. Using the first method will be just the same as depositing to `&{FungibleToken.Receiver}`. The path for the Switchboard receiver is defined in `FungibleTokenSwitchboard.ReceiverPublicPath`,
+ the generic receiver path `/public/GenericFTReceiver` that can also be obtained from the NFT MetadataViews contract.
+ An example of how to do this can be found in the transaction template on this repo `transactions/switchboard/transfer_tokens.cdc`
  ```cadence
  transaction(to: Address, amount: UFix64) {
     // The Vault resource that holds the tokens that are being transferred
