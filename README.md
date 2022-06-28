@@ -206,7 +206,7 @@ To use the Flow Token contract as is, you need to follow these steps:
  and it also will create the needed public capabilities to access it. After setting up their switchboard, in order to make it support receiving a certain token, users will need to add the desired token's receiver capability to their switchboard resource.
  
  ## Adding a new vault to the switchboard
- When a user wants to receive a new fungible token through their switchboard they will need to add a new public capability linked to said FT to their swichboard resource. This could be acomplished in two different ways:
+ When a user wants to receive a new fungible token through their switchboard, they will need to add a new public capability linked to said FT to their switchboard resource. This can be accomplished in two different ways:
  
  1. Adding a single capability using `addNewVault(capability: Capability<&{FungibleToken.Receiver}>)`
     * Before calling this method on a transaction you should first retrieve the capability to the token's vault you are
