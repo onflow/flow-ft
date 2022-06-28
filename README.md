@@ -196,7 +196,7 @@ To use the Flow Token contract as is, you need to follow these steps:
 
 # Fungible Token Switchboard
 
- This contract, `contracts/FungibleTokenSwitchboard.cdc`, allow users to receive payments in different fungible tokens using a single `&{FungibleToken.Receiver}` placed in the standard receiver path `/public/GenericFTReceiver`.
+`FungibleTokenSwitchboard.cdc`, allows users to receive payments in different fungible tokens using a single `&{FungibleToken.Receiver}` placed in a standard receiver path `/public/GenericFTReceiver`.
 
  ## How to use it
 
