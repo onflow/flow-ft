@@ -236,7 +236,7 @@ To use the Flow Token contract as is, you need to follow these steps:
     ```
     This function will panic if is not possible to `.borrow()` a reference to a `&{FungibleToken.Receiver}` from the passed capability. It will also panic if there is already a capability stored for the same `Type` of resource exposed by the capability.
 
- 1. Adding one or more capabilities using the paths where they are stored using `addNewVaultsByPath(paths: [PublicPath], address: Address)`
+ 2. Adding one or more capabilities using the paths where they are stored using `addNewVaultsByPath(paths: [PublicPath], address: Address)`
     * When using this method, an array of `PublicPath` objects should be pass along with the `Address` of the account from where the vaults' capabilities should be retrieved.
 
     ```cadence
