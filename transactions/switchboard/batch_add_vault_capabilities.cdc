@@ -21,7 +21,8 @@ transaction (address: Address) {
       self.vaultPaths.append(self.exampleTokenVaultPath)
       // Get a reference to the signers switchboard
       self.switchboardRef = signer.borrow<&FungibleTokenSwitchboard.Switchboard>
-        (from: FungibleTokenSwitchboard.StoragePath) ?? panic("Could not borrow reference to switchboard")
+        (from: FungibleTokenSwitchboard.StoragePath) 
+          ?? panic("Could not borrow reference to switchboard")
     }
 
     execute {
