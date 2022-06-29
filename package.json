@@ -1,0 +1,35 @@
+{
+  "name": "flow-ft",
+  "version": "1.0.0",
+  "description": "standard implementation of the fungible token on flow blockchain",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "contracts/*",
+    "transactions/*"
+  ],
+  "scripts": {
+    "release": "sh test-release.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/onflow/flow-ft.git"
+  },
+  "keywords": [
+    "ft",
+    "flow-ft",
+    "FungibleToken",
+    "flow"
+  ],
+  "author": "onFlow",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/onflow/flow-ft/issues"
+  },
+  "homepage": "https://github.com/onflow/flow-ft#readme",
+  "dependencies": {
+    "@changesets/cli": "^2.23.0"
+  }
+}

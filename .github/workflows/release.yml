@@ -4,6 +4,8 @@ on:
   release:
     types: [published]
 
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
 jobs:
   release:
     name: 🚀 release
@@ -16,9 +18,14 @@ jobs:
         with:
           node-version: 15
           registry-url: https://registry.npmjs.org
-      - name: packaging
-        run: sh release.sh
-      - name: 🚀 publish
-        run: npm publish --access public
+      - name: Install Dependencies
+        run: yarn
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          # This expects you to have a script called release which does a build for your packages and calls changeset publish
+          publish: yarn release
         env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
