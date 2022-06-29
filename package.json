@@ -1,6 +1,6 @@
 {
-  "name": "flow-ft-rc",
-  "version": "1.0.0",
+  "name": "flow-ft",
+  "version": "1.0.1",
   "description": "standard implementation of the fungible token on flow blockchain",
   "main": "index.js",
   "directories": {
