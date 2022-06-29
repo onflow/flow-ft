@@ -1,8 +1,9 @@
 name: "🚀 release"
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - master
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
