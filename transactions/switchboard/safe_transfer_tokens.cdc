@@ -36,10 +36,11 @@ transaction(to: Address, amount: UFix64) {
         // Get a reference to the recipient's Switchboard Receiver
         let switchboardRef = recipient.getCapability(FungibleTokenSwitchboard.PublicPath)
             .borrow<&FungibleTokenSwitchboard.Switchboard{FungibleTokenSwitchboard.SwitchboardPublic}>()
-			?? panic("Could not borrow receiver reference to switchboard!")
-
-        // Deposit the withdrawn tokens in the recipient's switchboard receiver,
-        // then deposit the returned vault in the signer's vault
-        self.vaultRef.deposit(from: <- switchboardRef.safeDeposit(from: <-self.sentVault))
+			?? panic("Could not borrow receiver reference to switchboard!")    
+        
+        if let notDepositedVault <- switchboardRef.safeDeposit(from: <- self.sentVault.withdraw(amount: amount)){
+            self.vaultRef.deposit(from: <- notDepositedVault)
+        } 
+        destroy self.sentVault
     }
 }

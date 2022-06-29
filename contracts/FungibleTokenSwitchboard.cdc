@@ -37,8 +37,9 @@ pub contract FungibleTokenSwitchboard {
     pub resource interface SwitchboardPublic {
         pub fun getVaultTypes(): [Type]
         pub fun deposit(from: @FungibleToken.Vault)
-        pub fun safeDeposit(from: @FungibleToken.Vault): @FungibleToken.Vault
+        pub fun safeDeposit(from: @FungibleToken.Vault): @FungibleToken.Vault?
     }
+
     
     /// Switchboard
     /// The resource that stores the multiple fungible token receiver 
@@ -52,6 +53,7 @@ pub contract FungibleTokenSwitchboard {
         /// indexed by the fungible token vault type
         ///
         access(contract) var receiverCapabilities: {Type: Capability<&{FungibleToken.Receiver}>}
+
 
         /// addNewVault adds a new fungible token receiver capability
         ///                    to the switchboard resource
@@ -92,11 +94,10 @@ pub contract FungibleTokenSwitchboard {
             // into the switchboard's receiver capabilities dictionary 
             for path in paths {
                 let capability = owner.getCapability<&{FungibleToken.Receiver}>(path)
-                // Borrow a reference to the vault pointed by the capability we 
+                // Borrow a reference to the vault pointed to by the capability we 
                 // want to store inside the switchboard
-                let vaultRef = capability.borrow()
                 // If the vault was borrowed successfully...
-                if (vaultRef != nil) {
+                if let vaultRef = capability.borrow() {
                     // ...and there is no previous capability added for that token
                     if (self.receiverCapabilities[vaultRef!.getType()] == nil){    
                         // Use the vault reference type as key for storing the 
@@ -118,7 +119,7 @@ pub contract FungibleTokenSwitchboard {
         ///                         to be removed from the switchboard
         ///
         pub fun removeVault(capability: Capability<&{FungibleToken.Receiver}>) {
-            // Borrow a reference to the vault pointed by the capability we want
+            // Borrow a reference to the vault pointed to by the capability we want
             // store inside the switchboard            
             let vaultRef = capability.borrow() 
                 ?? panic ("Cannot borrow reference to vault from capability")
@@ -154,23 +155,28 @@ pub contract FungibleTokenSwitchboard {
         ///          funds if the deposit was succesful, or still containing the
         ///          funds if the reference to the needed vault was not found
         ///
-        pub fun safeDeposit(from: @FungibleToken.Vault): @FungibleToken.Vault {
+        pub fun safeDeposit(from: @FungibleToken.Vault): @FungibleToken.Vault? {
             // Try to get the proper vault capability from the switchboard
-            let depositedVaultCapability = self.receiverCapabilities[from.getType()]
             // If the desired vault is present on the switchboard...
-            if  depositedVaultCapability != nil {
+            if let depositedVaultCapability = self.receiverCapabilities[from.getType()] {
                 // We try to borrow a reference to the vault from the capability
-                let vaultRef = depositedVaultCapability!.borrow()
-                // Finally if we can borrow a reference to the vault...
-                if vaultRef != nil {
+                // If we can borrow a reference to the vault...
+                if let vaultRef =  depositedVaultCapability.borrow(){
                     // We deposit the funds on said vault
-                    vaultRef!.deposit(from: <- from.withdraw(amount: from.balance) )
+                    vaultRef.deposit(from: <- from)
+                    return nil
+                } else {
+                    // If we can't borrow a reference to the vault we return the
+                    // passed vault so the depositer can recover their funds
+                    return <- from
                 }
+                
+            } else {
+                // Either way we return the deposited vault avoiding panicking the tx
+                // if the vault was not found on the switchboard or if the reference
+                // to it could not be borrowed
+                return <- from
             }
-            // Either way we return the deposited vault avoiding panicking the tx
-            // if the vault was not found on the switchboard or if the reference
-            // to it could not be borrowed
-            return <- from
         }
 
         /// getVaultTypes function for get to know which tokens a certain
