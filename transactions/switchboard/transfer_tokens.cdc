@@ -3,14 +3,14 @@
 // through a switchboard, as long as they have set up their
 // switchboard and have add the proper capability to it
 //
-// The withdraw amount and the account from getAccount
-// would be the parameters to the transaction
+// The address of the receiver account, the amount to transfer
+// and the PublicPath for the generic FT receiver will be the
+// parameters
 
 import FungibleToken from "./../../contracts/FungibleToken.cdc"
-import FungibleTokenSwitchboard from "./../../contracts/FungibleTokenSwitchboard.cdc"
 import ExampleToken from "./../../contracts/ExampleToken.cdc"
 
-transaction(to: Address, amount: UFix64) {
+transaction(to: Address, amount: UFix64, receiverPath: PublicPath) {
 
     // The Vault resource that holds the tokens that are being transferred
     let sentVault: @FungibleToken.Vault
@@ -30,12 +30,13 @@ transaction(to: Address, amount: UFix64) {
         // Get the recipient's public account object
         let recipient = getAccount(to)
 
-        // Get a reference to the recipient's Switchboard Receiver
-        let switchboardRef = recipient.getCapability(FungibleTokenSwitchboard.ReceiverPublicPath)
+        // Get a reference to the recipient's Receiver
+        let receiverRef = recipient
+            .getCapability(receiverPath)
             .borrow<&{FungibleToken.Receiver}>()
 			?? panic("Could not borrow receiver reference to switchboard!")
 
-        // Deposit the withdrawn tokens in the recipient's switchboard receiver
-        switchboardRef.deposit(from: <-self.sentVault)
+        // Deposit the withdrawn tokens in the recipient's receiver
+        receiverRef.deposit(from: <-self.sentVault)
     }
 }

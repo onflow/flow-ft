@@ -1,4 +1,4 @@
-// This script reads the balance field of an account's FlowToken Balance
+// This script reads the balance field of an account's ExampleToken Balance
 
 import FungibleToken from "../../contracts/FungibleToken.cdc"
 import ExampleToken from "../../contracts/ExampleToken.cdc"

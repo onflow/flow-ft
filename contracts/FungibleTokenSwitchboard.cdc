@@ -119,8 +119,8 @@ pub contract FungibleTokenSwitchboard {
         ///                         to be removed from the switchboard
         ///
         pub fun removeVault(capability: Capability<&{FungibleToken.Receiver}>) {
-            // Borrow a reference to the vault pointed to by the capability we want
-            // store inside the switchboard            
+            // Borrow a reference to the vault pointed to by the capability we 
+            // want to remove from the switchboard            
             let vaultRef = capability.borrow() 
                 ?? panic ("Cannot borrow reference to vault from capability")
             // Use the vault reference to find the capability to remove
@@ -137,16 +137,18 @@ pub contract FungibleTokenSwitchboard {
         /// Parameters: from: The deposited fungible token vault resource
         ///        
         pub fun deposit(from: @FungibleToken.Vault) {
-            let depositedVaultCapability = self.receiverCapabilities[from.getType()] ?? 
-                panic ("The deposited vault is not available on this switchboard")
-            let vaultRef = depositedVaultCapability.borrow() ?? 
-                panic ("Can not borrow a reference to the the vault")
+            let depositedVaultCapability = self
+                .receiverCapabilities[from.getType()] 
+                ?? panic ("The deposited vault is not available on this switchboard")
+            let vaultRef = depositedVaultCapability.borrow() 
+                ?? panic ("Can not borrow a reference to the the vault")
             vaultRef.deposit(from: <- from)
         }
 
-        /// safeDeposit Takes a fungible token vault and tries to route it to the
-        ///             proper fungible token receiver capability for depositing
-        ///             the funds, avoiding panicking if the vault is not available
+        /// safeDeposit Takes a fungible token vault and tries to route it to 
+        ///             the proper fungible token receiver capability for 
+        ///             depositing the funds, avoiding panicking if the vault is 
+        ///             not available
         ///             
         /// Parameters: vaultType: The type of the ft vault that wants to be 
         ///                        deposited
@@ -170,7 +172,6 @@ pub contract FungibleTokenSwitchboard {
                     // passed vault so the depositer can recover their funds
                     return <- from
                 }
-                
             } else {
                 // Either way we return the deposited vault avoiding panicking the tx
                 // if the vault was not found on the switchboard or if the reference
