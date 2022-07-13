@@ -198,11 +198,18 @@ pub contract FungibleTokenSwitchboard {
         /// getVaultTypes function for get to know which tokens a certain
         /// switchboard resource is prepared to receive
         ///
-        /// Returns: The keys from the dictionary of stored {FungibleToken.Receiver} 
-        /// capabilities
+        /// Returns: The keys from the dictionary of stored 
+        /// {FungibleToken.Receiver} capabilities that can be efectively 
+        /// borrowed
         ///
         pub fun getVaultTypes(): [Type] {
-            return self.receiverCapabilities.keys
+            let efectitveTypes: [Type] = []
+            for vaultType in self.receiverCapabilities.keys{
+                if self.receiverCapabilities[vaultType]!.check(){
+                    efectitveTypes.append(vaultType)
+                }
+            }
+            return efectitveTypes
         }
 
         init() {
