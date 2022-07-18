@@ -147,20 +147,20 @@ pub contract ExampleToken: FungibleTokenInterface {
             receiverRef.deposit(from: <-transferVault)
         }
 
+        /// createEmptyVault
+        ///
+        /// Function that creates a new Vault with a balance of zero
+        /// and returns it to the calling context. A user must call this function
+        /// and store the returned Vault in their storage in order to allow their
+        /// account to be able to receive deposits of this token type.
+        ///
+        pub fun createEmptyVault(): @ExampleToken.Vault{FungibleToken.Vault} {
+            return <-create Vault(balance: 0.0)
+        }
+
         destroy() {
             ExampleToken.totalSupply[self.getType()] = ExampleToken.totalSupply[self.getType()]! - self.balance
         }
-    }
-
-    /// createEmptyVault
-    ///
-    /// Function that creates a new Vault with a balance of zero
-    /// and returns it to the calling context. A user must call this function
-    /// and store the returned Vault in their storage in order to allow their
-    /// account to be able to receive deposits of this token type.
-    ///
-    pub fun createEmptyVault(): @Vault {
-        return <-create Vault(balance: 0.0)
     }
 
     pub resource Administrator {
