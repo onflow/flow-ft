@@ -116,14 +116,14 @@ pub contract FungibleToken {
 
         /// Storage and Public Paths
         pub let VaultStoragePath: StoragePath
-        pub let ReceiverPublicPath: PublicPath
-        pub let BalancePublicPath: PublicPath
+        pub let PublicReceiverBalancePath: PublicPath
+        pub let PrivateProviderPath: PrivatePath
 
-        init(type: Type, VaultStoragePath: StoragePath, ReceiverPublicPath: PublicPath, BalancePublicPath: PublicPath) {
+        init(type: Type, VaultStoragePath: StoragePath, PublicReceiverBalancePath: PublicPath, PrivateProviderPath: PrivatePath) {
             self.type = type
             self.VaultStoragePath = VaultStoragePath
-            self.ReceiverPublicPath = ReceiverPublicPath
-            self.BalancePublicPath = BalancePublicPath
+            self.PublicReceiverBalancePath = PublicReceiverBalancePath
+            self.PrivateProviderPath = PrivateProviderPath
         }
     }
 
@@ -136,8 +136,8 @@ pub contract FungibleToken {
 
         /// Storage and Public Paths
         pub let VaultStoragePath: StoragePath
-        pub let ReceiverPublicPath: PublicPath
-        pub let BalancePublicPath: PublicPath
+        pub let PublicReceiverBalancePath: PublicPath
+        pub let PrivateProviderPath: PrivatePath
 
         /// Get the balance of the vault
         pub fun getBalance(): UFix64

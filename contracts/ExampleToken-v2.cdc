@@ -67,8 +67,8 @@ pub contract ExampleToken: FungibleTokenInterface {
 
         /// Storage and Public Paths
         pub let VaultStoragePath: StoragePath
-        pub let ReceiverPublicPath: PublicPath
-        pub let BalancePublicPath: PublicPath
+        pub let PublicReceiverBalancePath: PublicPath
+        pub let PrivateProviderPath: PrivatePath
 
         /// The total balance of this vault
         pub var balance: UFix64
@@ -77,13 +77,13 @@ pub contract ExampleToken: FungibleTokenInterface {
         init(balance: UFix64) {
             self.balance = balance
             self.VaultStoragePath = /storage/exampleTokenVault
-            self.ReceiverPublicPath = /public/exampleTokenReceiver
-            self.BalancePublicPath = /public/exampleTokenBalance
+            self.PublicReceiverBalancePath = /public/exampleTokenPublicPath
+            self.PrivateProviderPath = /private/exampleTokenProvider
         }
         
         /// Return information about the vault's type and paths
         pub fun getVaultInfo(): FungibleToken.VaultInfo {
-            return FungibleToken.VaultInfo(type: self.getType(), VaultStoragePath: self.VaultStoragePath, ReceiverPublicPath: self.ReceiverPublicPath, BalancePublicPath: self.BalancePublicPath)
+            return FungibleToken.VaultInfo(type: self.getType(), VaultStoragePath: self.VaultStoragePath, PublicReceiverBalancePath: self.PublicReceiverBalancePath, PrivateProviderPath: self.PrivateProviderPath)
         }
 
         /// Get the balance of the vault
@@ -138,7 +138,7 @@ pub contract ExampleToken: FungibleTokenInterface {
             let recipient = getAccount(recipient)
 
             // Get a reference to the recipient's Receiver
-            let receiverRef = recipient.getCapability(self.ReceiverPublicPath)
+            let receiverRef = recipient.getCapability(self.PublicReceiverBalancePath)
                 .borrow<&{FungibleToken.Receiver}>()
                 ?? panic("Could not borrow receiver reference to the recipient's Vault")
 
@@ -215,24 +215,16 @@ pub contract ExampleToken: FungibleTokenInterface {
         let vault <- create Vault(balance: self.totalSupply[Type<@ExampleToken.Vault>()]!)
 
         let storagePath = vault.VaultStoragePath
-        let receiverPath = vault.ReceiverPublicPath
-        let balancePath = vault.BalancePublicPath
+        let receiverBalancePath = vault.PublicReceiverBalancePath
 
         self.account.save(<-vault, to: storagePath)
 
-        // Create a public capability to the stored Vault that only exposes
-        // the `deposit` method through the `Receiver` interface
+        // Create a public capability to the stored Vault that exposes
+        // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
+        // and the `getBalance()` method through the `Balance` interface
         //
-        self.account.link<&{FungibleToken.Receiver}>(
-            receiverPath,
-            target: storagePath
-        )
-
-        // Create a public capability to the stored Vault that only exposes
-        // the `balance` field through the `Balance` interface
-        //
-        self.account.link<&ExampleToken.Vault{FungibleToken.Balance}>(
-            balancePath,
+        self.account.link<&{FungibleToken.Receiver, FungibleToken.Balance}>(
+            receiverBalancePath,
             target: storagePath
         )
 
