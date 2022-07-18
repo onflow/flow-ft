@@ -127,6 +127,9 @@ pub contract FungibleToken {
         }
     }
 
+
+
+
     /// Vault
     ///
     /// Ideally, this interface would also conform to Receiver, Balance, and Provider,
@@ -186,12 +189,7 @@ pub contract FungibleToken {
             }
         }
 
-        /// createEmptyVault allows any user to create a new Vault that has a zero balance
-        ///
-        pub fun createEmptyVault(): @AnyResource{Vault} {
-            post {
-                result.getBalance() == 0.0: "The newly created Vault must have zero balance"
-            }
         }
-    }
+
+ 
 }
