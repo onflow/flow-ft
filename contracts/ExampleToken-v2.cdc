@@ -39,17 +39,16 @@ pub contract ExampleToken: FungibleTokenInterface {
     pub event MinterCreated(allowedAmount: UFix64, type: Type)
 
     /// Function to return the types that the contract implements
-    pub fun getVaultTypes(): [FungibleToken.VaultInfo] {
-        let typeArray: [FungibleToken.VaultInfo] = []
+    pub fun getVaultTypes(): {Type: FungibleToken.VaultInfo} {
+        let typeDictionary: {Type: FungibleToken.VaultInfo} = {}
 
         let vault <- create Vault(balance: 0.0)
 
-        let vaultInfo = vault.getTypeInfo()
+        typeDictionary[vault.getType()] = vault.getVaultInfo()
 
         destroy vault
-
-        typeArray.append(vaultInfo)
-        return typeArray
+        
+        return typeDictionary
     }
 
     /// Vault
@@ -83,7 +82,7 @@ pub contract ExampleToken: FungibleTokenInterface {
         }
         
         /// Return information about the vault's type and paths
-        pub fun getTypeInfo(): FungibleToken.VaultInfo {
+        pub fun getVaultInfo(): FungibleToken.VaultInfo {
             return FungibleToken.VaultInfo(type: self.getType(), VaultStoragePath: self.VaultStoragePath, ReceiverPublicPath: self.ReceiverPublicPath, BalancePublicPath: self.BalancePublicPath)
         }
 
@@ -98,7 +97,7 @@ pub contract ExampleToken: FungibleTokenInterface {
         /// and withdraws that amount from the Vault.
         ///
         /// It creates a new temporary Vault that is used to hold
-        /// the money that is being transferred. It returns the newly
+        /// the tokens that are being transferred. It returns the newly
         /// created Vault to the context that called so it can be deposited
         /// elsewhere.
         ///

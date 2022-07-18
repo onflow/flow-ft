@@ -129,10 +129,10 @@ pub contract FungibleToken {
 
     /// Vault
     ///
-    /// Ideally, this interface would also conform to Receiver, Balance, and Provider,
+    /// Ideally, this interface would also conform to Receiver, Balance, Transferable, and Provider,
     /// but that is not supported yet
     ///
-    pub resource interface Vault { //: Receiver, Balance, Provider {
+    pub resource interface Vault { //: Receiver, Balance, Transferable, Provider {
 
         /// Storage and Public Paths
         pub let VaultStoragePath: StoragePath
@@ -143,7 +143,7 @@ pub contract FungibleToken {
         pub fun getBalance(): UFix64
 
         /// Return information about the vault's type and paths
-        pub fun getTypeInfo(): FungibleToken.VaultInfo
+        pub fun getVaultInfo(): FungibleToken.VaultInfo
 
         /// withdraw subtracts `amount` from the Vault's balance
         /// and returns a new Vault with the subtracted balance

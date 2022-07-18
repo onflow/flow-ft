@@ -6,7 +6,7 @@ pub contract interface FungibleTokenInterface {
     pub var totalSupply: {Type: UFix64}
 
     /// Function to return the types that the contract implements
-    pub fun getVaultTypes(): [FungibleToken.VaultInfo] {
+    pub fun getVaultTypes(): {Type: FungibleToken.VaultInfo} {
         post {
             result.length > 0: "Must indicate what fungible token types this contract defines"
         }
