@@ -32,6 +32,8 @@ func TestTokenDeployment(t *testing.T) {
 func TestCreateToken(t *testing.T) {
 	b, accountKeys := newTestSetup(t)
 
+	serviceSigner, _ := b.ServiceKey().Signer()
+
 	exampleTokenAccountKey, _ := accountKeys.NewWithSigner()
 	fungibleAddr, exampleTokenAddr, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
 
@@ -49,7 +51,7 @@ func TestCreateToken(t *testing.T) {
 				joshAddress,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				joshSigner,
 			},
 			false,
@@ -74,6 +76,8 @@ func TestCreateToken(t *testing.T) {
 func TestExternalTransfers(t *testing.T) {
 	b, accountKeys := newTestSetup(t)
 
+	serviceSigner, _ := b.ServiceKey().Signer()
+
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
 	fungibleAddr, exampleTokenAddr, forwardingAddr :=
 		DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
@@ -92,7 +96,7 @@ func TestExternalTransfers(t *testing.T) {
 			joshAddress,
 		},
 		[]crypto.Signer{
-			b.ServiceKey().Signer(),
+			serviceSigner,
 			joshSigner,
 		},
 		false,
@@ -112,7 +116,7 @@ func TestExternalTransfers(t *testing.T) {
 				exampleTokenAddr,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				exampleTokenSigner,
 			},
 			true,
@@ -155,7 +159,7 @@ func TestExternalTransfers(t *testing.T) {
 				exampleTokenAddr,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				exampleTokenSigner,
 			},
 			false,
@@ -218,7 +222,7 @@ func TestExternalTransfers(t *testing.T) {
 				exampleTokenAddr,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				exampleTokenSigner,
 			},
 			false,
@@ -278,7 +282,7 @@ func TestExternalTransfers(t *testing.T) {
 				joshAddress,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				joshSigner,
 			},
 			false,
@@ -297,7 +301,7 @@ func TestExternalTransfers(t *testing.T) {
 				exampleTokenAddr,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				exampleTokenSigner,
 			},
 			false,
@@ -331,6 +335,8 @@ func TestExternalTransfers(t *testing.T) {
 func TestVaultDestroy(t *testing.T) {
 	b, accountKeys := newTestSetup(t)
 
+	serviceSigner, _ := b.ServiceKey().Signer()
+
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
 	fungibleAddr, exampleTokenAddr, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
 
@@ -357,7 +363,7 @@ func TestVaultDestroy(t *testing.T) {
 			joshAddress,
 		},
 		[]crypto.Signer{
-			b.ServiceKey().Signer(),
+			serviceSigner,
 			joshSigner,
 		},
 		false,
@@ -385,7 +391,7 @@ func TestVaultDestroy(t *testing.T) {
 			exampleTokenAddr,
 		},
 		[]crypto.Signer{
-			b.ServiceKey().Signer(),
+			serviceSigner,
 			exampleTokenSigner,
 		},
 		false,
@@ -399,7 +405,7 @@ func TestVaultDestroy(t *testing.T) {
 		signAndSubmit(
 			t, b, tx,
 			[]flow.Address{b.ServiceKey().Address, exampleTokenAddr},
-			[]crypto.Signer{b.ServiceKey().Signer(), exampleTokenSigner},
+			[]crypto.Signer{serviceSigner, exampleTokenSigner},
 			false,
 		)
 
@@ -431,7 +437,7 @@ func TestVaultDestroy(t *testing.T) {
 				joshAddress,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				joshSigner,
 			},
 			false,
@@ -457,6 +463,8 @@ func TestVaultDestroy(t *testing.T) {
 
 func TestMintingAndBurning(t *testing.T) {
 	b, accountKeys := newTestSetup(t)
+
+	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
 	fungibleAddr, exampleTokenAddr, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
@@ -484,7 +492,7 @@ func TestMintingAndBurning(t *testing.T) {
 			joshAddress,
 		},
 		[]crypto.Signer{
-			b.ServiceKey().Signer(),
+			serviceSigner,
 			joshSigner,
 		},
 		false,
@@ -505,7 +513,7 @@ func TestMintingAndBurning(t *testing.T) {
 				exampleTokenAddr,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				exampleTokenSigner,
 			},
 			true,
@@ -553,7 +561,7 @@ func TestMintingAndBurning(t *testing.T) {
 				exampleTokenAddr,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				exampleTokenSigner,
 			},
 			false,
@@ -600,7 +608,7 @@ func TestMintingAndBurning(t *testing.T) {
 				exampleTokenAddr,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				exampleTokenSigner,
 			},
 			false,
@@ -625,6 +633,8 @@ func TestMintingAndBurning(t *testing.T) {
 
 func TestCreateCustomToken(t *testing.T) {
 	b, accountKeys := newTestSetup(t)
+
+	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, tokenSigner := accountKeys.NewWithSigner()
 	// Should be able to deploy a contract as a new account with no keys.
@@ -689,7 +699,7 @@ func TestCreateCustomToken(t *testing.T) {
 				joshAddress,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				joshSigner,
 			},
 			false,
@@ -725,7 +735,7 @@ func TestCreateCustomToken(t *testing.T) {
 				tokenAddr,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				tokenSigner,
 			},
 			false,
@@ -778,7 +788,7 @@ func TestCreateCustomToken(t *testing.T) {
 				tokenAddr,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				tokenSigner,
 			},
 			true,

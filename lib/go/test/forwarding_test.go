@@ -27,6 +27,8 @@ func TestPrivateForwarder(t *testing.T) {
 
 	name, _ := cadence.NewString("PrivateReceiverForwarder")
 
+	serviceSigner, _ := b.ServiceKey().Signer()
+
 	tx := flow.NewTransaction().
 		SetScript(templates.GenerateDeployPrivateForwardingScript()).
 		SetGasLimit(100).
@@ -43,7 +45,7 @@ func TestPrivateForwarder(t *testing.T) {
 	signAndSubmit(
 		t, b, tx,
 		[]flow.Address{b.ServiceKey().Address, exampleTokenAddr},
-		[]crypto.Signer{b.ServiceKey().Signer(), exampleTokenSigner},
+		[]crypto.Signer{serviceSigner, exampleTokenSigner},
 		false,
 	)
 
@@ -77,7 +79,7 @@ func TestPrivateForwarder(t *testing.T) {
 				joshAddress,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				joshSigner,
 			},
 			false,
@@ -114,7 +116,7 @@ func TestPrivateForwarder(t *testing.T) {
 				exampleTokenAddr,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				exampleTokenSigner,
 			},
 			false,
@@ -180,7 +182,7 @@ func TestPrivateForwarder(t *testing.T) {
 				exampleTokenAddr,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				exampleTokenSigner,
 			},
 			false,
@@ -216,7 +218,7 @@ func TestPrivateForwarder(t *testing.T) {
 				joshAddress,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				joshSigner,
 			},
 			false,
