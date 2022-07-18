@@ -64,7 +64,7 @@ pub contract ExampleToken: FungibleTokenInterface {
     /// out of thin air. A special Minter resource needs to be defined to mint
     /// new tokens.
     ///
-    pub resource Vault: FungibleToken.Vault, FungibleToken.Provider, FungibleToken.Receiver, FungibleToken.Balance {
+    pub resource Vault: FungibleToken.Vault, FungibleToken.Provider, FungibleToken.Transferable, FungibleToken.Receiver, FungibleToken.Balance {
 
         /// Storage and Public Paths
         pub let VaultStoragePath: StoragePath
@@ -130,6 +130,21 @@ pub contract ExampleToken: FungibleTokenInterface {
             emit TokensDeposited(amount: vault.balance, to: self.owner?.address, type: self.getType())
             vault.balance = 0.0
             destroy vault
+        }
+
+        pub fun transfer(amount: UFix64, recipient: Address) {
+            let transferVault <- self.withdraw(amount: amount)
+
+            // Get the recipient's public account object
+            let recipient = getAccount(recipient)
+
+            // Get a reference to the recipient's Receiver
+            let receiverRef = recipient.getCapability(self.ReceiverPublicPath)
+                .borrow<&{FungibleToken.Receiver}>()
+                ?? panic("Could not borrow receiver reference to the recipient's Vault")
+
+            // Deposit the withdrawn tokens in the recipient's receiver
+            receiverRef.deposit(from: <-transferVault)
         }
 
         destroy() {
