@@ -3,7 +3,7 @@ import FungibleToken from "./FungibleToken-v2.cdc"
 pub contract interface FungibleTokenInterface {
 
     /// Contains the total supply of the fungible token
-    pub var totalSupply: UFix64
+    pub var totalSupply: {Type: UFix64}
 
     /// Function to return the types that the contract implements
     pub fun getVaultTypes(): [FungibleToken.VaultInfo] {

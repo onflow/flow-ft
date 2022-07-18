@@ -4,7 +4,7 @@ import FungibleTokenInterface from "./FungibleToken-v2-ContractInterface.cdc"
 pub contract ExampleToken: FungibleTokenInterface {
 
     /// Total supply of ExampleTokens in existence
-    pub var totalSupply: UFix64
+    pub var totalSupply: {Type: UFix64}
 
     /// Admin Path
     pub let AdminStoragePath: StoragePath
@@ -148,7 +148,7 @@ pub contract ExampleToken: FungibleTokenInterface {
         }
 
         destroy() {
-            ExampleToken.totalSupply = ExampleToken.totalSupply - self.balance
+            ExampleToken.totalSupply[self.getType()] = ExampleToken.totalSupply[self.getType()]! - self.balance
         }
     }
 
@@ -194,7 +194,7 @@ pub contract ExampleToken: FungibleTokenInterface {
                 amount > 0.0: "Amount minted must be greater than zero"
                 amount <= self.allowedAmount: "Amount minted must be less than the allowed amount"
             }
-            ExampleToken.totalSupply = ExampleToken.totalSupply + amount
+            ExampleToken.totalSupply[self.getType()] = ExampleToken.totalSupply[self.getType()]! + amount
             self.allowedAmount = self.allowedAmount - amount
             emit TokensMinted(amount: amount, type: self.getType())
             return <-create Vault(balance: amount)
@@ -206,13 +206,14 @@ pub contract ExampleToken: FungibleTokenInterface {
     }
 
     init() {
-        self.totalSupply = 1000.0
+        self.totalSupply = {}
+        self.totalSupply[Type<@ExampleToken.Vault>()] = 1000.0
 
         self.AdminStoragePath = /storage/exampleTokenAdmin 
 
         // Create the Vault with the total supply of tokens and save it in storage
         //
-        let vault <- create Vault(balance: self.totalSupply)
+        let vault <- create Vault(balance: self.totalSupply[Type<@ExampleToken.Vault>()]!)
 
         let storagePath = vault.VaultStoragePath
         let receiverPath = vault.ReceiverPublicPath
