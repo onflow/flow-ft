@@ -73,7 +73,7 @@ pub contract FungibleToken {
     pub resource interface Transferable {
         /// Function for a direct transfer instead of having to do a deposit and withdrawal
         ///
-        pub fun transfer(amount: UFix64, recipient: Address)
+        pub fun transfer(amount: UFix64, recipient: Capability<&{FungibleToken.Receiver}>)
     }
 
     /// Receiver
@@ -93,7 +93,7 @@ pub contract FungibleToken {
         pub fun deposit(from: @AnyResource{Vault})
 
         /// getAcceptedTypes optionally returns a list of vault types that this receiver accepts
-        pub fun getAcceptedTypes(): [Type]?
+        pub fun getAcceptedTypes(): {Type: Bool}
     }
 
     /// Balance
@@ -115,13 +115,13 @@ pub contract FungibleToken {
         pub let type: Type
 
         /// Storage and Public Paths
-        pub let VaultStoragePath: StoragePath
+        pub let StoragePath: StoragePath
         pub let PublicReceiverBalancePath: PublicPath
         pub let PrivateProviderPath: PrivatePath
 
-        init(type: Type, VaultStoragePath: StoragePath, PublicReceiverBalancePath: PublicPath, PrivateProviderPath: PrivatePath) {
+        init(type: Type, StoragePath: StoragePath, PublicReceiverBalancePath: PublicPath, PrivateProviderPath: PrivatePath) {
             self.type = type
-            self.VaultStoragePath = VaultStoragePath
+            self.StoragePath = StoragePath
             self.PublicReceiverBalancePath = PublicReceiverBalancePath
             self.PrivateProviderPath = PrivateProviderPath
         }
@@ -135,7 +135,7 @@ pub contract FungibleToken {
     pub resource interface Vault { //: Receiver, Balance, Transferable, Provider {
 
         /// Storage and Public Paths
-        pub let VaultStoragePath: StoragePath
+        pub let StoragePath: StoragePath
         pub let PublicReceiverBalancePath: PublicPath
         pub let PrivateProviderPath: PrivatePath
 
@@ -144,6 +144,9 @@ pub contract FungibleToken {
 
         /// Return information about the vault's type and paths
         pub fun getVaultInfo(): FungibleToken.VaultInfo
+
+        /// getAcceptedTypes optionally returns a list of vault types that this receiver accepts
+        pub fun getAcceptedTypes(): {Type: Bool}
 
         /// withdraw subtracts `amount` from the Vault's balance
         /// and returns a new Vault with the subtracted balance
@@ -179,7 +182,7 @@ pub contract FungibleToken {
 
         /// Function for a direct transfer instead of having to do a deposit and withdrawal
         ///
-        pub fun transfer(amount: UFix64, recipient: Address) {
+        pub fun transfer(amount: UFix64, recipient: Capability<&{FungibleToken.Receiver}>) {
             post {
                 self.getBalance() == before(self.getBalance()) - amount:
                     "New Vault balance from the sender must be the difference of the previous balance and the withdrawn Vault balance"

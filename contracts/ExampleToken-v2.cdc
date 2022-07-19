@@ -23,6 +23,11 @@ pub contract ExampleToken: FungibleTokenInterface {
     /// The event that is emitted when tokens are deposited to a Vault
     pub event TokensDeposited(amount: UFix64, to: Address?, type: Type)
 
+    /// TokensTransferred
+    ///
+    /// The event that is emitted when tokens are transferred from one account to another
+    pub event TokensTransferred(amount: UFix64, from: Address?, to: Address?, type: Type)
+
     /// TokensMinted
     ///
     /// The event that is emitted when new tokens are minted
@@ -32,11 +37,6 @@ pub contract ExampleToken: FungibleTokenInterface {
     ///
     /// The event that is emitted when tokens are destroyed
     pub event TokensBurned(amount: UFix64, type: Type)
-
-    /// MinterCreated
-    ///
-    /// The event that is emitted when a new minter resource is created
-    pub event MinterCreated(allowedAmount: UFix64, type: Type)
 
     /// Function to return the types that the contract implements
     pub fun getVaultTypes(): {Type: FungibleToken.VaultInfo} {
@@ -66,7 +66,7 @@ pub contract ExampleToken: FungibleTokenInterface {
     pub resource Vault: FungibleToken.Vault, FungibleToken.Provider, FungibleToken.Transferable, FungibleToken.Receiver, FungibleToken.Balance {
 
         /// Storage and Public Paths
-        pub let VaultStoragePath: StoragePath
+        pub let StoragePath: StoragePath
         pub let PublicReceiverBalancePath: PublicPath
         pub let PrivateProviderPath: PrivatePath
 
@@ -76,14 +76,14 @@ pub contract ExampleToken: FungibleTokenInterface {
         // initialize the balance at resource creation time
         init(balance: UFix64) {
             self.balance = balance
-            self.VaultStoragePath = /storage/exampleTokenVault
+            self.StoragePath = /storage/exampleTokenVault
             self.PublicReceiverBalancePath = /public/exampleTokenPublicPath
             self.PrivateProviderPath = /private/exampleTokenProvider
         }
         
         /// Return information about the vault's type and paths
         pub fun getVaultInfo(): FungibleToken.VaultInfo {
-            return FungibleToken.VaultInfo(type: self.getType(), VaultStoragePath: self.VaultStoragePath, PublicReceiverBalancePath: self.PublicReceiverBalancePath, PrivateProviderPath: self.PrivateProviderPath)
+            return FungibleToken.VaultInfo(type: self.getType(), StoragePath: self.StoragePath, PublicReceiverBalancePath: self.PublicReceiverBalancePath, PrivateProviderPath: self.PrivateProviderPath)
         }
 
         /// Get the balance of the vault
@@ -108,10 +108,10 @@ pub contract ExampleToken: FungibleTokenInterface {
         }
 
         /// getAcceptedTypes optionally returns a list of vault types that this receiver accepts
-        pub fun getAcceptedTypes(): [Type]? {
-            let typeArray: [Type] = []
-            typeArray.append(Type<@ExampleToken.Vault>())
-            return typeArray
+        pub fun getAcceptedTypes(): {Type: Bool} {
+            let types: {Type: Bool} = {}
+            types[Type<@ExampleToken.Vault>()] = true
+            return types
         }
 
         /// deposit
@@ -131,19 +131,17 @@ pub contract ExampleToken: FungibleTokenInterface {
             destroy vault
         }
 
-        pub fun transfer(amount: UFix64, recipient: Address) {
+        pub fun transfer(amount: UFix64, recipient: Capability<&{FungibleToken.Receiver}>) {
             let transferVault <- self.withdraw(amount: amount)
 
-            // Get the recipient's public account object
-            let recipient = getAccount(recipient)
-
             // Get a reference to the recipient's Receiver
-            let receiverRef = recipient.getCapability(self.PublicReceiverBalancePath)
-                .borrow<&{FungibleToken.Receiver}>()
+            let receiverRef = recipient.borrow()
                 ?? panic("Could not borrow receiver reference to the recipient's Vault")
 
             // Deposit the withdrawn tokens in the recipient's receiver
             receiverRef.deposit(from: <-transferVault)
+
+            emit TokensTransferred(amount: amount, from: self.owner?.address, to: receiverRef.owner?.address, type: self.getType())
         }
 
         /// createEmptyVault
@@ -169,7 +167,6 @@ pub contract ExampleToken: FungibleTokenInterface {
         /// Function that creates and returns a new minter resource
         ///
         pub fun createNewMinter(allowedAmount: UFix64): @Minter {
-            emit MinterCreated(allowedAmount: allowedAmount, type: self.getType())
             return <-create Minter(allowedAmount: allowedAmount)
         }
     }
@@ -214,7 +211,7 @@ pub contract ExampleToken: FungibleTokenInterface {
         //
         let vault <- create Vault(balance: self.totalSupply[Type<@ExampleToken.Vault>()]!)
 
-        let storagePath = vault.VaultStoragePath
+        let storagePath = vault.StoragePath
         let receiverBalancePath = vault.PublicReceiverBalancePath
 
         self.account.save(<-vault, to: storagePath)
