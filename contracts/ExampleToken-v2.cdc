@@ -156,7 +156,9 @@ pub contract ExampleToken: FungibleTokenInterface {
         }
 
         destroy() {
-            ExampleToken.totalSupply[self.getType()] = ExampleToken.totalSupply[self.getType()]! - self.balance
+            if self.balance > 0.0 {
+                ExampleToken.totalSupply[self.getType()] = ExampleToken.totalSupply[self.getType()]! - self.balance
+            }
         }
     }
 
