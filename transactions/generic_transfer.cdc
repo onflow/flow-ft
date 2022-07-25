@@ -1,7 +1,11 @@
 import FungibleToken from "./../contracts/FungibleToken.cdc"
 
-// Can pass in any storage path and receiver path instead of just the default.
-// This lets you choose the token you want to send as well the capability you want to send it to.
+/// Can pass in any storage path and receiver path instead of just the default.
+/// This lets you choose the token you want to send as well the capability you want to send it to.
+///
+/// Any token path can be passed as an argument here, so wallets should
+/// should check argument values to make sure the intended token path is passed in
+///
 transaction(amount: UFix64, to: Address, senderPath: StoragePath, receiverPath: PublicPath) {
 
     // The Vault resource that holds the tokens that are being transferred
