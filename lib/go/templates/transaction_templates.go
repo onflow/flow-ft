@@ -14,6 +14,7 @@ import (
 
 const (
 	transferTokensFilename       = "transfer_tokens.cdc"
+	genericTransferFilename = "generic_transfer.cdc"
 	transferManyAccountsFilename = "transfer_many_accounts.cdc"
 	setupAccountFilename         = "setup_account.cdc"
 	mintTokensFilename           = "mint_tokens.cdc"
@@ -65,6 +66,15 @@ func GenerateTransferVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName
 	code := assets.MustAssetString(transferTokensFilename)
 
 	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, tokenName)
+}
+
+// GenerateTransferGenericVaultScript creates a script that withdraws an tokens from an account
+// and deposits it to another account's vault for any vault type
+func GenerateTransferGenericVaultScript(fungibleAddr flow.Address) []byte {
+
+	code := assets.MustAssetString(genericTransferFilename)
+
+	return replaceAddresses(code, fungibleAddr, flow.EmptyAddress, flow.EmptyAddress, "")
 }
 
 // GenerateTransferManyAccountsScript creates a script that transfers the same number of tokens
