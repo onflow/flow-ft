@@ -85,7 +85,7 @@ pub contract FungibleTokenSwitchboard {
                 // Emit the event that indicates that a new capability has been added
                 emit VaultCapabilityAdded(type: vaultRef.getType(),
                                     switchboardOwner: self.owner?.address, 
-                                    capabilityOwner: nil)
+                                    capabilityOwner: capability.address)
             }else{
                 // If there was already a capability for that token, panic
                 panic("There is already a vault in the Switchboard for this token")
@@ -140,7 +140,7 @@ pub contract FungibleTokenSwitchboard {
             // Emit the event that indicates that a new capability has been 
             // removed
             emit VaultCapabilityRemoved(type: vaultRef.getType(),
-                                    switchboardOwner: nil, capabilityOwner: nil)       
+                                    switchboardOwner: self.owner?.address, capabilityOwner: capability.address)       
         }
         
         /// deposit Takes a fungible token vault and routes it to the proper

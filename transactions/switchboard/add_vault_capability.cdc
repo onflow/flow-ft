@@ -16,6 +16,9 @@ transaction {
       self.exampleTokenVaultCapabilty = 
         signer.getCapability<&{FungibleToken.Receiver}>
                                 (ExampleToken.ReceiverPublicPath)
+      // Check if the receiver capability exists
+      assert(self.exampleTokenVaultCapabilty.check(), 
+            message: "Signer does not have a Example Token receiver capability")
       // Get a reference to the signers switchboard
       self.switchboardRef = signer.borrow<&FungibleTokenSwitchboard.Switchboard>
         (from: FungibleTokenSwitchboard.StoragePath) 
