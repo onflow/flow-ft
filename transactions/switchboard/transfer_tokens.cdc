@@ -1,3 +1,6 @@
+import FungibleToken from "./../../contracts/FungibleToken.cdc"
+import ExampleToken from "./../../contracts/ExampleToken.cdc"
+
 // This transaction is a template for a transaction that
 // could be used by anyone to send tokens to another account
 // through a switchboard, as long as they have set up their
@@ -6,13 +9,9 @@
 // The address of the receiver account, the amount to transfer
 // and the PublicPath for the generic FT receiver will be the
 // parameters
-
-import FungibleToken from "./../../contracts/FungibleToken.cdc"
-import ExampleToken from "./../../contracts/ExampleToken.cdc"
-
 transaction(to: Address, amount: UFix64, receiverPath: PublicPath) {
 
-    // The Vault resource that holds the tokens that are being transferred
+    // The vault resource that holds the tokens that are being transferred
     let sentVault: @FungibleToken.Vault
 
     prepare(signer: AuthAccount) {
@@ -23,6 +22,7 @@ transaction(to: Address, amount: UFix64, receiverPath: PublicPath) {
 
         // Withdraw tokens from the signer's stored vault
         self.sentVault <- vaultRef.withdraw(amount: amount)
+    
     }
 
     execute {
@@ -38,5 +38,7 @@ transaction(to: Address, amount: UFix64, receiverPath: PublicPath) {
 
         // Deposit the withdrawn tokens in the recipient's receiver
         receiverRef.deposit(from: <-self.sentVault)
+    
     }
+
 }
