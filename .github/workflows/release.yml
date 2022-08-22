@@ -20,7 +20,7 @@ jobs:
           node-version: 15
           registry-url: https://registry.npmjs.org
       - name: Install Dependencies
-        run: yarn
+        run: yarn install
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
