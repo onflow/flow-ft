@@ -60,16 +60,16 @@ pub contract FungibleTokenMetadataViews {
         /// that can be displayed in lists, link previews, etc.
         pub let thumbnail: AnyStruct{MetadataViews.File}
 
-        /// External link to a URL to view more information about this collection.
+        /// External link to a URL to view more information about the fungible token.
         pub let externalURL: MetadataViews.ExternalURL
 
-        /// Square-sized image to represent this collection.
+        /// Square-sized image to represent the fungible token.
         pub let squareImage: MetadataViews.Media
 
-        /// Banner-sized image for this collection, recommended to have a size near 1200x630.
+        /// Banner-sized image for the fungible token recommended having a size near 1200x630.
         pub let bannerImage: MetadataViews.Media
 
-        /// Social links to reach this collection's social homepages.
+        /// Social links to reach the fungible token's social homepages.
         /// Possible keys may be "instagram", "twitter", "discord", etc.
         pub let socials: {String: MetadataViews.ExternalURL}
 
