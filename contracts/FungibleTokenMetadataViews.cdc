@@ -142,7 +142,6 @@ pub contract FungibleTokenMetadataViews {
             storagePath: StoragePath,
             publicPath: PublicPath,
             providerPath: PrivatePath,
-            publicCollection: Type,
             publicLinkedType: Type,
             providerLinkedType: Type,
             createEmptyVaultFunction: ((): @FungibleToken.Vault)
