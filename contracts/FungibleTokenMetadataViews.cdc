@@ -51,23 +51,17 @@ pub contract FungibleTokenMetadataViews {
         /// Name that should be used when displaying this FT.
         pub let name: String
 
+        /// Symbol that could be used as a shorter name for the FT.
+        pub let symbol: String
+
         /// Description that should be used to give an overview of this FT.
         pub let description: String
-
-        /// A small thumbnail representation of the object.
-        ///
-        /// This field should be a web-friendly file (i.e JPEG, PNG)
-        /// that can be displayed in lists, link previews, etc.
-        pub let thumbnail: AnyStruct{MetadataViews.File}
 
         /// External link to a URL to view more information about the fungible token.
         pub let externalURL: MetadataViews.ExternalURL
 
-        /// Square-sized image to represent the fungible token.
-        pub let squareImage: MetadataViews.Media
-
-        /// Banner-sized image for the fungible token recommended having a size near 1200x630.
-        pub let bannerImage: MetadataViews.Media
+        /// Image to represent the fungible token logo.
+        pub let logo: MetadataViews.Media
 
         /// Social links to reach the fungible token's social homepages.
         /// Possible keys may be "instagram", "twitter", "discord", etc.
@@ -75,16 +69,15 @@ pub contract FungibleTokenMetadataViews {
 
         init(
             name: String,
+            symbol: String,
             description: String,
-            thumbnail: AnyStruct{MetadataViews.File},
             externalURL: MetadataViews.ExternalURL,
-            squareImage: MetadataViews.Media,
-            bannerImage: MetadataViews.Media,
+            logo: MetadataViews.Media,
             socials: {String: MetadataViews.ExternalURL}
         ) {
             self.name = name
+            self.symbol = symbol
             self.description = description
-            self.thumbnail = thumbnail
             self.externalURL = externalURL
             self.squareImage = squareImage
             self.bannerImage = bannerImage
