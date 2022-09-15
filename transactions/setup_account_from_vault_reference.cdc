@@ -10,20 +10,26 @@ import MetadataViews from "../contracts/utilityContracts/MetadataViews.cdc"
 transaction(address: Address, publicPath: PublicPath) {
 
     prepare(signer: AuthAccount) {
+        // Borrow a reference to the vault stored on the passed account at the passed publicPath
+        // only caring about it conforming to the MetadataViews.Resolver interface
         let resolverRef = getAccount(address)
             .getCapability(publicPath)
             .borrow<&{MetadataViews.Resolver}>()
             ?? panic("Could not borrow a reference to the vault view resolver")
 
-        let ftVaultData = resolverRef.resolveView(Type<FungibleTokenMetadataViews.FTVaultData>())! as! FungibleTokenMetadataViews.FTVaultData
+        // Use that reference to retrieve the FTView 
+        let ftView = resolverRef.resolveView(Type<FungibleTokenMetadataViews.FTView>())! as! FungibleTokenMetadataViews.FTView
 
-        // Create a new empty vault
+        // Get the FTVaultData view from from the FTView
+        let ftVaultData = ftView.ftVaultData ?? panic ("The stored vault didn't have the vault data view")
+
+        // Create a new empty vault using the createEmptyVault function inside the FTVaultData
         let emptyVault <-ftVaultData.createEmptyVault()
 
         // Save it to the account
         signer.save(<-emptyVault, to: ftVaultData.storagePath)
 
-        // create a public capability for the vault
+        // Create a public capability for the vault exposing the public interfaces
         signer.link<&{FungibleToken.Receiver, FungibleToken.Balance, MetadataViews.Resolver}>(
             ftVaultData.publicPath,
             target: ftVaultData.storagePath
