@@ -4,8 +4,9 @@
 
 import FungibleToken from "./../contracts/FungibleToken.cdc"
 import ExampleToken from "./../contracts/ExampleToken.cdc"
+import MetadataViews from "./../contracts/utilityContracts/MetadataViews.cdc"
 
-transaction {
+transaction () {
 
     prepare(signer: AuthAccount) {
 
@@ -31,6 +32,13 @@ transaction {
         // the balance field through the Balance interface
         signer.link<&ExampleToken.Vault{FungibleToken.Balance}>(
             ExampleToken.BalancePublicPath,
+            target: ExampleToken.VaultStoragePath
+        )
+
+        // Create a public capability to the Vault that only exposes the MetadataViews.Resolver
+        // interface
+        signer.link<&{MetadataViews.Resolver}>(
+            ExampleToken.ResolverPublicPath,
             target: ExampleToken.VaultStoragePath
         )
     }

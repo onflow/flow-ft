@@ -13,11 +13,9 @@ transaction(address: Address, publicPath: PublicPath) {
         let resolverRef = getAccount(address)
             .getCapability(publicPath)
             .borrow<&{MetadataViews.Resolver}>()
-            ?? panic("Could not borrow a reference to the vault")
+            ?? panic("Could not borrow a reference to the vault view resolver")
 
-        let ftView = resolverRef.resolveView(Type<FungibleTokenMetadataViews.FTView>())! as! FungibleTokenMetadataViews.FTView
-
-        let ftVaultData = ftView.ftVaultData ?? panic ("The stored vault didn't have the vault data view")
+        let ftVaultData = resolverRef.resolveView(Type<FungibleTokenMetadataViews.FTVaultData>())! as! FungibleTokenMetadataViews.FTVaultData
 
         // Create a new empty vault
         let emptyVault <-ftVaultData.createEmptyVault()

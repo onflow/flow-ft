@@ -11,6 +11,7 @@ pub contract ExampleToken: FungibleToken {
     pub let VaultStoragePath: StoragePath
     pub let ReceiverPublicPath: PublicPath
     pub let BalancePublicPath: PublicPath
+    pub let ResolverPublicPath: PublicPath
     pub let AdminStoragePath: StoragePath
 
     /// The event that is emitted when the contract is created
@@ -127,7 +128,7 @@ pub contract ExampleToken: FungibleToken {
                         publicPath: ExampleToken.ReceiverPublicPath,
                         providerPath: /private/exampleTokenVault,
                         publicLinkedType: Type<&{FungibleToken.Receiver, FungibleToken.Balance, MetadataViews.Resolver}>(),
-                        providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider}>(),
+                        providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider, MetadataViews.Resolver}>(),
                         createEmptyVaultFunction: (fun (): @ExampleToken.Vault {
                             return <-ExampleToken.createEmptyVault()
                         })
@@ -211,6 +212,7 @@ pub contract ExampleToken: FungibleToken {
         self.VaultStoragePath = /storage/exampleTokenVault
         self.ReceiverPublicPath = /public/exampleTokenReceiver
         self.BalancePublicPath = /public/exampleTokenBalance
+        self.ResolverPublicPath = /public/exampleTokenResolver
         self.AdminStoragePath = /storage/exampleTokenAdmin
 
         // Create the Vault with the total supply of tokens and save it in storage
