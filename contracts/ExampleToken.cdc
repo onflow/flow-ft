@@ -140,12 +140,13 @@ pub contract ExampleToken: FungibleToken {
             ),
             mediaType: "image/svg+xml"
         )
+        let medias = MetadataViews.Medias([media])
         return FungibleTokenMetadataViews.FTDisplay(
             name: "Example Fungible Token",
             symbol: "EFT",
             description: "This fungible token is used as an example to help you develop your next FT #onFlow.",
             externalURL: MetadataViews.ExternalURL("https://example-ft.onflow.org"),
-            logo: media,
+            logo: medias,
             socials: {
                 "twitter": MetadataViews.ExternalURL("https://twitter.com/flow_blockchain")
             }
