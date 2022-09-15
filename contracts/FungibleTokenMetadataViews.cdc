@@ -17,13 +17,13 @@ pub contract FungibleTokenMetadataViews {
     ///
     pub struct FTView {
         pub let ftDisplay: FTDisplay?     
-        pub let vaultData: FTVaultData?
+        pub let ftVaultData: FTVaultData?
         init(
             ftDisplay: FTDisplay?,
-            vaultData: FTVaultData?
+            ftVaultData: FTVaultData?
         ) {
             self.ftDisplay = ftDisplay
-            self.vaultData = vaultData
+            self.ftVaultData = ftVaultData
         }
     }
 
@@ -39,7 +39,7 @@ pub contract FungibleTokenMetadataViews {
         }
         return FTView(
             ftDisplay: self.getFTDisplay(viewResolver),
-            vaultData : self.getFTVaultData(viewResolver)
+            ftVaultData : self.getFTVaultData(viewResolver)
         )
     }
 
@@ -79,8 +79,7 @@ pub contract FungibleTokenMetadataViews {
             self.symbol = symbol
             self.description = description
             self.externalURL = externalURL
-            self.squareImage = squareImage
-            self.bannerImage = bannerImage
+            self.logo = logo
             self.socials = socials
         }
     }
