@@ -61,7 +61,7 @@ pub contract FungibleTokenMetadataViews {
         pub let externalURL: MetadataViews.ExternalURL
 
         /// Image to represent the fungible token logo.
-        pub let logo: MetadataViews.Media
+        pub let logos: MetadataViews.Medias
 
         /// Social links to reach the fungible token's social homepages.
         /// Possible keys may be "instagram", "twitter", "discord", etc.
@@ -72,14 +72,14 @@ pub contract FungibleTokenMetadataViews {
             symbol: String,
             description: String,
             externalURL: MetadataViews.ExternalURL,
-            logo: MetadataViews.Media,
+            logos: MetadataViews.Medias,
             socials: {String: MetadataViews.ExternalURL}
         ) {
             self.name = name
             self.symbol = symbol
             self.description = description
             self.externalURL = externalURL
-            self.logo = logo
+            self.logos = logos
             self.socials = socials
         }
     }
@@ -166,3 +166,4 @@ pub contract FungibleTokenMetadataViews {
     }
 
 }
+ 
