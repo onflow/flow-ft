@@ -137,7 +137,7 @@ This spec covers much of the same ground that a spec like ERC-20 covers, but wit
 
 ### Metadata
 
-A standard for token metadata is still an unsolved problem in the general blockchain world and we are still thinking about ways to solve it in Cadence. We hope to be able to store all metadata on-chain and are open to any ideas or feedback on how this could be implemented.
+
 
 
 ## Bonus Features
@@ -178,7 +178,7 @@ A standard for token metadata is still an unsolved problem in the general blockc
 
 To use the Flow Token contract as is, you need to follow these steps:
 
-1. If you are using the Playground, you need to deploy the `FungibleToken` definition to account 1 yourself and import it in `ExampleToken`. It is a predeployed interface in the emulator, testnet, and mainnet and you can import definition from those accounts:
+1. If you are using the Playground, you need to deploy the `FungibleToken` definition to account 1 yourself and import it in `ExampleToken`. It is a pre-deployed interface in the emulator, testnet, and mainnet and you can import definition from those accounts:
     - `0xee82856bf20e2aa6` on emulator
     - `0x9a0766d93b6608b7` on testnet
     - `0xf233dcee88fe0abe` on mainnet
@@ -202,7 +202,7 @@ To use the Flow Token contract as is, you need to follow these steps:
 
  Users willing to use the Fungible Token Switchboard will need to setup their accounts by creating a new `FungibleTokenSwitchboard.Switchboard` resource and saving it to their accounts at the `FungibleTokenSwitchboard.StoragePath` path.
  
- This can be acomplished by executing the transaction found in this repository `transactions/switchboard/setup_account.cdc`. This transaction will create and save a Switchboard resource to the signer's account,
+ This can be accomplished by executing the transaction found in this repository `transactions/switchboard/setup_account.cdc`. This transaction will create and save a Switchboard resource to the signer's account,
  and it also will create the needed public capabilities to access it. After setting up their switchboard, in order to make it support receiving a certain token, users will need to add the desired token's receiver capability to their switchboard resource.
  
  ## Adding a new vault to the switchboard
@@ -219,7 +219,7 @@ To use the Flow Token contract as is, you need to follow these steps:
 
         prepare(signer: AuthAccount) {
           // Get the example token vault capability from the signer's account
-          self.exampleTokenVaultCapabilty = 
+          self.exampleTokenVaultCapability = 
             signer.getCapability<&{FungibleToken.Receiver}>
                                     (ExampleToken.ReceiverPublicPath)
           // Get a reference to the signers switchboard
@@ -230,7 +230,7 @@ To use the Flow Token contract as is, you need to follow these steps:
 
         execute {
           // Add the capability to the switchboard using addNewVault method
-          self.switchboardRef.addNewVault(capability: self.exampleTokenVaultCapabilty)
+          self.switchboardRef.addNewVault(capability: self.exampleTokenVaultCapability)
         }
     }
     ```
@@ -279,7 +279,7 @@ This can be observed in the template transaction `transactions/switchboard/remov
 
     prepare(signer: AuthAccount) {
       // Get the example token vault capability from the signer's account
-      self.exampleTokenVaultCapabilty = signer.getCapability
+      self.exampleTokenVaultCapability = signer.getCapability
                     <&{FungibleToken.Receiver}>(ExampleToken.ReceiverPublicPath)
       // Get a reference to the signers switchboard  
       self.switchboardRef = signer.borrow<&FungibleTokenSwitchboard.Switchboard>
@@ -297,8 +297,8 @@ This can be observed in the template transaction `transactions/switchboard/remov
  ```
  This function will panic if is not possible to `.borrow()` a reference to a `&{FungibleToken.Receiver}` from the passed capability.
 
- ## Transfering tokens through the switchboard
- The Fungible Token Switchboad provides two different ways of depositing tokens to it, using the `deposit(from: @FungibleToken.Vault)` method enforced by the `{FungibleToken.Receiver}` or using the `safeDeposit(from: @FungibleToken.Vault): @FungibleToken`:
+ ## Transferring tokens through the switchboard
+ The Fungible Token Switchboard provides two different ways of depositing tokens to it, using the `deposit(from: @FungibleToken.Vault)` method enforced by the `{FungibleToken.Receiver}` or using the `safeDeposit(from: @FungibleToken.Vault): @FungibleToken`:
 
  1. Using the first method will be just the same as depositing to `&{FungibleToken.Receiver}`. The path for the Switchboard receiver is defined in `FungibleTokenSwitchboard.ReceiverPublicPath`,
  the generic receiver path `/public/GenericFTReceiver` that can also be obtained from the NFT MetadataViews contract.
@@ -336,7 +336,7 @@ This can be observed in the template transaction `transactions/switchboard/remov
  }
  ```
 
- 2. The `safeDeposit(from: @FungibleToken.Vault): @FungibleToken` works in a similar way, with the difference that it will not panic if the desired FT Vault can not be obtained from the Switchboard. The method will return the passed vault, empty if the funds were deposited sucessfully or still containing the funds if the transfer of the funds was not possible. Keep in mind that when using this method on a transaction you will allways have to deal with the returned resource. An example of this can be found on `transactions/switchboard/safe_transfer_tokens.cdc`:
+ 2. The `safeDeposit(from: @FungibleToken.Vault): @FungibleToken` works in a similar way, with the difference that it will not panic if the desired FT Vault can not be obtained from the Switchboard. The method will return the passed vault, empty if the funds were deposited successfully or still containing the funds if the transfer of the funds was not possible. Keep in mind that when using this method on a transaction you will always have to deal with the returned resource. An example of this can be found on `transactions/switchboard/safe_transfer_tokens.cdc`:
  ```cadence
  transaction(to: Address, amount: UFix64) {
     // The reference to the vault from the payer's account
