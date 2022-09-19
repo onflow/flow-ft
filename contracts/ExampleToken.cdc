@@ -90,17 +90,21 @@ pub contract ExampleToken: FungibleToken {
             }
         }
 
-        /// Returns an array with all the views that the ExampleToken implements
+        /// The way of getting all the Metadata Views implemented by ExampleToken
+        ///
+        /// @return An array of Types defining the implemented views. This value will be used by
+        ///         developers to know which parameter to pass to the resolveView() method.
         ///
         pub fun getViews(): [Type]{
             return [Type<FungibleTokenMetadataViews.FTView>(),
                     Type<FungibleTokenMetadataViews.FTDisplay>(),
                     Type<FungibleTokenMetadataViews.FTVaultData>()]
-                    /*Type<MetadataViews.Medias>()?*/
-                    /*, other views from MetadataViews?? */
         }
 
-        /// Return the proper struct for the requested Type of view
+        /// The way of getting a Metadata View out of the ExampleToken
+        ///
+        /// @param view: The Type of the desired view.
+        /// @return A structure representing the requested view.
         ///
         pub fun resolveView(_ view: Type): AnyStruct? {
             switch view {
