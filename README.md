@@ -115,7 +115,7 @@ Right now we are using unsigned 64-bit fixed point numbers `UFix64` as the type 
 
 6 - Destroying a Vault
 
-If a `Vault` is explicitly destroyed using Cadence's `destroy` keyword, the balance of the destroyed vault must be subracted from the total supply.
+If a `Vault` is explicitly destroyed using Cadence's `destroy` keyword, the balance of the destroyed vault must be subtracted from the total supply.
 
 7 - Standard for Token Metadata
 
@@ -144,13 +144,51 @@ When writing an NFT contract, you should implement the [`MetadataViews.Resolver`
 Views do not specify or require how to store your metadata, they only specify
 the format to query and return them, so projects can still be flexible with how they store their data.
 
-### How to read metadata
+### Fungible token Metadata Views
 
+The [Example Token contract](contracts/ExampleToken.cdc) defines three new views that can used to communicate any fungible token information:
+
+1. `FTView` A view that wraps the two other views that actually contain the data.
+1. `FTDisplay` The view that contains all the information that will be needed by other dApps to display the fungible token: name, symbol, description, external URL, logos and links to social media.
+1. `FTVaultData` The view that can be used by other dApps to interact programmatically with the fungible token, providing the information about the public and private paths used by default by the token, the public and private linked types for exposing capabilities and the function for creating new empty vaults. You can use this view to [setup an account using the vault stored in other account without the need of importing the actual token contract.](transactions/setup_account_from_vault_reference.cdc)
 
 ### How to implement metadata
 
-### Specific fungible token views
+The [Example Token contract](contracts/ExampleToken.cdc) shows how to implement metadata views for fungible tokens.
 
+### How to read metadata
+
+In this repository you can find examples on how to read metadata, accessing the `ExampleToken` display (name, symbol, logos, etc.) and its vault data (paths, linked types and the method to create a new vault).
+
+First step will be to borrow a reference to the token's vault stored in some account:
+
+```cadence
+let vaultRef = account
+    .getCapability(ExampleToken.ResolverPublicPath)
+    .borrow<&{MetadataViews.Resolver}>()
+    ?? panic("Could not borrow a reference to the vault resolver")
+```
+
+Latter using that reference you can call methods defined in the [Fungible Token Metadata Views contract](contracts/FungibleTokenMetadataViews.cdc) that will return you the structure containing the desired information:
+
+```cadence
+let ftView = FungibleTokenMetadataViews.getFTView(viewResolver: vaultRef)
+```
+
+Alternatively you could call directly the `resolveView(_ view: Type): AnyStruct?` method on the `ExampleToken.Vault`, but the `getFTView(viewResolver: &{MetadataViews.Resolver}): FTView`, `getFTDisplay(_ viewResolver: &{MetadataViews.Resolver}): FTDisplay?` and `getFTVaultData(_ viewResolver: &{MetadataViews.Resolver}): FTVaultData?` defined on the `FungibleMetadataViews` contract will ease the process of dealing with optional types when retrieving this views.
+
+Finally you can return the whole of structure or just log some values from the views depending on what you are aiming for:
+
+```cadence
+return ftView
+````
+
+```cadence
+/*
+When you retrieve a FTView both the FTDisplay and the FTVaultData views contained on it are optional values, meaning that the token could not be implementing then.
+*/
+log(ftView.ftDisplay!.symbol)
+```
 
 ## Bonus Features
 
@@ -222,7 +260,7 @@ To use the Flow Token contract as is, you need to follow these steps:
  
  1. Adding a single capability using `addNewVault(capability: Capability<&{FungibleToken.Receiver}>)`
     * Before calling this method on a transaction you should first retrieve the capability to the token's vault you are
-    willing to add to the switchboard, as is done in the template transaction `transactions/switchboard/add_vault_capabilty.cdc`.
+    willing to add to the switchboard, as is done in the template transaction `transactions/switchboard/add_vault_capability.cdc`.
 
     ```cadence
     transaction {
@@ -303,7 +341,7 @@ This can be observed in the template transaction `transactions/switchboard/remov
     execute {
       // Remove the capability from the switchboard using the 
       // removeVault method
-      self.switchboardRef.removeVault(capability: self.exampleTokenVaultCapabilty)
+      self.switchboardRef.removeVault(capability: self.exampleTokenVaultCapability)
     }
  }
  ```
