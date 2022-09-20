@@ -10,8 +10,7 @@ pub contract ExampleToken: FungibleToken {
     /// Storage and Public Paths
     pub let VaultStoragePath: StoragePath
     pub let ReceiverPublicPath: PublicPath
-    pub let BalancePublicPath: PublicPath
-    pub let ResolverPublicPath: PublicPath
+    pub let MetadataPublicPath: PublicPath
     pub let AdminStoragePath: StoragePath
 
     /// The event that is emitted when the contract is created
@@ -220,28 +219,25 @@ pub contract ExampleToken: FungibleToken {
         self.totalSupply = 1000.0
         self.VaultStoragePath = /storage/exampleTokenVault
         self.ReceiverPublicPath = /public/exampleTokenReceiver
-        self.BalancePublicPath = /public/exampleTokenBalance
-        self.ResolverPublicPath = /public/exampleTokenResolver
+        self.MetadataPublicPath = /public/exampleTokenMetadata
         self.AdminStoragePath = /storage/exampleTokenAdmin
 
-        // Create the Vault with the total supply of tokens and save it in storage
-        //
+        // Create the Vault with the total supply of tokens and save it in storage.
         let vault <- create Vault(balance: self.totalSupply)
         self.account.save(<-vault, to: self.VaultStoragePath)
 
         // Create a public capability to the stored Vault that exposes
-        // the `deposit` method through the `Receiver` interface and also
-        // the `resolveView`method through the MetadataViews `Resolver` interface
-        self.account.link<&{FungibleToken.Receiver, MetadataViews.Resolver}>(
+        // the `deposit` method through the `Receiver` interface.
+        self.account.link<&{FungibleToken.Receiver}>(
             self.ReceiverPublicPath,
             target: self.VaultStoragePath
         )
 
         // Create a public capability to the stored Vault that only exposes
-        // the `balance` field through the `Balance` interface
-        //
-        self.account.link<&ExampleToken.Vault{FungibleToken.Balance}>(
-            self.BalancePublicPath,
+        // the `balance` field through the `Balance` interface and also
+        // the `resolveView` method through the MetadataViews `Resolver` interface.
+        self.account.link<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(
+            self.MetadataPublicPath,
             target: self.VaultStoragePath
         )
 
@@ -249,7 +245,6 @@ pub contract ExampleToken: FungibleToken {
         self.account.save(<-admin, to: self.AdminStoragePath)
 
         // Emit an event that shows that the contract was initialized
-        //
         emit TokensInitialized(initialSupply: self.totalSupply)
     }
 }
