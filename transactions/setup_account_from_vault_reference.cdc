@@ -15,7 +15,7 @@ transaction(address: Address, publicPath: PublicPath) {
         let resolverRef = getAccount(address)
             .getCapability(publicPath)
             .borrow<&{MetadataViews.Resolver}>()
-            ?? panic("Could not borrow a reference to the vault view resolver")
+            ?? panic("Could not borrow a reference to the vault view resolver ")
 
         // Use that reference to retrieve the FTView 
         let ftView = FungibleTokenMetadataViews.getFTView(viewResolver: resolverRef)
@@ -29,9 +29,15 @@ transaction(address: Address, publicPath: PublicPath) {
         // Save it to the account
         signer.save(<-emptyVault, to: ftVaultData.storagePath)
 
-        // Create a public capability for the vault exposing the public interfaces
-        signer.link<&{FungibleToken.Receiver, FungibleToken.Balance, MetadataViews.Resolver}>(
-            ftVaultData.publicPath,
+        // Create a public capability for the vault exposing the receiver interface
+        signer.link<&{FungibleToken.Receiver}>(
+            ftVaultData.receiverPath,
+            target: ftVaultData.storagePath
+        )
+
+        // Create a public capability for the vault exposing the balance and resolver interfaces
+        signer.link<&{FungibleToken.Balance, MetadataViews.Resolver}>(
+            ftVaultData.metadataPath,
             target: ftVaultData.storagePath
         )
 

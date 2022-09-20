@@ -133,9 +133,11 @@ pub contract ExampleToken: FungibleToken {
                 case Type<FungibleTokenMetadataViews.FTVaultData>():
                     return FungibleTokenMetadataViews.FTVaultData(
                         storagePath: ExampleToken.VaultStoragePath,
-                        publicPath: ExampleToken.ReceiverPublicPath,
+                        receiverPath: ExampleToken.ReceiverPublicPath,
+                        metadataPath: ExampleToken.MetadataPublicPath,
                         providerPath: /private/exampleTokenVault,
-                        publicLinkedType: Type<&{FungibleToken.Receiver, FungibleToken.Balance, MetadataViews.Resolver}>(),
+                        receiverLinkedType: Type<&{FungibleToken.Receiver}>(),
+                        metadataLinkedType: Type<&{FungibleToken.Balance, MetadataViews.Resolver}>(),
                         providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider, MetadataViews.Resolver}>(),
                         createEmptyVaultFunction: (fun (): @ExampleToken.Vault {
                             return <-ExampleToken.createEmptyVault()
