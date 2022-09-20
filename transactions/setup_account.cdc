@@ -28,17 +28,9 @@ transaction () {
             target: ExampleToken.VaultStoragePath
         )
 
-        // Create a public capability to the Vault that only exposes
-        // the balance field through the Balance interface
-        signer.link<&ExampleToken.Vault{FungibleToken.Balance}>(
-            ExampleToken.BalancePublicPath,
-            target: ExampleToken.VaultStoragePath
-        )
-
-        // Create a public capability to the Vault that only exposes the MetadataViews.Resolver
-        // interface
-        signer.link<&{MetadataViews.Resolver}>(
-            ExampleToken.ResolverPublicPath,
+        // Create a public capability to the Vault that exposes the Balance and Resolver interfaces
+        signer.link<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(
+            ExampleToken.MetadataPublicPath,
             target: ExampleToken.VaultStoragePath
         )
     }
