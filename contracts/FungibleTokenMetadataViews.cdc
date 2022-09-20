@@ -106,24 +106,26 @@ pub contract FungibleTokenMetadataViews {
         /// Path in storage where this FT vault is recommended to be stored.
         pub let storagePath: StoragePath
 
-        /// Public path which must be linked to expose public capabilities of
-        /// this FT, including standard FT interfaces and metadataviews 
-        /// interfaces
-        pub let publicPath: PublicPath
+        /// Public path which must be linked to expose the public receiver capability.
+        pub let receiverPath: PublicPath
 
-        /// Private path which should be linked to expose the provider
-        /// capability to withdraw funds from the vault
+        /// Public path which must be linked to expose the balance and resolver public capabilities.
+        pub let metadataPath: PublicPath
+
+        /// Private path which should be linked to expose the provider capability to withdraw funds 
+        /// from the vault.
         pub let providerPath: PrivatePath
 
-        /// Type that should be linked at the aforementioned public path. This 
-        /// is normally a restricted type with many interfaces. Notably the 
-        /// `FungibleToken.Balance`, `FungibleToken.Receiver`, and  
-        /// `MetadataViews.Resolver` interfaces are required.
-        pub let publicLinkedType: Type
+        /// Type that should be linked at the `receiverPath`. This is a restricted type requiring 
+        /// the `FungibleToken.Receiver` interface.
+        pub let receiverLinkedType: Type
+
+        /// Type that should be linked at the `receiverPath`. This is a restricted type requiring 
+        /// the `FungibleToken.Balance` and `MetadataViews.Resolver` interfaces.
+        pub let metadataLinkedType: Type
 
         /// Type that should be linked at the aforementioned private path. This 
-        /// is normally a restricted type with at a minimum the  
-        /// `FungibleToken.Provider` interface
+        /// is normally a restricted type with at a minimum the `FungibleToken.Provider` interface.
         pub let providerLinkedType: Type
 
         /// Function that allows creation of an empty FT vault that is intended
@@ -132,20 +134,25 @@ pub contract FungibleTokenMetadataViews {
 
         init(
             storagePath: StoragePath,
-            publicPath: PublicPath,
+            receiverPath: PublicPath,
+            metadataPath: PublicPath,
             providerPath: PrivatePath,
-            publicLinkedType: Type,
+            receiverLinkedType: Type,
+            metadataLinkedType: Type,
             providerLinkedType: Type,
             createEmptyVaultFunction: ((): @FungibleToken.Vault)
         ) {
             pre {
-                publicLinkedType.isSubtype(of: Type<&{FungibleToken.Receiver, FungibleToken.Balance, MetadataViews.Resolver}>()): "Public type must include FungibleToken.Receiver, FungibleToken.Balance and MetadataViews.Resolver interfaces."
+                receiverLinkedType.isSubtype(of: Type<&{FungibleToken.Receiver}>()): "Receiver public type must include FungibleToken.Receiver."
+                metadataLinkedType.isSubtype(of: Type<&{FungibleToken.Balance, MetadataViews.Resolver}>()): "Metadata public type must include FungibleToken.Balance and MetadataViews.Resolver interfaces."
                 providerLinkedType.isSubtype(of: Type<&{FungibleToken.Provider, MetadataViews.Resolver}>()): "Provider type must include FungibleToken.Provider and MetadataViews.Resolver interface."
             }
             self.storagePath = storagePath
-            self.publicPath = publicPath
+            self.receiverPath = receiverPath
+            self.metadataPath = metadataPath
             self.providerPath = providerPath
-            self.publicLinkedType = publicLinkedType
+            self.receiverLinkedType = receiverLinkedType
+            self.metadataLinkedType = metadataLinkedType
             self.providerLinkedType = providerLinkedType
             self.createEmptyVault = createEmptyVaultFunction
         }
