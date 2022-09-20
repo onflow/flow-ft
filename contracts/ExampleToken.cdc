@@ -10,8 +10,7 @@ pub contract ExampleToken: FungibleToken {
     /// Storage and Public Paths
     pub let VaultStoragePath: StoragePath
     pub let ReceiverPublicPath: PublicPath
-    pub let BalancePublicPath: PublicPath
-    pub let ResolverPublicPath: PublicPath
+    pub let MetadataPublicPath: PublicPath
     pub let AdminStoragePath: StoragePath
 
     /// The event that is emitted when the contract is created
@@ -110,51 +109,43 @@ pub contract ExampleToken: FungibleToken {
             switch view {
                 case Type<FungibleTokenMetadataViews.FTView>():
                     return FungibleTokenMetadataViews.FTView(
-                        ftDisplay: ExampleToken.returnDisplayView(),
-                        ftVaultData: ExampleToken.returnVaultDataView()
+                        ftDisplay: self.resolveView(Type<FungibleTokenMetadataViews.FTDisplay>()) as! FungibleTokenMetadataViews.FTDisplay?,
+                        ftVaultData: self.resolveView(Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
                     )
                 case Type<FungibleTokenMetadataViews.FTDisplay>():
-                    return ExampleToken.returnDisplayView()
+                    let media = MetadataViews.Media(
+                            file: MetadataViews.HTTPFile(
+                            url: "https://assets.website-files.com/5f6294c0c7a8cdd643b1c820/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.svg"
+                        ),
+                        mediaType: "image/svg+xml"
+                    )
+                    let medias = MetadataViews.Medias([media])
+                    return FungibleTokenMetadataViews.FTDisplay(
+                        name: "Example Fungible Token",
+                        symbol: "EFT",
+                        description: "This fungible token is used as an example to help you develop your next FT #onFlow.",
+                        externalURL: MetadataViews.ExternalURL("https://example-ft.onflow.org"),
+                        logo: medias,
+                        socials: {
+                            "twitter": MetadataViews.ExternalURL("https://twitter.com/flow_blockchain")
+                        }
+                    )
                 case Type<FungibleTokenMetadataViews.FTVaultData>():
-                    return ExampleToken.returnVaultDataView()
+                    return FungibleTokenMetadataViews.FTVaultData(
+                        storagePath: ExampleToken.VaultStoragePath,
+                        receiverPath: ExampleToken.ReceiverPublicPath,
+                        metadataPath: ExampleToken.MetadataPublicPath,
+                        providerPath: /private/exampleTokenVault,
+                        receiverLinkedType: Type<&{FungibleToken.Receiver}>(),
+                        metadataLinkedType: Type<&{FungibleToken.Balance, MetadataViews.Resolver}>(),
+                        providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider, MetadataViews.Resolver}>(),
+                        createEmptyVaultFunction: (fun (): @ExampleToken.Vault {
+                            return <-ExampleToken.createEmptyVault()
+                        })
+                    )
             }
             return nil
         }
-    }
-
-    // Auxiliary function to return the FTVaultData view
-    access(contract) fun returnVaultDataView(): FungibleTokenMetadataViews.FTVaultData {
-        return FungibleTokenMetadataViews.FTVaultData(
-            storagePath: ExampleToken.VaultStoragePath,
-            publicPath: ExampleToken.ReceiverPublicPath,
-            providerPath: /private/exampleTokenVault,
-            publicLinkedType: Type<&{FungibleToken.Receiver, FungibleToken.Balance, MetadataViews.Resolver}>(),
-            providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider, MetadataViews.Resolver}>(),
-            createEmptyVaultFunction: (fun (): @ExampleToken.Vault {
-                return <-ExampleToken.createEmptyVault()
-            })
-        )
-    }
-
-    // Auxiliary function to return the FTDisplay view
-    access(contract) fun returnDisplayView(): FungibleTokenMetadataViews.FTDisplay {
-        let media = MetadataViews.Media(
-            file: MetadataViews.HTTPFile(
-                url: "https://assets.website-files.com/5f6294c0c7a8cdd643b1c820/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.svg"
-            ),
-            mediaType: "image/svg+xml"
-        )
-        let medias = MetadataViews.Medias([media])
-        return FungibleTokenMetadataViews.FTDisplay(
-            name: "Example Fungible Token",
-            symbol: "EFT",
-            description: "This fungible token is used as an example to help you develop your next FT #onFlow.",
-            externalURL: MetadataViews.ExternalURL("https://example-ft.onflow.org"),
-            logo: medias,
-            socials: {
-                "twitter": MetadataViews.ExternalURL("https://twitter.com/flow_blockchain")
-            }
-        )
     }
 
     /// Function that creates a new Vault with a balance of zero
@@ -230,28 +221,25 @@ pub contract ExampleToken: FungibleToken {
         self.totalSupply = 1000.0
         self.VaultStoragePath = /storage/exampleTokenVault
         self.ReceiverPublicPath = /public/exampleTokenReceiver
-        self.BalancePublicPath = /public/exampleTokenBalance
-        self.ResolverPublicPath = /public/exampleTokenResolver
+        self.MetadataPublicPath = /public/exampleTokenMetadata
         self.AdminStoragePath = /storage/exampleTokenAdmin
 
-        // Create the Vault with the total supply of tokens and save it in storage
-        //
+        // Create the Vault with the total supply of tokens and save it in storage.
         let vault <- create Vault(balance: self.totalSupply)
         self.account.save(<-vault, to: self.VaultStoragePath)
 
         // Create a public capability to the stored Vault that exposes
-        // the `deposit` method through the `Receiver` interface and also
-        // the `resolveView`method through the MetadataViews `Resolver` interface
-        self.account.link<&{FungibleToken.Receiver, MetadataViews.Resolver}>(
+        // the `deposit` method through the `Receiver` interface.
+        self.account.link<&{FungibleToken.Receiver}>(
             self.ReceiverPublicPath,
             target: self.VaultStoragePath
         )
 
         // Create a public capability to the stored Vault that only exposes
-        // the `balance` field through the `Balance` interface
-        //
-        self.account.link<&ExampleToken.Vault{FungibleToken.Balance}>(
-            self.BalancePublicPath,
+        // the `balance` field through the `Balance` interface and also
+        // the `resolveView` method through the MetadataViews `Resolver` interface.
+        self.account.link<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(
+            self.MetadataPublicPath,
             target: self.VaultStoragePath
         )
 
@@ -259,7 +247,6 @@ pub contract ExampleToken: FungibleToken {
         self.account.save(<-admin, to: self.AdminStoragePath)
 
         // Emit an event that shows that the contract was initialized
-        //
         emit TokensInitialized(initialSupply: self.totalSupply)
     }
 }
