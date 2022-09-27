@@ -2,14 +2,14 @@
 
 # The Flow Fungible Token standard
 
-## `FungibleToken` contract
+## `FungibleToken` contract interface
 
-The Fungible Token standard is no longer an interface
-that all fungible token contracts would have to conform to.
+The Fungible Token standard defines the resource interfaces that will allow users to include fungible tokens in their
+contracts. 
 
-If a users wants to deploy a new token contract, their contract
-does not need to implement the FungibleToken interface, but their tokens
-do need to implement the interfaces defined in this contract.
+The new standard defines `Vault` as a resource interface rather than as a resource, allowing developers to include
+multiple fungible tokens in a single contract.
+
 
 ## `Vault` resource interface
 
@@ -33,7 +33,30 @@ to the Provider interface.
 
 /// FungibleToken
 ///
-pub contract FungibleToken {
+pub contract interface FungibleToken {
+
+    /// TokensWithdrawn
+    ///
+    /// The event that is emitted when tokens are withdrawn from a Vault
+    pub event TokensWithdrawn(amount: UFix64, from: Address?, type: Type)
+
+    /// TokensDeposited
+    ///
+    /// The event that is emitted when tokens are deposited to a Vault
+    pub event TokensDeposited(amount: UFix64, to: Address?, type: Type)
+
+    /// TokensTransferred
+    ///
+    /// The event that is emitted when tokens are transferred from one account to another
+    pub event TokensTransferred(amount: UFix64, from: Address?, to: Address?, type: Type)
+
+    /// TokensMinted
+    ///
+    /// The event that is emitted when new tokens are minted
+    pub event TokensMinted(amount: UFix64, type: Type)
+
+    /// Contains the total supply of all the fungible tokens implemented in the contract
+    pub var totalSupply: {Type: UFix64}
 
     /// Provider
     ///
@@ -118,13 +141,6 @@ pub contract FungibleToken {
         pub let StoragePath: StoragePath
         pub let PublicReceiverBalancePath: PublicPath
         pub let PrivateProviderPath: PrivatePath
-
-        init(type: Type, StoragePath: StoragePath, PublicReceiverBalancePath: PublicPath, PrivateProviderPath: PrivatePath) {
-            self.type = type
-            self.StoragePath = StoragePath
-            self.PublicReceiverBalancePath = PublicReceiverBalancePath
-            self.PrivateProviderPath = PrivateProviderPath
-        }
     }
 
     /// Vault
@@ -195,6 +211,13 @@ pub contract FungibleToken {
             post {
                 result.getBalance() == 0.0: "The newly created Vault must have zero balance"
             }
+        }
+    }
+
+        /// Function to return the types that the contract implements
+    pub fun getVaultTypes(): {Type: FungibleToken.VaultInfo} {
+        post {
+            result.length > 0: "Must indicate what fungible token types this contract defines"
         }
     }
 }
