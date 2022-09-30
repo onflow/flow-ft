@@ -18,6 +18,10 @@ pub contract FungibleTokenMetadataViews {
     pub struct FTView {
         pub let ftDisplay: FTDisplay?     
         pub let ftVaultData: FTVaultData?
+<<<<<<< HEAD
+=======
+
+>>>>>>> c5fd8b5 (Add consistency about vaultData field name)
         init(
             ftDisplay: FTDisplay?,
             ftVaultData: FTVaultData?
@@ -39,7 +43,7 @@ pub contract FungibleTokenMetadataViews {
         }
         return FTView(
             ftDisplay: self.getFTDisplay(viewResolver),
-            ftVaultData : self.getFTVaultData(viewResolver)
+            ftVaultData: self.getFTVaultData(viewResolver)
         )
     }
 
