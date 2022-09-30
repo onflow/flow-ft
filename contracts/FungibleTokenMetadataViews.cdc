@@ -40,7 +40,7 @@ pub contract FungibleTokenMetadataViews {
         }
         return FTView(
             ftDisplay: self.getFTDisplay(viewResolver),
-            vaultData : self.getFTVaultData(viewResolver)
+            vaultData: self.getFTVaultData(viewResolver)
         )
     }
 
