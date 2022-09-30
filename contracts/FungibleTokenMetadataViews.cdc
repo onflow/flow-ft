@@ -33,9 +33,9 @@ pub contract FungibleTokenMetadataViews {
     /// @return A FTView struct
     ///
     pub fun getFTView(viewResolver: &{MetadataViews.Resolver}): FTView {
-        let ftView = viewResolver.resolveView(Type<FTView>())
-        if ftView != nil {
-            return ftView! as! FTView
+        let maybeFTView = viewResolver.resolveView(Type<FTView>())
+        if let ftView = maybeFTView {
+            return ftView as! FTView
         }
         return FTView(
             ftDisplay: self.getFTDisplay(viewResolver),
