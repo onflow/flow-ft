@@ -48,13 +48,22 @@ pub contract FungibleTokenMetadataViews {
     /// graphics of the FT.
     ///
     pub struct FTDisplay {
-        /// Name that should be used when displaying this FT.
+        /// The display name for this token.
+        ///
+        /// Example: "Flow"
+        ///
         pub let name: String
 
-        /// Symbol that could be used as a shorter name for the FT.
+        /// The abbreviated symbol for this token.
+        ///
+        /// Example: "FLOW"
+        ///
         pub let symbol: String
 
-        /// Description that should be used to give an overview of this FT.
+        /// A description the provides an overview of this token.
+        ///
+        /// Example: "The FLOW token is the native currency of the Flow network."
+        ///
         pub let description: String
 
         /// External link to a URL to view more information about the fungible token.
