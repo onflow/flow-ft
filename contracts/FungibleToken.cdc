@@ -205,7 +205,7 @@ pub contract interface FungibleToken {
             return []
         }
 
-        /// Function that returns a Metadata View out of a Fungible Token
+        /// Function that resolves a metadata view for this fungible token by type.
         ///
         /// @param view: The Type of the desired view.
         /// @return A structure representing the requested view.
