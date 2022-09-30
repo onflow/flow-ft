@@ -10,7 +10,7 @@ pub contract ExampleToken: FungibleToken {
     /// Storage and Public Paths
     pub let VaultStoragePath: StoragePath
     pub let ReceiverPublicPath: PublicPath
-    pub let MetadataPublicPath: PublicPath
+    pub let VaultPublicPath: PublicPath
     pub let AdminStoragePath: StoragePath
 
     /// The event that is emitted when the contract is created
@@ -134,7 +134,7 @@ pub contract ExampleToken: FungibleToken {
                     return FungibleTokenMetadataViews.FTVaultData(
                         storagePath: ExampleToken.VaultStoragePath,
                         receiverPath: ExampleToken.ReceiverPublicPath,
-                        metadataPath: ExampleToken.MetadataPublicPath,
+                        metadataPath: ExampleToken.VaultPublicPath,
                         providerPath: /private/exampleTokenVault,
                         receiverLinkedType: Type<&{FungibleToken.Receiver}>(),
                         metadataLinkedType: Type<&{FungibleToken.Balance, MetadataViews.Resolver}>(),
@@ -221,7 +221,7 @@ pub contract ExampleToken: FungibleToken {
         self.totalSupply = 1000.0
         self.VaultStoragePath = /storage/exampleTokenVault
         self.ReceiverPublicPath = /public/exampleTokenReceiver
-        self.MetadataPublicPath = /public/exampleTokenMetadata
+        self.VaultPublicPath = /public/exampleTokenMetadata
         self.AdminStoragePath = /storage/exampleTokenAdmin
 
         // Create the Vault with the total supply of tokens and save it in storage.
@@ -239,7 +239,7 @@ pub contract ExampleToken: FungibleToken {
         // the `balance` field through the `Balance` interface and also
         // the `resolveView` method through the MetadataViews `Resolver` interface.
         self.account.link<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(
-            self.MetadataPublicPath,
+            self.VaultPublicPath,
             target: self.VaultStoragePath
         )
 
@@ -250,4 +250,3 @@ pub contract ExampleToken: FungibleToken {
         emit TokensInitialized(initialSupply: self.totalSupply)
     }
 }
- 

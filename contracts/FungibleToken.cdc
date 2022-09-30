@@ -40,7 +40,7 @@ the deposit function on another user's Vault to complete the transfer.
 
 */
 
-import MetadataViews from "./utilityContracts/Metadataviews.cdc"
+import MetadataViews from "./utilityContracts/MetadataViews.cdc"
 
 /// FungibleToken
 ///
@@ -201,11 +201,11 @@ pub contract interface FungibleToken {
         /// @return An array of Types defining the implemented views. This value will be used by
         ///         developers to know which parameter to pass to the resolveView() method.
         ///
-        pub fun getViews(): [Type]{
+        pub fun getViews(): [Type] {
             return []
         }
 
-        /// Function that returns a Metadata View out of a Fungible Token
+        /// Function that resolves a metadata view for this fungible token by type.
         ///
         /// @param view: The Type of the desired view.
         /// @return A structure representing the requested view.

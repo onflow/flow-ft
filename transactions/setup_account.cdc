@@ -30,7 +30,7 @@ transaction () {
 
         // Create a public capability to the Vault that exposes the Balance and Resolver interfaces
         signer.link<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(
-            ExampleToken.MetadataPublicPath,
+            ExampleToken.VaultPublicPath,
             target: ExampleToken.VaultStoragePath
         )
     }

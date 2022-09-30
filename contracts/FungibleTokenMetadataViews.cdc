@@ -16,8 +16,9 @@ pub contract FungibleTokenMetadataViews {
     /// implement this view.
     ///
     pub struct FTView {
-        pub let ftDisplay: FTDisplay?     
+        pub let ftDisplay: FTDisplay?
         pub let ftVaultData: FTVaultData?
+
         init(
             ftDisplay: FTDisplay?,
             ftVaultData: FTVaultData?
@@ -27,15 +28,15 @@ pub contract FungibleTokenMetadataViews {
         }
     }
 
-    /// Helper to get a FT view 
+    /// Helper to get a FT view.
     ///
     /// @param viewResolver: A reference to the resolver resource
     /// @return A FTView struct
     ///
     pub fun getFTView(viewResolver: &{MetadataViews.Resolver}): FTView {
-        let ftView = viewResolver.resolveView(Type<FTView>())
-        if ftView != nil {
-            return ftView! as! FTView
+        let maybeFTView = viewResolver.resolveView(Type<FTView>())
+        if let ftView = maybeFTView {
+            return ftView as! FTView
         }
         return FTView(
             ftDisplay: self.getFTDisplay(viewResolver),
@@ -48,19 +49,28 @@ pub contract FungibleTokenMetadataViews {
     /// graphics of the FT.
     ///
     pub struct FTDisplay {
-        /// Name that should be used when displaying this FT.
+        /// The display name for this token.
+        ///
+        /// Example: "Flow"
+        ///
         pub let name: String
 
-        /// Symbol that could be used as a shorter name for the FT.
+        /// The abbreviated symbol for this token.
+        ///
+        /// Example: "FLOW"
+        ///
         pub let symbol: String
 
-        /// Description that should be used to give an overview of this FT.
+        /// A description the provides an overview of this token.
+        ///
+        /// Example: "The FLOW token is the native currency of the Flow network."
+        ///
         pub let description: String
 
         /// External link to a URL to view more information about the fungible token.
         pub let externalURL: MetadataViews.ExternalURL
 
-        /// Image to represent the fungible token logo.
+        /// One or more versions of the fungible token logo.
         pub let logos: MetadataViews.Medias
 
         /// Social links to reach the fungible token's social homepages.
@@ -84,15 +94,15 @@ pub contract FungibleTokenMetadataViews {
         }
     }
 
-    /// Helper to get FTDisplay in a way that will return a typed optional
+    /// Helper to get FTDisplay in a way that will return a typed optional.
     /// 
     /// @param viewResolver: A reference to the resolver resource
-    /// @return A optional FTDisplay struct
+    /// @return An optional FTDisplay struct
     ///
     pub fun getFTDisplay(_ viewResolver: &{MetadataViews.Resolver}): FTDisplay? {
-        if let view = viewResolver.resolveView(Type<FTDisplay>()) {
-            if let v = view as? FTDisplay {
-                return v
+        if let maybeDisplayView = viewResolver.resolveView(Type<FTDisplay>()) {
+            if let displayView = maybeDisplayView as? FTDisplay {
+                return displayView
             }
         }
         return nil
@@ -158,7 +168,7 @@ pub contract FungibleTokenMetadataViews {
         }
     }
 
-    /// Helper to get FTVaultData in a way that will return a typed Optional
+    /// Helper to get FTVaultData in a way that will return a typed Optional.
     ///
     /// @param viewResolver: A reference to the resolver resource
     /// @return A optional FTVaultData struct
