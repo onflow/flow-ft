@@ -94,7 +94,7 @@ pub contract FungibleTokenMetadataViews {
         }
     }
 
-    /// Helper to get FTDisplay in a way that will return a typed optional
+    /// Helper to get FTDisplay in a way that will return a typed optional.
     /// 
     /// @param viewResolver: A reference to the resolver resource
     /// @return An optional FTDisplay struct
