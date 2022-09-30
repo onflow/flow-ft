@@ -18,6 +18,7 @@ pub contract FungibleTokenMetadataViews {
     pub struct FTView {
         pub let ftDisplay: FTDisplay?     
         pub let vaultData: FTVaultData?
+
         init(
             ftDisplay: FTDisplay?,
             vaultData: FTVaultData?
