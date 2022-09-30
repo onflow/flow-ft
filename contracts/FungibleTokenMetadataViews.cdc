@@ -70,7 +70,7 @@ pub contract FungibleTokenMetadataViews {
         /// External link to a URL to view more information about the fungible token.
         pub let externalURL: MetadataViews.ExternalURL
 
-        /// Image to represent the fungible token logo.
+        /// One or more versions of the fungible token logo.
         pub let logos: MetadataViews.Medias
 
         /// Social links to reach the fungible token's social homepages.
