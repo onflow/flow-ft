@@ -201,7 +201,7 @@ pub contract interface FungibleToken {
         /// @return An array of Types defining the implemented views. This value will be used by
         ///         developers to know which parameter to pass to the resolveView() method.
         ///
-        pub fun getViews(): [Type]{
+        pub fun getViews(): [Type] {
             return []
         }
 
