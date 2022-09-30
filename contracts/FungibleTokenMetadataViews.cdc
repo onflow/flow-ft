@@ -168,7 +168,7 @@ pub contract FungibleTokenMetadataViews {
         }
     }
 
-    /// Helper to get FTVaultData in a way that will return a typed Optional
+    /// Helper to get FTVaultData in a way that will return a typed Optional.
     ///
     /// @param viewResolver: A reference to the resolver resource
     /// @return A optional FTVaultData struct
