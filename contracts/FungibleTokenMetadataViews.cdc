@@ -97,7 +97,7 @@ pub contract FungibleTokenMetadataViews {
     /// Helper to get FTDisplay in a way that will return a typed optional
     /// 
     /// @param viewResolver: A reference to the resolver resource
-    /// @return A optional FTDisplay struct
+    /// @return An optional FTDisplay struct
     ///
     pub fun getFTDisplay(_ viewResolver: &{MetadataViews.Resolver}): FTDisplay? {
         if let view = viewResolver.resolveView(Type<FTDisplay>()) {
