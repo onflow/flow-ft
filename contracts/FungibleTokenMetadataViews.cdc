@@ -28,7 +28,7 @@ pub contract FungibleTokenMetadataViews {
         }
     }
 
-    /// Helper to get a FT view 
+    /// Helper to get a FT view.
     ///
     /// @param viewResolver: A reference to the resolver resource
     /// @return A FTView struct
