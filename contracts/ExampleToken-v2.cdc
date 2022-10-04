@@ -1,7 +1,6 @@
 import FungibleToken from "./FungibleToken-v2.cdc"
-import FungibleTokenInterface from "./FungibleToken-v2-ContractInterface.cdc"
 
-pub contract ExampleToken: FungibleTokenInterface {
+pub contract ExampleToken: FungibleToken {
 
     /// Total supply of ExampleTokens in existence
     pub var totalSupply: {Type: UFix64}
@@ -10,9 +9,6 @@ pub contract ExampleToken: FungibleTokenInterface {
     pub let AdminStoragePath: StoragePath
 
     /// EVENTS
-
-    /// We would like to be able to define events in the resource
-
     /// TokensWithdrawn
     ///
     /// The event that is emitted when tokens are withdrawn from a Vault
@@ -63,12 +59,17 @@ pub contract ExampleToken: FungibleTokenInterface {
     /// out of thin air. A special Minter resource needs to be defined to mint
     /// new tokens.
     ///
-    pub resource Vault: FungibleToken.Vault, FungibleToken.Provider, FungibleToken.Transferable, FungibleToken.Receiver, FungibleToken.Balance {
+    pub resource Vault: FungibleToken.Vault, FungibleToken.Provider, FungibleToken.Transferable, FungibleToken.Receiver, FungibleToken.Balance, MetadataViews.Resolver {
 
-        /// Storage and Public Paths
-        pub let StoragePath: StoragePath
-        pub let PublicReceiverBalancePath: PublicPath
-        pub let PrivateProviderPath: PrivatePath
+        /// Returns the standard storage path for the Vault
+        pub fun getStoragePath(): StoragePath {
+            return /storage/exampleTokenVault
+        }
+
+        /// Returns the standard public path for the Vault
+        pub fun getPublicReceiverBalancePath(): PublicPath {
+            return /public/exampleTokenPublicPath
+        }
 
         /// The total balance of this vault
         pub var balance: UFix64
@@ -76,14 +77,6 @@ pub contract ExampleToken: FungibleTokenInterface {
         // initialize the balance at resource creation time
         init(balance: UFix64) {
             self.balance = balance
-            self.StoragePath = /storage/exampleTokenVault
-            self.PublicReceiverBalancePath = /public/exampleTokenPublicPath
-            self.PrivateProviderPath = /private/exampleTokenProvider
-        }
-        
-        /// Return information about the vault's type and paths
-        pub fun getVaultInfo(): FungibleToken.VaultInfo {
-            return FungibleToken.VaultInfo(type: self.getType(), StoragePath: self.StoragePath, PublicReceiverBalancePath: self.PublicReceiverBalancePath, PrivateProviderPath: self.PrivateProviderPath)
         }
 
         /// Get the balance of the vault
@@ -200,6 +193,22 @@ pub contract ExampleToken: FungibleTokenInterface {
 
         init(allowedAmount: UFix64) {
             self.allowedAmount = allowedAmount
+        }
+    }
+
+    /// createEmptyVault
+    ///
+    /// Function that creates a new Vault with a balance of zero
+    /// and returns it to the calling context. A user must call this function
+    /// and store the returned Vault in their storage in order to allow their
+    /// account to be able to receive deposits of this token type.
+    ///
+    pub fun createEmptyVault(vaultType: Type): @{FungibleToken.Vault}? {
+        switch vaultType {
+            case Type<@ExampleToken.Vault>():
+                return <- create Vault(balance: 0.0)
+            default:
+                return nil
         }
     }
 

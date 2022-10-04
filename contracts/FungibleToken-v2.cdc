@@ -31,9 +31,41 @@ to the Provider interface.
 
 */
 
+import FungibleTokenMetadataViews from "./FungibleTokenMetadataViews.cdc"
+
 /// FungibleToken
 ///
-pub contract FungibleToken {
+pub contract interface FungibleToken {
+
+    /// TokensWithdrawn
+    ///
+    /// The event that is emitted when tokens are withdrawn from a Vault
+    pub event TokensWithdrawn(amount: UFix64, from: Address?, type: Type)
+
+    /// TokensDeposited
+    ///
+    /// The event that is emitted when tokens are deposited to a Vault
+    pub event TokensDeposited(amount: UFix64, to: Address?, type: Type)
+
+    /// TokensTransferred
+    ///
+    /// The event that is emitted when tokens are transferred from one account to another
+    pub event TokensTransferred(amount: UFix64, from: Address?, to: Address?, type: Type)
+
+    /// TokensMinted
+    ///
+    /// The event that is emitted when new tokens are minted
+    pub event TokensMinted(amount: UFix64, type: Type)
+
+    /// Contains the total supply of the fungible token
+    pub var totalSupply: {Type: UFix64}
+
+    /// Function to return the types that the contract implements
+    pub fun getVaultTypes(): {Type: FungibleToken.VaultInfo} {
+        post {
+            result.length > 0: "Must indicate what fungible token types this contract defines"
+        }
+    }
 
     /// Provider
     ///
@@ -106,27 +138,6 @@ pub contract FungibleToken {
         pub fun getBalance(): UFix64
     }
 
-    /// Represents generic information about a vaults defined in the contract
-    /// not information about a specific vault
-    ///
-    pub struct VaultInfo {
-
-        /// The type of the vault represented
-        pub let type: Type
-
-        /// Storage and Public Paths
-        pub let StoragePath: StoragePath
-        pub let PublicReceiverBalancePath: PublicPath
-        pub let PrivateProviderPath: PrivatePath
-
-        init(type: Type, StoragePath: StoragePath, PublicReceiverBalancePath: PublicPath, PrivateProviderPath: PrivatePath) {
-            self.type = type
-            self.StoragePath = StoragePath
-            self.PublicReceiverBalancePath = PublicReceiverBalancePath
-            self.PrivateProviderPath = PrivateProviderPath
-        }
-    }
-
     /// Vault
     ///
     /// Ideally, this interface would also conform to Receiver, Balance, Transferable, and Provider,
@@ -134,16 +145,8 @@ pub contract FungibleToken {
     ///
     pub resource interface Vault { //: Receiver, Balance, Transferable, Provider {
 
-        /// Storage and Public Paths
-        pub let StoragePath: StoragePath
-        pub let PublicReceiverBalancePath: PublicPath
-        pub let PrivateProviderPath: PrivatePath
-
         /// Get the balance of the vault
         pub fun getBalance(): UFix64
-
-        /// Return information about the vault's type and paths
-        pub fun getVaultInfo(): FungibleToken.VaultInfo
 
         /// getAcceptedTypes optionally returns a list of vault types that this receiver accepts
         pub fun getAcceptedTypes(): {Type: Bool}
