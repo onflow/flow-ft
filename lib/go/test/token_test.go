@@ -330,6 +330,57 @@ func TestExternalTransfers(t *testing.T) {
 		supply := executeScriptAndCheck(t, b, script, nil)
 		assertEqual(t, CadenceUFix64("1000.0"), supply)
 	})
+
+	t.Run("Should be able to transfer tokens with the generic transfer transaction", func(t *testing.T) {
+
+		script := templates.GenerateTransferGenericVaultScript(
+			fungibleAddr,
+		)
+
+		tx := createTxWithTemplateAndAuthorizer(b, script, joshAddress)
+
+		_ = tx.AddArgument(CadenceUFix64("300.0"))
+		_ = tx.AddArgument(cadence.NewAddress(exampleTokenAddr))
+
+		storagePath := cadence.Path{Domain: "storage", Identifier: "exampleTokenVault"}
+		publicPath := cadence.Path{Domain: "public", Identifier: "exampleTokenReceiver"}
+
+		_ = tx.AddArgument(storagePath)
+		_ = tx.AddArgument(publicPath)
+
+		signAndSubmit(
+			t, b, tx,
+			[]flow.Address{
+				b.ServiceKey().Address,
+				joshAddress,
+			},
+			[]crypto.Signer{
+				b.ServiceKey().Signer(),
+				joshSigner,
+			},
+			false,
+		)
+
+		// Assert that the vaults' balances are correct
+		script = templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+		result := executeScriptAndCheck(t, b,
+			script,
+			[][]byte{
+				jsoncdc.MustEncode(cadence.Address(exampleTokenAddr)),
+			},
+		)
+		assertEqual(t, CadenceUFix64("700.0"), result)
+
+		script = templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+		result = executeScriptAndCheck(t, b,
+			script,
+			[][]byte{
+				jsoncdc.MustEncode(cadence.Address(joshAddress)),
+			},
+		)
+		assertEqual(t, CadenceUFix64("300.0"), result)
+
+	})
 }
 
 func TestVaultDestroy(t *testing.T) {

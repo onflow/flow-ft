@@ -1,12 +1,12 @@
-
-// This transaction is a template for a transaction
-// to add a Vault resource to their account
-// so that they can use the exampleToken
+// This transaction is a template for a transaction to allow 
+// anyone to add a Vault resource to their account so that 
+// they can use the exampleToken
 
 import FungibleToken from "./../contracts/FungibleToken.cdc"
 import ExampleToken from "./../contracts/ExampleToken.cdc"
+import MetadataViews from "./../contracts/utilityContracts/MetadataViews.cdc"
 
-transaction {
+transaction () {
 
     prepare(signer: AuthAccount) {
 
@@ -28,10 +28,9 @@ transaction {
             target: ExampleToken.VaultStoragePath
         )
 
-        // Create a public capability to the Vault that only exposes
-        // the balance field through the Balance interface
-        signer.link<&ExampleToken.Vault{FungibleToken.Balance}>(
-            ExampleToken.BalancePublicPath,
+        // Create a public capability to the Vault that exposes the Balance and Resolver interfaces
+        signer.link<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(
+            ExampleToken.VaultPublicPath,
             target: ExampleToken.VaultStoragePath
         )
     }
