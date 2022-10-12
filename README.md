@@ -221,8 +221,8 @@ log(ftView.ftDisplay!.symbol)
 12 - Cloning the token to create a new token with the same distribution
 
 13 - Restricted ownership (For accredited investors and such)
-- whitelisting
-- blacklisting
+- allowlisting
+- denylisting
 
 # How to use the Fungible Token contract
 
