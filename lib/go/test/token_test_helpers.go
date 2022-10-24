@@ -9,6 +9,8 @@ import (
 
 	"github.com/onflow/flow-go-sdk"
 
+	nftcontracts "github.com/onflow/flow-nft/lib/go/contracts"
+
 	"github.com/onflow/flow-ft/lib/go/contracts"
 )
 
@@ -25,8 +27,34 @@ func DeployTokenContracts(
 ) {
 	var err error
 
+	// Deploy the NonFungibleToken contract
+	nonFungibleTokenCode := nftcontracts.NonFungibleToken()
+	nftAddress, err := b.CreateAccount(
+		nil,
+		[]sdktemplates.Contract{
+			{
+				Name:   "NonFungibleToken",
+				Source: string(nonFungibleTokenCode),
+			},
+		},
+	)
+	assert.NoError(t, err)
+
+	// Deploy the MetadataViews contract
+	metadataViewsCode := nftcontracts.MetadataViews(ftAddress, nftAddress)
+	metadataViewsAddr, err = b.CreateAccount(
+		nil,
+		[]sdktemplates.Contract{
+			{
+				Name:   "MetadataViews",
+				Source: string(metadataViewsCode),
+			},
+		},
+	)
+	assert.NoError(t, err)
+
 	// Deploy the FungibleToken contract
-	fungibleTokenCode := contracts.FungibleToken()
+	fungibleTokenCode := contracts.FungibleToken(metadataViewsAddr.String())
 	fungibleAddr, err = b.CreateAccount(
 		nil,
 		[]sdktemplates.Contract{
