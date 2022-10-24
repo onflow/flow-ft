@@ -44,7 +44,7 @@ pub contract ExampleToken: FungibleToken {
     /// out of thin air. A special Minter resource needs to be defined to mint
     /// new tokens.
     ///
-    pub resource Vault: FungibleToken.Provider, FungibleToken.Receiver, FungibleToken.Balance, MetadataViews.Resolver {
+    pub resource Vault: FungibleToken.Provider, FungibleToken.Receiver, FungibleToken.Balance {
 
         /// The total balance of this vault
         pub var balance: UFix64
@@ -137,8 +137,8 @@ pub contract ExampleToken: FungibleToken {
                         metadataPath: ExampleToken.MetadataPublicPath,
                         providerPath: /private/exampleTokenVault,
                         receiverLinkedType: Type<&{FungibleToken.Receiver}>(),
-                        metadataLinkedType: Type<&{FungibleToken.Balance, MetadataViews.Resolver}>(),
-                        providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider, MetadataViews.Resolver}>(),
+                        metadataLinkedType: Type<&{FungibleToken.Balance}>(),
+                        providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider}>(),
                         createEmptyVaultFunction: (fun (): @ExampleToken.Vault {
                             return <-ExampleToken.createEmptyVault()
                         })
@@ -236,10 +236,9 @@ pub contract ExampleToken: FungibleToken {
         )
 
         // Create a public capability to the stored Vault that only exposes
-        // the `balance` field through the `Balance` interface and also
-        // the `resolveView` method through the MetadataViews `Resolver` interface.
-        self.account.link<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(
-            self.MetadataPublicPath,
+        // the `balance` field and the `resolveView` method through the `Balance` interface
+        self.account.link<&ExampleToken.Vault{FungibleToken.Balance}>(
+            self.VaultPublicPath,
             target: self.VaultStoragePath
         )
 
