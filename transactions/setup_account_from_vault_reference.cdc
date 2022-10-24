@@ -11,10 +11,9 @@ transaction(address: Address, publicPath: PublicPath) {
 
     prepare(signer: AuthAccount) {
         // Borrow a reference to the vault stored on the passed account at the passed publicPath
-        // only caring about it conforming to the MetadataViews.Resolver interface
         let resolverRef = getAccount(address)
             .getCapability(publicPath)
-            .borrow<&{MetadataViews.Resolver}>()
+            .borrow<&{FungibleToken.Balance}>()
             ?? panic("Could not borrow a reference to the vault view resolver ")
 
         // Use that reference to retrieve the FTView 
