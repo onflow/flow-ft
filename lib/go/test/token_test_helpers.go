@@ -24,6 +24,7 @@ func DeployTokenContracts(
 	fungibleAddr flow.Address,
 	tokenAddr flow.Address,
 	forwardingAddr flow.Address,
+	metadataViewsAddr flow.Address,
 ) {
 	var err error
 
@@ -40,21 +41,8 @@ func DeployTokenContracts(
 	)
 	assert.NoError(t, err)
 
-	// Deploy the MetadataViews contract
-	metadataViewsCode := nftcontracts.MetadataViews(ftAddress, nftAddress)
-	metadataViewsAddr, err = b.CreateAccount(
-		nil,
-		[]sdktemplates.Contract{
-			{
-				Name:   "MetadataViews",
-				Source: string(metadataViewsCode),
-			},
-		},
-	)
-	assert.NoError(t, err)
-
 	// Deploy the FungibleToken contract
-	fungibleTokenCode := contracts.FungibleToken(metadataViewsAddr.String())
+	fungibleTokenCode := contracts.FungibleToken()
 	fungibleAddr, err = b.CreateAccount(
 		nil,
 		[]sdktemplates.Contract{
@@ -69,8 +57,37 @@ func DeployTokenContracts(
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
+	// Deploy the MetadataViews contract
+	metadataViewsCode := nftcontracts.MetadataViews(fungibleAddr, nftAddress)
+	metadataViewsAddr, err = b.CreateAccount(
+		nil,
+		[]sdktemplates.Contract{
+			{
+				Name:   "MetadataViews",
+				Source: string(metadataViewsCode),
+			},
+		},
+	)
+	assert.NoError(t, err)
+
+	// Deploy the FungibleTokenMetadataViews contract
+	fungibleTokenMetadataViewsCode := contracts.FungibleTokenMetadataViews(fungibleAddr.String(), metadataViewsAddr.String())
+	fungibleMetadataViewsAddr, err := b.CreateAccount(
+		nil,
+		[]sdktemplates.Contract{
+			{
+				Name:   "FungibleTokenMetadataViews",
+				Source: string(fungibleTokenMetadataViewsCode),
+			},
+		},
+	)
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
 	// Deploy the ExampleToken contract
-	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String())
+	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String(), metadataViewsAddr.String(), fungibleMetadataViewsAddr.String())
 	tokenAddr, err = b.CreateAccount(
 		key,
 		[]sdktemplates.Contract{
@@ -101,5 +118,5 @@ func DeployTokenContracts(
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
-	return fungibleAddr, tokenAddr, forwardingAddr
+	return fungibleAddr, tokenAddr, forwardingAddr, metadataViewsAddr
 }

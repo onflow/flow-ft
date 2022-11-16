@@ -33,6 +33,16 @@ func FungibleToken() []byte {
 	return []byte(code)
 }
 
+// FungibleToken returns the FungibleToken contract interface.
+func FungibleTokenMetadataViews(fungibleTokenAddr, metadataViewsAddr string) []byte {
+	code := assets.MustAssetString(filenameFTMetadataViews)
+
+	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)
+
+	return []byte(code)
+}
+
 // ExampleToken returns the ExampleToken contract.
 //
 // The returned contract will import the FungibleToken interface from the specified address.
