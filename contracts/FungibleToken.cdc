@@ -40,7 +40,6 @@ the deposit function on another user's Vault to complete the transfer.
 
 */
 
-import MetadataViews from "./utilityContracts/MetadataViews.cdc"
 
 /// FungibleToken
 ///
