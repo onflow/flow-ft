@@ -18,8 +18,10 @@ import (
 func TestPrivateForwarder(t *testing.T) {
 	b, accountKeys := newTestSetup(t)
 
+	serviceSigner, _ := b.ServiceKey().Signer()
+
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _ :=
+	fungibleAddr, exampleTokenAddr, _, _ :=
 		DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	forwardingCode := contracts.PrivateReceiverForwarder(fungibleAddr.String())
@@ -43,7 +45,7 @@ func TestPrivateForwarder(t *testing.T) {
 	signAndSubmit(
 		t, b, tx,
 		[]flow.Address{b.ServiceKey().Address, exampleTokenAddr},
-		[]crypto.Signer{b.ServiceKey().Signer(), exampleTokenSigner},
+		[]crypto.Signer{serviceSigner, exampleTokenSigner},
 		false,
 	)
 
@@ -77,7 +79,7 @@ func TestPrivateForwarder(t *testing.T) {
 				joshAddress,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				joshSigner,
 			},
 			false,
@@ -114,7 +116,7 @@ func TestPrivateForwarder(t *testing.T) {
 				exampleTokenAddr,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				exampleTokenSigner,
 			},
 			false,
@@ -180,7 +182,7 @@ func TestPrivateForwarder(t *testing.T) {
 				exampleTokenAddr,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				exampleTokenSigner,
 			},
 			false,
@@ -216,7 +218,7 @@ func TestPrivateForwarder(t *testing.T) {
 				joshAddress,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				joshSigner,
 			},
 			false,

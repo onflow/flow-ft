@@ -19,12 +19,14 @@ var (
 	placeholderFungibleToken = regexp.MustCompile(`"[^"\s].*/FungibleToken.cdc"`)
 	placeholderExampleToken  = regexp.MustCompile(`"[^"\s].*/ExampleToken.cdc"`)
 	placeholderForwarding    = regexp.MustCompile(`"[^"\s].*/TokenForwarding.cdc"`)
+	placeholderMetadataViews = regexp.MustCompile(`"[^"\s].*/MetadataViews.cdc"`)
 )
 
-func replaceAddresses(code string, ftAddress, tokenAddress, forwardingAddress flow.Address, tokenName string) []byte {
+func replaceAddresses(code string, ftAddress, tokenAddress, forwardingAddress, metadataViewsAddress flow.Address, tokenName string) []byte {
 	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+ftAddress.String())
 	code = placeholderExampleToken.ReplaceAllString(code, "0x"+tokenAddress.String())
 	code = placeholderForwarding.ReplaceAllString(code, "0x"+forwardingAddress.String())
+	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddress.String())
 
 	storageName := MakeFirstLowerCase(tokenName)
 	code = defaultTokenName.ReplaceAllString(code, tokenName)
