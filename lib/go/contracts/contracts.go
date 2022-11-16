@@ -27,11 +27,10 @@ const (
 )
 
 // FungibleToken returns the FungibleToken contract interface.
-func FungibleToken(metadataViewsAddr string) []byte {
+func FungibleToken() []byte {
 	code := assets.MustAssetString(filenameFungibleToken)
-	code = placeholderFungibleToken.ReplaceAllString(code, metadataViewsAddr)
 
-	return code
+	return []byte(code)
 }
 
 // ExampleToken returns the ExampleToken contract.
@@ -41,8 +40,8 @@ func ExampleToken(fungibleTokenAddr, metadataViewsAddr, ftMetadataViewsAddr stri
 	code := assets.MustAssetString(filenameExampleToken)
 
 	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
-	code = placeholderMetadataViews.ReplaceAllString(code, metadataViewsAddr)
-	code = placeholderFTMetadataViews.ReplaceAllString(code, ftMetadataViewsAddr)
+	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)
+	code = placeholderFTMetadataViews.ReplaceAllString(code, "0x"+ftMetadataViewsAddr)
 
 	return []byte(code)
 }
@@ -60,8 +59,8 @@ func CustomToken(fungibleTokenAddr,
 	code := assets.MustAssetString(filenameExampleToken)
 
 	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
-	code = placeholderMetadataViews.ReplaceAllString(code, metadataViewsAddr)
-	code = placeholderFTMetadataViews.ReplaceAllString(code, ftMetadataViewsAddr)
+	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)
+	code = placeholderFTMetadataViews.ReplaceAllString(code, "0x"+ftMetadataViewsAddr)
 
 	code = strings.ReplaceAll(
 		code,
