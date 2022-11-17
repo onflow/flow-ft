@@ -1,6 +1,6 @@
-import FungibleToken from "../contracts/FungibleToken.cdc"
-import FungibleTokenMetadataViews from "../contracts/FungibleTokenMetadataViews.cdc"
-import MetadataViews from "../contracts/utilityContracts/MetadataViews.cdc"
+import FungibleToken from "../../contracts/FungibleToken.cdc"
+import FungibleTokenMetadataViews from "../../contracts/FungibleTokenMetadataViews.cdc"
+import MetadataViews from "../../contracts/utilityContracts/MetadataViews.cdc"
 
 /// This transaction is what an account would run
 /// to set itself up to manage fungible tokens. This function
@@ -13,7 +13,7 @@ transaction(address: Address, publicPath: PublicPath) {
         // Borrow a reference to the vault stored on the passed account at the passed publicPath
         let resolverRef = getAccount(address)
             .getCapability(publicPath)
-            .borrow<&{FungibleToken.Balance}>()
+            .borrow<&{MetadataViews.Resolver}>()
             ?? panic("Could not borrow a reference to the vault view resolver ")
 
         // Use that reference to retrieve the FTView 
