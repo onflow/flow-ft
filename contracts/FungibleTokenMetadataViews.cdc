@@ -1,5 +1,5 @@
 import FungibleToken from "./FungibleToken.cdc"
-import MetadataViews from "./utilityContracts/MetadataViews.cdc"
+import MetadataViews from "./utility/MetadataViews.cdc"
 
 /// This contract implements the metadata standard proposed
 /// in FLIP-1087.
@@ -158,7 +158,7 @@ pub contract FungibleTokenMetadataViews {
             pre {
                 receiverLinkedType.isSubtype(of: Type<&{FungibleToken.Receiver}>()): "Receiver public type must include FungibleToken.Receiver."
                 metadataLinkedType.isSubtype(of: Type<&{FungibleToken.Balance, MetadataViews.Resolver}>()): "Metadata public type must include FungibleToken.Balance and MetadataViews.Resolver interfaces."
-                providerLinkedType.isSubtype(of: Type<&{FungibleToken.Provider, MetadataViews.Resolver}>()): "Provider type must include FungibleToken.Provider and MetadataViews.Resolver interface."
+                providerLinkedType.isSubtype(of: Type<&{FungibleToken.Provider}>()): "Provider type must include FungibleToken.Provider interface."
             }
             self.storagePath = storagePath
             self.receiverPath = receiverPath

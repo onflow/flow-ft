@@ -1,5 +1,5 @@
 import FungibleToken from "./FungibleToken.cdc"
-import MetadataViews from "./utilityContracts/MetadataViews.cdc"
+import MetadataViews from "./utility/MetadataViews.cdc"
 import FungibleTokenMetadataViews from "./FungibleTokenMetadataViews.cdc"
 
 pub contract ExampleToken: FungibleToken {
@@ -136,8 +136,8 @@ pub contract ExampleToken: FungibleToken {
                         receiverPath: ExampleToken.ReceiverPublicPath,
                         metadataPath: ExampleToken.MetadataPublicPath,
                         providerPath: /private/exampleTokenVault,
-                        receiverLinkedType: Type<&{FungibleToken.Receiver}>(),
-                        metadataLinkedType: Type<&{FungibleToken.Balance}>(),
+                        receiverLinkedType: Type<&ExampleToken.Vault{FungibleToken.Receiver}>(),
+                        metadataLinkedType: Type<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(),
                         providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider}>(),
                         createEmptyVaultFunction: (fun (): @ExampleToken.Vault {
                             return <-ExampleToken.createEmptyVault()
