@@ -1,6 +1,6 @@
 import FungibleToken from "../../contracts/FungibleToken.cdc"
 import FungibleTokenMetadataViews from "../../contracts/FungibleTokenMetadataViews.cdc"
-import MetadataViews from "../../contracts/utilityContracts/MetadataViews.cdc"
+import MetadataViews from "../../contracts/utility/MetadataViews.cdc"
 
 /// This transaction is what an account would run
 /// to set itself up to manage fungible tokens. This function

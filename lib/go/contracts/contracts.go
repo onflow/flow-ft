@@ -21,8 +21,8 @@ var (
 const (
 	filenameFungibleToken    = "FungibleToken.cdc"
 	filenameExampleToken     = "ExampleToken.cdc"
-	filenameTokenForwarding  = "utilityContracts/TokenForwarding.cdc"
-	filenamePrivateForwarder = "utilityContracts/PrivateReceiverForwarder.cdc"
+	filenameTokenForwarding  = "utility/TokenForwarding.cdc"
+	filenamePrivateForwarder = "utility/PrivateReceiverForwarder.cdc"
 	filenameFTMetadataViews  = "FungibleTokenMetadataViews.cdc"
 )
 
