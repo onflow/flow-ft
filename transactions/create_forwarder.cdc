@@ -25,7 +25,7 @@ Steps to set up accounts with token forwarder:
 
 import FungibleToken from "../contracts/FungibleToken.cdc"
 import ExampleToken from "../contracts/ExampleToken.cdc"
-import TokenForwarding from "../contracts/utilityContracts/TokenForwarding.cdc"
+import TokenForwarding from "../contracts/utility/TokenForwarding.cdc"
 
 transaction(receiver: Address) {
 

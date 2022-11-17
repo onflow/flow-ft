@@ -1,6 +1,6 @@
 import ExampleToken from "../../../contracts/ExampleToken.cdc"
 import FungibleTokenMetadataViews from "../../../contracts/FungibleTokenMetadataViews.cdc"
-import MetadataViews from "../../../contracts/utilityContracts/MetadataViews.cdc"
+import MetadataViews from "../../../contracts/utility/MetadataViews.cdc"
 
 pub fun main(address: Address): FungibleTokenMetadataViews.FTDisplay{
   let account = getAccount(address)
