@@ -125,7 +125,7 @@ pub contract ExampleToken: FungibleToken {
                         symbol: "EFT",
                         description: "This fungible token is used as an example to help you develop your next FT #onFlow.",
                         externalURL: MetadataViews.ExternalURL("https://example-ft.onflow.org"),
-                        logo: medias,
+                        logos: medias,
                         socials: {
                             "twitter": MetadataViews.ExternalURL("https://twitter.com/flow_blockchain")
                         }
