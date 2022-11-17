@@ -164,7 +164,7 @@ First step will be to borrow a reference to the token's vault stored in some acc
 
 ```cadence
 let vaultRef = account
-    .getCapability(ExampleToken.ResolverPublicPath)
+    .getCapability(ExampleToken.VaultPublicPath)
     .borrow<&{MetadataViews.Resolver}>()
     ?? panic("Could not borrow a reference to the vault resolver")
 ```
