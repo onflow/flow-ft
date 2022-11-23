@@ -61,13 +61,11 @@ pub contract FungibleTokenMetadataViews {
         /// The abbreviated symbol for this token.
         ///
         /// Example: "FLOW"
-        ///
         pub let symbol: String
 
         /// A description the provides an overview of this token.
         ///
         /// Example: "The FLOW token is the native currency of the Flow network."
-        ///
         pub let description: String
 
         /// External link to a URL to view more information about the fungible token.
