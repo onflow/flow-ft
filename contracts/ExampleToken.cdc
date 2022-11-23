@@ -49,9 +49,7 @@ pub contract ExampleToken: FungibleToken {
         /// The total balance of this vault
         pub var balance: UFix64
 
-        ///Do we need extra fields for metadata?
-
-        // Initialize the balance at resource creation time
+        /// Initialize the balance at resource creation time
         init(balance: UFix64) {
             self.balance = balance
         }
@@ -62,6 +60,9 @@ pub contract ExampleToken: FungibleToken {
         /// the money that is being transferred. It returns the newly
         /// created Vault to the context that called so it can be deposited
         /// elsewhere.
+        ///
+        /// @param amount: The amount of tokens to be withdrawn from the vault
+        /// @return The Vault resource containing the withdrawn funds
         ///
         pub fun withdraw(amount: UFix64): @FungibleToken.Vault {
             self.balance = self.balance - amount
@@ -74,6 +75,8 @@ pub contract ExampleToken: FungibleToken {
         /// It is allowed to destroy the sent Vault because the Vault
         /// was a temporary holder of the tokens. The Vault's balance has
         /// been consumed and therefore can be destroyed.
+        ///
+        /// @param from: The Vault resource containing the funds that will be deposited
         ///
         pub fun deposit(from: @FungibleToken.Vault) {
             let vault <- from as! @ExampleToken.Vault
@@ -153,6 +156,8 @@ pub contract ExampleToken: FungibleToken {
     /// and store the returned Vault in their storage in order to allow their
     /// account to be able to receive deposits of this token type.
     ///
+    /// @return The new Vault resource
+    ///
     pub fun createEmptyVault(): @Vault {
         return <-create Vault(balance: 0.0)
     }
@@ -161,12 +166,17 @@ pub contract ExampleToken: FungibleToken {
 
         /// Function that creates and returns a new minter resource
         ///
+        /// @param allowedAmount: The maximum quantity of tokens that the minter could create
+        /// @return The Minter resource that would allow to mint tokens
+        ///
         pub fun createNewMinter(allowedAmount: UFix64): @Minter {
             emit MinterCreated(allowedAmount: allowedAmount)
             return <-create Minter(allowedAmount: allowedAmount)
         }
 
         /// Function that creates and returns a new burner resource
+        ///
+        /// @return The Burner resource
         ///
         pub fun createNewBurner(): @Burner {
             emit BurnerCreated()
@@ -183,6 +193,9 @@ pub contract ExampleToken: FungibleToken {
 
         /// Function that mints new tokens, adds them to the total supply,
         /// and returns them to the calling context.
+        ///
+        /// @param amount: The quantity of tokens to mint
+        /// @return The Vault resource containing the minted tokens
         ///
         pub fun mintTokens(amount: UFix64): @ExampleToken.Vault {
             pre {
@@ -208,6 +221,8 @@ pub contract ExampleToken: FungibleToken {
         ///
         /// Note: the burned tokens are automatically subtracted from the
         /// total supply in the Vault destructor.
+        ///
+        /// @param from: The Vault resource containing the tokens to burn
         ///
         pub fun burnTokens(from: @FungibleToken.Vault) {
             let vault <- from as! @ExampleToken.Vault
