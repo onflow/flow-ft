@@ -105,7 +105,7 @@ pub contract FungibleTokenSwitchboard {
                         // and emit the event that indicates that a new   
                         // capability has been added
                         emit VaultCapabilityAdded(type: vaultRef.getType(), 
-                            switchboardOwner: address, capabilityOwner: address)
+                            switchboardOwner: self.owner?.address, capabilityOwner: address)
                     }
                 }
             }
