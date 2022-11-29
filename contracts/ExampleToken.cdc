@@ -9,8 +9,8 @@ pub contract ExampleToken: FungibleToken {
     
     /// Storage and Public Paths
     pub let VaultStoragePath: StoragePath
+    pub let VaultPublicPath: PublicPath
     pub let ReceiverPublicPath: PublicPath
-    pub let MetadataPublicPath: PublicPath
     pub let AdminStoragePath: StoragePath
 
     /// The event that is emitted when the contract is created
@@ -137,7 +137,7 @@ pub contract ExampleToken: FungibleToken {
                     return FungibleTokenMetadataViews.FTVaultData(
                         storagePath: ExampleToken.VaultStoragePath,
                         receiverPath: ExampleToken.ReceiverPublicPath,
-                        metadataPath: ExampleToken.MetadataPublicPath,
+                        metadataPath: ExampleToken.VaultPublicPath,
                         providerPath: /private/exampleTokenVault,
                         receiverLinkedType: Type<&ExampleToken.Vault{FungibleToken.Receiver}>(),
                         metadataLinkedType: Type<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(),
@@ -235,8 +235,8 @@ pub contract ExampleToken: FungibleToken {
     init() {
         self.totalSupply = 1000.0
         self.VaultStoragePath = /storage/exampleTokenVault
+        self.VaultPublicPath = /public/exampleTokenMetadata
         self.ReceiverPublicPath = /public/exampleTokenReceiver
-        self.MetadataPublicPath = /public/exampleTokenMetadata
         self.AdminStoragePath = /storage/exampleTokenAdmin
 
         // Create the Vault with the total supply of tokens and save it in storage.
