@@ -63,7 +63,7 @@ pub contract FungibleTokenSwitchboard {
             // want to store inside the switchboard
             let vaultRef = capability.borrow() 
                 ?? panic ("Cannot borrow reference to vault from capability")
-            // Check if there is a previus capability for this token, if not
+            // Check if there is a previous capability for this token, if not
             if (self.receiverCapabilities[vaultRef.getType()] == nil) {
                 // use the vault reference type as key for storing the 
                 // capability and then
@@ -155,7 +155,7 @@ pub contract FungibleTokenSwitchboard {
         /// deposited.
         /// 
         /// @return The deposited fungible token vault resource, without the
-        /// funds if the deposit was succesful, or still containing the funds
+        /// funds if the deposit was successful, or still containing the funds
         /// if the reference to the needed vault was not found.
         /// 
         pub fun safeDeposit(from: @FungibleToken.Vault): @FungibleToken.Vault? {
@@ -186,17 +186,17 @@ pub contract FungibleTokenSwitchboard {
         /// resource is prepared to receive.
         ///
         /// @return The keys from the dictionary of stored 
-        /// `{FungibleToken.Receiver}` capabilities that can be efectively 
+        /// `{FungibleToken.Receiver}` capabilities that can be effectively 
         /// borrowed.
         ///
         pub fun getVaultTypes(): [Type] {
-            let efectitveTypes: [Type] = []
+            let effectiveTypes: [Type] = []
             for vaultType in self.receiverCapabilities.keys {
                 if self.receiverCapabilities[vaultType]!.check() {
-                    efectitveTypes.append(vaultType)
+                    effectiveTypes.append(vaultType)
                 }
             }
-            return efectitveTypes
+            return effectiveTypes
         }
 
         init() {
