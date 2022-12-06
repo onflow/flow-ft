@@ -130,12 +130,28 @@ pub contract interface FungibleToken {
 
     /// Balance
     ///
+    /// This interface is now a general purpose metadata interface because
+    /// a public interface is needed to get metadata, but adding a whole new interface
+    /// for every account to upgrade to is probably too much of a breaking change
     pub resource interface Balance {
 
         /// Method to get the balance
         /// The balance could be a derived field,
         /// so there is no need to require an explicit field
         pub fun getBalance(): UFix64
+
+        pub fun getAcceptedTypes(): {Type: Bool}
+
+        /// Return the default storage path for the collection
+        pub fun getDefaultStoragePath(): StoragePath?
+
+        /// Return the default public path for the collection
+        pub fun getPublicReceiverBalancePath(): PublicPath?
+
+        /// MetadataViews Methods
+        ///
+        pub fun getViews(): [Type]
+        pub fun resolveView(_ view: Type): AnyStruct?
     }
 
     /// Vault

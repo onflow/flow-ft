@@ -62,22 +62,28 @@ pub contract ExampleToken: FungibleToken {
     ///
     pub resource Vault: FungibleToken.Vault, FungibleToken.Provider, FungibleToken.Transferable, FungibleToken.Receiver, FungibleToken.Balance, MetadataViews.Resolver {
 
+        /// The total balance of this vault
+        pub var balance: UFix64
+
+        access(self) var storagePath: StoragePath
+        access(self) var publicPath: PublicPath
+
         /// Returns the standard storage path for the Vault
-        pub fun getStoragePath(): StoragePath {
-            return /storage/exampleTokenVault
+        pub fun getDefaultStoragePath(): StoragePath? {
+            return self.storagePath
         }
 
         /// Returns the standard public path for the Vault
-        pub fun getPublicReceiverBalancePath(): PublicPath {
-            return /public/exampleTokenPublicPath
+        pub fun getPublicReceiverBalancePath(): PublicPath? {
+            return self.publicPath
         }
-
-        /// The total balance of this vault
-        pub var balance: UFix64
 
         // initialize the balance at resource creation time
         init(balance: UFix64) {
             self.balance = balance
+            let identifier = "exampleTokenVault"
+            self.storagePath = StoragePath(identifier: identifier)
+            self.publicPath = PublicPath(identifier: identifier)
         }
 
         /// Get the balance of the vault
