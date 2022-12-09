@@ -25,9 +25,9 @@ transaction {
             )
             
             // Create a public capability to the Switchboard exposing both the
-            // deposit function and the getVaultCapabilities function through the
-            // {FungibleTokenSwitchboard.SwitchboardPublic} interface
-            acct.link<&FungibleTokenSwitchboard.Switchboard{FungibleTokenSwitchboard.SwitchboardPublic}>(
+            // {FungibleTokenSwitchboard.SwitchboardPublic} and the 
+            // {FungibleToken.Receiver} interfaces
+            acct.link<&FungibleTokenSwitchboard.Switchboard{FungibleTokenSwitchboard.SwitchboardPublic, FungibleToken.Receiver}>(
                 FungibleTokenSwitchboard.PublicPath,
                 target: FungibleTokenSwitchboard.StoragePath
             )
