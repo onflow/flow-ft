@@ -1,6 +1,6 @@
 {
   "name": "@onflow/flow-ft",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "standard implementation of the fungible token on flow blockchain",
   "main": "index.js",
   "directories": {
