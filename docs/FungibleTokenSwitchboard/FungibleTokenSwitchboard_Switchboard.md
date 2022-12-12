@@ -55,6 +55,30 @@ Parameters:
 
 ---
 
+### fun `addNewVaultWrapper()`
+
+```cadence
+func addNewVaultWrapper(capability Capability<&{FungibleToken.Receiver}>, type Type)
+```
+Adds a new fungible token receiver capability to the switchboard
+resource specifying which `Type`of `@FungibleToken.Vault` can be
+deposited to it. Use it to include in your switchboard "wrapper"
+receivers such as a `@TokenForwarding.Forwarder`. It can also be
+used to overwrite the type attached to a certain capability without
+having to remove that capability first.
+
+token vault deposit function through `{FungibleToken.Receiver}` that
+will be added to the switchboard.
+
+capability, rather than the `Type` from the reference borrowed from
+said capability
+
+Parameters:
+  - capability : _The capability to expose a certain fungible_
+  - type : _The type of fungible token that can be deposited to that_
+
+---
+
 ### fun `removeVault()`
 
 ```cadence
@@ -94,7 +118,7 @@ avoiding panicking if the vault is not available.
 
 deposited.
 
-funds if the deposit was succesful, or still containing the funds
+funds if the deposit was successful, or still containing the funds
 if the reference to the needed vault was not found.
 
 Parameters:
@@ -112,7 +136,7 @@ func getVaultTypes(): [Type]
 A getter function to know which tokens a certain switchboard
 resource is prepared to receive.
 
-`{FungibleToken.Receiver}` capabilities that can be efectively
+`{FungibleToken.Receiver}` capabilities that can be effectively
 borrowed.
 
 Returns: The keys from the dictionary of stored
