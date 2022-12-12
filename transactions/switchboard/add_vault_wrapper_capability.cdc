@@ -1,10 +1,9 @@
 import FungibleToken from "./../../contracts/FungibleToken.cdc"
 import FungibleTokenSwitchboard from "./../../contracts/FungibleTokenSwitchboard.cdc"
 import ExampleToken from "./../../contracts/ExampleToken.cdc"
-//import TokenForwarding from "./../../contracts/utility/TokenForwarding.cdc"
 
 // This transaction is a template for a transaction that
-// could be used by anyone to add a new fungible token vault
+// could be used by anyone to add a new vault wrapper
 // capability to their switchboard resource
 transaction {
 
