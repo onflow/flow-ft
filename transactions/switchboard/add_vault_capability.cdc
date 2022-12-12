@@ -7,18 +7,18 @@ import ExampleToken from "./../../contracts/ExampleToken.cdc"
 // capability to their switchboard resource
 transaction {
 
-    let exampleTokenVaultCapabilty: Capability<&{FungibleToken.Receiver}>
+    let exampleTokenVaultCapability: Capability<&{FungibleToken.Receiver}>
     let switchboardRef:  &FungibleTokenSwitchboard.Switchboard
 
     prepare(signer: AuthAccount) {
 
         // Get the example token vault capability from the signer's account
-        self.exampleTokenVaultCapabilty = 
+        self.exampleTokenVaultCapability = 
             signer.getCapability<&{FungibleToken.Receiver}>
                                 (ExampleToken.ReceiverPublicPath)
         
         // Check if the receiver capability exists
-        assert(self.exampleTokenVaultCapabilty.check(), 
+        assert(self.exampleTokenVaultCapability.check(), 
             message: "Signer does not have a Example Token receiver capability")
         
         // Get a reference to the signers switchboard
@@ -31,7 +31,7 @@ transaction {
     execute {
 
         // Add the capability to the switchboard using addNewVault method
-        self.switchboardRef.addNewVault(capability: self.exampleTokenVaultCapabilty)
+        self.switchboardRef.addNewVault(capability: self.exampleTokenVaultCapability)
     
     }
 
