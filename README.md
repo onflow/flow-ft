@@ -318,6 +318,48 @@ To use the Flow Token contract as is, you need to follow these steps:
     ```
     This function won't panic, instead it will just not add to the `@Switchboard` any capability which can not be retrieved from any of the provided `PublicPath`s. It will also ignore any type of `&{FungibleToken.Receiver}` that is already present on the `@Switchboard`
 
+  3. Adding a capability to a receiver specifying which type of token will be deposited there 
+  using `addNewVaultWrapper(capability: Capability<&{FungibleToken.Receiver}>, type: Type)`. 
+  This method can be used to link a token forwarder or any other wrapper to the switchboard. 
+  Once the `Forwarder` has been properly created containing the capability to an actual `@FungibleToken.Vault`,
+  this method can be used to link the `@Forwarder` to the switchboard to deposit the specified type of Fungible Token.
+  In the template transaction  `switchboard/add_vault_wrapper_capability.cdc`,
+  we assume that the signer has a forwarder containing a capability to an `@ExampleToken.Vault` resource:
+
+  ```cadence
+  transaction {
+
+    let tokenForwarderCapability: Capability<&{FungibleToken.Receiver}>
+    let switchboardRef:  &FungibleTokenSwitchboard.Switchboard
+
+    prepare(signer: AuthAccount) {
+
+        // Get the token forwarder capability from the signer's account
+        self.tokenForwarderCapability = 
+            signer.getCapability<&{FungibleToken.Receiver}>
+                                (ExampleToken.ReceiverPublicPath)
+        
+        // Check if the receiver capability exists
+        assert(self.tokenForwarderCapability.check(), 
+            message: "Signer does not have a working fungible token receiver capability")
+        
+        // Get a reference to the signers switchboard
+        self.switchboardRef = signer.borrow<&FungibleTokenSwitchboard.Switchboard>
+            (from: FungibleTokenSwitchboard.StoragePath) 
+            ?? panic("Could not borrow reference to switchboard")
+    
+    }
+
+    execute {
+
+        // Add the capability to the switchboard using addNewVault method
+        self.switchboardRef.addNewVaultWrapper(capability: self.tokenForwarderCapability, type: Type<@ExampleToken.Vault>())
+    
+    }
+
+  }
+  ```
+
  ## Removing a vault from the switchboard
  If a user no longer wants to be able to receive deposits from a certain FT, or if they want to update the provided capability for one of them, they will need to remove the vault from the switchboard.
  This can be accomplished by using `removeVault(capability: Capability<&{FungibleToken.Receiver}>)`. 
