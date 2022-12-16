@@ -36,12 +36,12 @@ pub contract ExampleToken: FungibleToken {
     pub event TokensBurned(amount: UFix64, type: Type)
 
     /// Function to return the types that the contract implements
-    pub fun getVaultTypes(): {Type: FungibleToken.VaultInfo} {
-        let typeDictionary: {Type: FungibleToken.VaultInfo} = {}
+    pub fun getVaultTypes(): {Type: FungibleTokenMetadataViews.FTView} {
+        let typeDictionary: {Type: FungibleTokenMetadataViews.FTView} = {}
 
         let vault <- create Vault(balance: 0.0)
 
-        typeDictionary[vault.getType()] = vault.getVaultInfo()
+        typeDictionary[vault.getType()] = vault.resolveView(Type<FungibleTokenMetadataViews.FTView>())
 
         destroy vault
         

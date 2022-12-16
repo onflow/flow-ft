@@ -35,33 +35,38 @@ import FungibleTokenMetadataViews from "./FungibleTokenMetadataViews.cdc"
 
 /// FungibleToken
 ///
+/// Fungible Token implementations are no longer required to implement the fungible token
+/// interface. We still have it as an interface here because there are some useful
+/// utility methods that many projects will still want to have on their contracts,
+/// but they are by no means required. all that is required is that the token
+/// implements the `Vault` interface
 pub contract interface FungibleToken {
 
     /// TokensWithdrawn
     ///
     /// The event that is emitted when tokens are withdrawn from a Vault
-    pub event TokensWithdrawn(amount: UFix64, from: Address?, type: Type)
+    pub event TokensWithdrawn(amount: UFix64, from: Address?, type: Type, ftView: FungibleTokenMetadataViews.FTView)
 
     /// TokensDeposited
     ///
     /// The event that is emitted when tokens are deposited to a Vault
-    pub event TokensDeposited(amount: UFix64, to: Address?, type: Type)
+    pub event TokensDeposited(amount: UFix64, to: Address?, type: Type, ftView: FungibleTokenMetadataViews.FTView)
 
     /// TokensTransferred
     ///
     /// The event that is emitted when tokens are transferred from one account to another
-    pub event TokensTransferred(amount: UFix64, from: Address?, to: Address?, type: Type)
+    pub event TokensTransferred(amount: UFix64, from: Address?, to: Address?, type: Type, ftView: FungibleTokenMetadataViews.FTView)
 
     /// TokensMinted
     ///
     /// The event that is emitted when new tokens are minted
-    pub event TokensMinted(amount: UFix64, type: Type)
+    pub event TokensMinted(amount: UFix64, type: Type, ftView: FungibleTokenMetadataViews.FTView)
 
     /// Contains the total supply of the fungible token
     pub var totalSupply: {Type: UFix64}
 
     /// Function to return the types that the contract implements
-    pub fun getVaultTypes(): {Type: FungibleToken.VaultInfo} {
+    pub fun getVaultTypes(): {Type: FungibleTokenMetadataViews.FTView} {
         post {
             result.length > 0: "Must indicate what fungible token types this contract defines"
         }
@@ -150,8 +155,13 @@ pub contract interface FungibleToken {
 
         /// MetadataViews Methods
         ///
-        pub fun getViews(): [Type]
-        pub fun resolveView(_ view: Type): AnyStruct?
+        pub fun getViews(): [Type] {
+            return []
+        }
+
+        pub fun resolveView(_ view: Type): AnyStruct? {
+            return nil
+        }
     }
 
     /// Vault
@@ -166,6 +176,15 @@ pub contract interface FungibleToken {
 
         /// getAcceptedTypes optionally returns a list of vault types that this receiver accepts
         pub fun getAcceptedTypes(): {Type: Bool}
+
+        /// Return the default storage path for the collection
+        pub fun getDefaultStoragePath(): StoragePath?
+
+        /// Return the default public path for the collection
+        pub fun getPublicReceiverBalancePath(): PublicPath?
+
+        pub fun getViews(): [Type]
+        pub fun resolveView(_ view: Type): AnyStruct?
 
         /// withdraw subtracts `amount` from the Vault's balance
         /// and returns a new Vault with the subtracted balance
@@ -214,6 +233,14 @@ pub contract interface FungibleToken {
             post {
                 result.getBalance() == 0.0: "The newly created Vault must have zero balance"
             }
+        }
+    }
+
+    /// createEmptyVault allows any user to create a new Vault that has a zero balance
+    ///
+    pub fun createEmptyVault(vaultType: Type): @AnyResource{Vault}? {
+        post {
+            result.getBalance() == 0.0: "The newly created Vault must have zero balance"
         }
     }
 }
