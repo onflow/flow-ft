@@ -38,6 +38,8 @@ pub contract FungibleTokenSwitchboard {
         pub fun getVaultTypes(): [Type]
         pub fun deposit(from: @FungibleToken.Vault)
         pub fun safeDeposit(from: @FungibleToken.Vault): @FungibleToken.Vault?
+        pub fun checkReceiverByType(type: Type): Bool
+        pub fun safeBorrowByType(type: Type): &{FungibleToken.Receiver}?
     }
 
     /// The resource that stores the multiple fungible token receiver 
