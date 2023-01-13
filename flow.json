@@ -35,7 +35,8 @@
                 "NonFungibleToken",
                 "MetadataViews",
                 "FungibleTokenMetadataViews",
-                "FungibleTokenSwitchboard"
+                "FungibleTokenSwitchboard",
+                "TokenForwarding"
             ]
         }
     }

@@ -43,6 +43,14 @@ pub contract TokenForwarding {
             emit ForwardedDeposit(amount: balance, from: self.owner?.address)
         }
 
+        pub fun check(): Bool {
+            return self.recipient.check<&{FungibleToken.Receiver}>()
+        }
+
+        pub fun safeBorrow(): &{FungibleToken.Receiver}? {
+            return self.recipient.borrow<&{FungibleToken.Receiver}>()
+        }
+
         // changeRecipient changes the recipient of the forwarder to the provided recipient
         //
         pub fun changeRecipient(_ newRecipient: Capability) {
@@ -66,3 +74,4 @@ pub contract TokenForwarding {
         return <-create Forwarder(recipient: recipient)
     }
 }
+ 
