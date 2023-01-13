@@ -21,7 +21,12 @@ pub contract TokenForwarding {
     // Event that is emitted when tokens are deposited to the target receiver
     pub event ForwardedDeposit(amount: UFix64, from: Address?)
 
-    pub resource Forwarder: FungibleToken.Receiver {
+    pub resource interface ForwarderPublic {
+        pub fun check(): Bool
+        pub fun safeBorrow(): &{FungibleToken.Receiver}?
+    }
+
+    pub resource Forwarder: FungibleToken.Receiver, ForwarderPublic {
 
         // This is where the deposited tokens will be sent.
         // The type indicates that it is a reference to a receiver
@@ -74,4 +79,3 @@ pub contract TokenForwarding {
         return <-create Forwarder(recipient: recipient)
     }
 }
- 
