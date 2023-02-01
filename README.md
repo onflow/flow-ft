@@ -22,26 +22,22 @@ to store their tokens directly in their accounts and transact
 peer-to-peer. Please see the [blog post about resources](https://medium.com/dapperlabs/resource-oriented-programming-bee4d69c8f8e)
 to understand why they are perfect for digital assets.
 
-## Feedback
+## Import Addresses
 
-Flow and Cadence are both still in development, so this standard will still 
-be going through a lot of changes as the protocol and language evolves, 
-and as we receive feedback from the community about the standard.
+The `FungibleToken`, `FungibleTokenMetadataViews`, and `FungibleTokenSwitchboard` contracts are already deployed
+on various networks. You can import them in your contracts from these addresses.
+There is no need to deploy them yourself.
 
-We'd love to hear from anyone who has feedback. 
-Main feedback we are looking for is:
+(note: default deployment of `FungibleTokenMetadataViews`
+and `FungibleTokenSwitchboard` is still pending for emulator/canary, so you will still have to deploy those yourself on those networks)
 
-The feedback we are looking for is:
+| Network         | Contract Address     |
+| --------------- | -------------------- |
+| Emulator/Canary | `0xee82856bf20e2aa6` |
+| Testnet         | `0x9a0766d93b6608b7` |
+| Sandboxnet      | `0xe20612a0776ca4bf` |
+| Mainnet         | `0xf233dcee88fe0abe` |
 
-- Are there any features that are missing from the standard?
-- Are the features that we have included defined in the best way possible?
-- Are there any pre and post conditions for functions that are missing?
-- Are the pre and post conditions defined well enough? Error messages?
-- Are there any other actions that need an event defined for them?
-- Are the current event definitions clear enough and do they provide enough information for apps and other actors a clear look into what is happening?
-- Are the variable, function, and parameter names descriptive enough?
-- Are there any openings for bugs or vulnerabilities that we are not noticing?
-- Is the documentation/comments clear and concise and organized in a coherent manner?
 
 ## Basics of the Standard:
 
