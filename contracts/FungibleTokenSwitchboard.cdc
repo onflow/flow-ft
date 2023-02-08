@@ -36,6 +36,7 @@ pub contract FungibleTokenSwitchboard {
     /// 
     pub resource interface SwitchboardPublic {
         pub fun getVaultTypes(): [Type]
+        pub fun getVaultTypesWithAddress(): {Type: Address}
         pub fun deposit(from: @FungibleToken.Vault)
         pub fun safeDeposit(from: @FungibleToken.Vault): @FungibleToken.Vault?
     }
@@ -62,7 +63,7 @@ pub contract FungibleTokenSwitchboard {
             // Borrow a reference to the vault pointed to by the capability we 
             // want to store inside the switchboard
             let vaultRef = capability.borrow() 
-                ?? panic ("Cannot borrow reference to vault from capability")
+                        ?? panic ("Cannot borrow reference to vault from capability")
             // Check if there is a previous capability for this token, if not
             if (self.receiverCapabilities[vaultRef.getType()] == nil) {
                 // use the vault reference type as key for storing the 
@@ -71,8 +72,8 @@ pub contract FungibleTokenSwitchboard {
                 // emit the event that indicates that a new capability has been 
                 // added
                 emit VaultCapabilityAdded(type: vaultRef.getType(),
-                                    switchboardOwner: self.owner?.address, 
-                                    capabilityOwner: capability.address)
+                                               switchboardOwner: self.owner?.address, 
+                                                 capabilityOwner: capability.address)
             } else {
                 // If there was already a capability for that token, panic
                 panic("There is already a vault in the Switchboard for this token")
@@ -105,14 +106,15 @@ pub contract FungibleTokenSwitchboard {
                         // and emit the event that indicates that a new   
                         // capability has been added
                         emit VaultCapabilityAdded(type: vaultRef.getType(), 
-                            switchboardOwner: self.owner?.address, capabilityOwner: address)
+                            switchboardOwner: self.owner?.address, 
+                            capabilityOwner: address)
                     }
                 }
             }
         }
 
         /// Adds a new fungible token receiver capability to the switchboard 
-        /// resource specifying which `Type`of `@FungibleToken.Vault` can be 
+        /// resource specifying which `Type` of `@FungibleToken.Vault` can be 
         /// deposited to it. Use it to include in your switchboard "wrapper"
         /// receivers such as a `@TokenForwarding.Forwarder`. It can also be
         /// used to overwrite the type attached to a certain capability without 
@@ -126,7 +128,8 @@ pub contract FungibleTokenSwitchboard {
         /// capability, rather than the `Type` from the reference borrowed from
         /// said capability
         /// 
-        pub fun addNewVaultWrapper(capability: Capability<&{FungibleToken.Receiver}>, type: Type) {
+        pub fun addNewVaultWrapper(capability: Capability<&{FungibleToken.Receiver}>, 
+                                                                        type: Type) {
             // Check if the capability is working
             assert(capability.check(), message: "The passed capability is not valid")
             // Use the type parameter as key for the capability
@@ -134,10 +137,47 @@ pub contract FungibleTokenSwitchboard {
             // emit the event that indicates that a new capability has been 
             // added
             emit VaultCapabilityAdded(type: type,
-                                    switchboardOwner: self.owner?.address, 
-                                    capabilityOwner: capability.address)
+                                               switchboardOwner: self.owner?.address, 
+                                                 capabilityOwner: capability.address)
         }
-  
+
+        /// Adds zero or more new fungible token receiver capabilities to the  
+        /// switchboard resource specifying which `Type`s of `@FungibleToken.Vault`s  
+        /// can be deposited to it. Use it to include in your switchboard "wrapper"
+        /// receivers such as a `@TokenForwarding.Forwarder`. It can also be
+        /// used to overwrite the types attached to certain capabilities without 
+        /// having to remove those capabilities first.
+        ///                    
+        /// @param paths: The paths where the public capabilities are stored.
+        /// @param types: The types of the fungible token to be deposited on each path.
+        /// @param address: The address of the owner of the capabilities.
+        /// 
+        pub fun addNewVaultsWrappersByPath(paths: [PublicPath], types: [Type], 
+                                                                  address: Address) {
+            // Get the account where the public capabilities are stored
+            let owner = getAccount(address)
+            // For each path, get the saved capability and store it 
+            // into the switchboard's receiver capabilities dictionary
+            for i, path in paths {
+                let capability = 
+                                 owner.getCapability<&{FungibleToken.Receiver}>(path)
+                // Borrow a reference to the vault pointed to by the capability  
+                // we want to store inside the switchboard
+                // If the vault was borrowed successfully...
+                if let vaultRef = 
+                                                                capability.borrow() {
+                    // Use the vault reference type as key for storing the 
+                    // capability
+                    self.receiverCapabilities[types[i]] = capability
+                    // and emit the event that indicates that a new   
+                    // capability has been added
+                    emit VaultCapabilityAdded(type: types[i], 
+                        switchboardOwner: self.owner?.address, 
+                        capabilityOwner: address)
+                    
+                }
+            }
+        }
 
         /// Removes a fungible token receiver capability from the switchboard
         /// resource.
@@ -149,14 +189,14 @@ pub contract FungibleTokenSwitchboard {
             // Borrow a reference to the vault pointed to by the capability we 
             // want to remove from the switchboard
             let vaultRef = capability.borrow()
-                ?? panic ("Cannot borrow reference to vault from capability")
+                        ?? panic ("Cannot borrow reference to vault from capability")
             // Use the vault reference to find the capability to remove
             self.receiverCapabilities.remove(key: vaultRef.getType())
             // Emit the event that indicates that a new capability has been 
             // removed
             emit VaultCapabilityRemoved(type: vaultRef.getType(),
-                                    switchboardOwner: self.owner?.address, 
-                                    capabilityOwner: capability.address)       
+                                               switchboardOwner: self.owner?.address, 
+                                                 capabilityOwner: capability.address)       
         }
         
         /// Takes a fungible token vault and routes it to the proper fungible 
@@ -166,12 +206,13 @@ pub contract FungibleTokenSwitchboard {
         /// 
         pub fun deposit(from: @FungibleToken.Vault) {
             // Get the capability from the ones stored at the switchboard
-            let depositedVaultCapability = self
-                .receiverCapabilities[from.getType()] 
+            let depositedVaultCapability 
+                                          = self.receiverCapabilities[from.getType()] 
                 ?? panic ("The deposited vault is not available on this switchboard")
             // Borrow the reference to the desired vault
-            let vaultRef = depositedVaultCapability.borrow() 
-                ?? panic ("Can not borrow a reference to the the vault")
+            let vaultRef = 
+                                                    depositedVaultCapability.borrow() 
+                             ?? panic ("Can not borrow a reference to the the vault")
             vaultRef.deposit(from: <-from)
         }
 
@@ -189,21 +230,20 @@ pub contract FungibleTokenSwitchboard {
         pub fun safeDeposit(from: @FungibleToken.Vault): @FungibleToken.Vault? {
             // Try to get the proper vault capability from the switchboard
             // If the desired vault is present on the switchboard...
-            if let depositedVaultCapability = self
-                                        .receiverCapabilities[from.getType()] {
+            if let depositedVaultCapability
+                                        = self.receiverCapabilities[from.getType()] {
                 // We try to borrow a reference to the vault from the capability
                 // If we can borrow a reference to the vault...
-                if let vaultRef =  depositedVaultCapability.borrow() {
+                if let vaultRef =  
+                                                  depositedVaultCapability.borrow() {
                     // We deposit the funds on said vault
-                    vaultRef.deposit(from: <-from
-                                                .withdraw(amount: from.balance))
+                    vaultRef.deposit(from: <-from.withdraw(amount: from.balance))
                 }
             }
             // if deposit failed for some reason
             if from.balance > 0.0 {
-                emit NotCompletedDeposit(type: from.getType(), 
-                                        amount: from.balance, 
-                                        switchboardOwner: self.owner?.address)              
+                emit NotCompletedDeposit(type: from.getType(), amount: from.balance, 
+                                               switchboardOwner: self.owner?.address)              
                 return <-from
             }
             destroy from 
@@ -225,6 +265,26 @@ pub contract FungibleTokenSwitchboard {
                 }
             }
             return effectiveTypes
+        }
+
+        /// A getter function to know which tokens a certain switchboard 
+        /// resource is prepared to receive along with the address where
+        /// those tokens will be deposited.
+        ///
+        /// @return A dictionary mapping the `{FungibleToken.Receiver}` 
+        /// type to the receiver owner's address 
+        ///
+        pub fun getVaultTypesWithAddress(): {Type: Address} {
+            let effectiveTypesWithAddress: {Type: Address} = {}
+            // Check if each capability is live
+            for vaultType in self.receiverCapabilities.keys {
+                if self.receiverCapabilities[vaultType]!.check() {
+                    // and attach it to the owner's address
+                    effectiveTypesWithAddress[vaultType] = 
+                                        self.receiverCapabilities[vaultType]!.address
+                }
+            }
+            return effectiveTypesWithAddress
         }
 
         init() {
