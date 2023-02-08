@@ -152,7 +152,7 @@ pub contract FungibleTokenSwitchboard {
         /// @param types: The types of the fungible token to be deposited on each path.
         /// @param address: The address of the owner of the capabilities.
         /// 
-        pub fun addNewVaultsWrappersByPath(paths: [PublicPath], types: [Type], 
+        pub fun addNewVaultWrappersByPath(paths: [PublicPath], types: [Type], 
                                                                   address: Address) {
             // Get the account where the public capabilities are stored
             let owner = getAccount(address)
