@@ -28,7 +28,7 @@ require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/ef-ds/deque v1.0.4 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
-	github.com/ethereum/go-ethereum v1.9.13 // indirect
+	github.com/ethereum/go-ethereum v1.10.22 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/fxamacker/cbor/v2 v2.4.1-0.20220515183430-ad2eae63303f // indirect
 	github.com/fxamacker/circlehash v0.3.0 // indirect
@@ -40,33 +40,27 @@ require (
 	github.com/go-test/deep v1.0.8 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/golang/snappy v0.0.3 // indirect
+	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/hashicorp/golang-lru v0.5.4 // indirect
+	github.com/hashicorp/golang-lru v0.5.5-0.20210104140557-80c98217689d // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/ipfs/go-block-format v0.0.3 // indirect
 	github.com/ipfs/go-cid v0.2.0 // indirect
-	github.com/ipfs/go-datastore v0.5.1 // indirect
-	github.com/ipfs/go-ipfs-util v0.0.2 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
-	github.com/jbenet/goprocess v0.1.4 // indirect
 	github.com/kevinburke/go-bindata v3.23.0+incompatible // indirect
 	github.com/kevinburke/ssh_config v0.0.0-20201106050909-4977a11b4351 // indirect
 	github.com/klauspost/compress v1.15.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.1.0 // indirect
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
 	github.com/libp2p/go-libp2p v0.22.0 // indirect
-	github.com/libp2p/go-libp2p-core v0.20.1 // indirect
 	github.com/libp2p/go-openssl v0.1.0 // indirect
 	github.com/logrusorgru/aurora v2.0.3+incompatible // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mattn/go-pointer v0.0.1 // indirect
-	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
@@ -85,7 +79,6 @@ require (
 	github.com/onflow/flow-go/crypto v0.24.4 // indirect
 	github.com/onflow/flow/protobuf/go/flow v0.3.1 // indirect
 	github.com/onflow/sdks v0.4.4 // indirect
-	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -105,8 +98,6 @@ require (
 	github.com/spf13/viper v1.12.0 // indirect
 	github.com/subosito/gotenv v1.4.0 // indirect
 	github.com/turbolent/prettier v0.0.0-20220320183459-661cc755135d // indirect
-	github.com/uber/jaeger-client-go v2.29.1+incompatible // indirect
-	github.com/uber/jaeger-lib v2.4.0+incompatible // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/vmihailenco/msgpack/v4 v4.3.11 // indirect
 	github.com/vmihailenco/tagparser v0.1.1 // indirect
