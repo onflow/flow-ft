@@ -51,7 +51,7 @@ transaction(to: Address, amount: UFix64) {
         // Attempt to deposit the USDC funds into the receiver's switchboard 
         if let notDepositedVault <-switchboardRef.safeDeposit(from: <- self.sentVault.withdraw(amount: amount)) {
             
-            // If a vault is returned, then they deposit didn't success, so we put
+            // If a vault is returned, then their deposit didn't succeed, so we put
             // the funds into Lost And Found
             let memo = "Due royalties"
             let depositEstimate <- LostAndFound.estimateDeposit(redeemer: to, item: <-notDepositedVault, memo: memo, display: nil)
