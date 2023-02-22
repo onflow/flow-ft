@@ -1,10 +1,10 @@
 import FungibleToken from "./../../contracts/FungibleToken.cdc"
 import FungibleTokenSwitchboard from "./../../contracts/FungibleTokenSwitchboard.cdc"
 import FiatToken from "./../../contracts/utility/USDC/FiatToken.cdc"
-import LostAndFound from "./../../contracts/utility/LostAndFound.cdc"
+import LostAndFound from "./../../contracts/utility/L&F/LostAndFound.cdc"
 import FlowToken from "./../../contracts/utility/FlowToken.cdc"
 
-// This transaction templates how to send funds `to` any `Address` without knowing 
+// This transaction templates how to send USDC funds `to` any `Address` without knowing 
 // if it holds a vault of that specific token type. The transaction will attempt to 
 // deposit the funds into the receiver's switchboard, if no capability for routing 
 // that specific FT is found on the switchboard, then it will deposit the funds 
@@ -43,21 +43,38 @@ transaction(to: Address, amount: UFix64) {
         // Get the recipient's public account object
         let recipient = getAccount(to)
 
-        // Get a reference to the recipient's Switchboard Receiver
-        let switchboardRef = recipient.getCapability(FungibleTokenSwitchboard.PublicPath)
-            .borrow<&FungibleTokenSwitchboard.Switchboard{FungibleTokenSwitchboard.SwitchboardPublic}>()
-			?? panic("Could not borrow receiver reference to switchboard!")    
-        
-        // Attempt to deposit the USDC funds into the receiver's switchboard 
-        if let notDepositedVault <-switchboardRef.safeDeposit(from: <- self.sentVault.withdraw(amount: amount)) {
-            
-            // If a vault is returned, then their deposit didn't succeed, so we put
-            // the funds into Lost And Found
+        if let switchboardRef = recipient.getCapability(FungibleTokenSwitchboard.PublicPath)
+            .borrow<&FungibleTokenSwitchboard.Switchboard{FungibleTokenSwitchboard.SwitchboardPublic}>() {
+            // Attempt to deposit the USDC funds into the receiver's switchboard 
+            if let notDepositedVault <-switchboardRef.safeDeposit(from: <- self.sentVault.withdraw(amount: amount)) {
+                // If a vault is returned, then their deposit didn't succeed, so we put
+                // the funds into Lost And Found
+                let memo = "Due royalties"
+                let depositEstimate <- LostAndFound.estimateDeposit(redeemer: to, item: <-notDepositedVault, memo: memo, display: nil)
+                let storageFee <- self.flowProviderRef.withdraw(amount: depositEstimate.storageFee)
+                let resource <- depositEstimate.withdraw()
+
+                LostAndFound.deposit(
+                    redeemer: to,
+                    item: <-resource,
+                    memo: memo,
+                    display: nil,
+                    storagePayment: &storageFee as &FungibleToken.Vault,
+                    flowTokenRepayment: self.flowReceiver
+                )
+
+                // Return any remaining storage fees in this vault to the configured
+                // flow receiver
+                self.flowReceiver!.borrow()!.deposit(from: <-storageFee)
+                destroy depositEstimate
+            }
+            destroy self.sentVault
+        } else {
+            // If the user did not had a switchboard we deposit the funds into L&F
             let memo = "Due royalties"
-            let depositEstimate <- LostAndFound.estimateDeposit(redeemer: to, item: <-notDepositedVault, memo: memo, display: nil)
+            let depositEstimate <- LostAndFound.estimateDeposit(redeemer: to, item: <-self.sentVault, memo: memo, display: nil)
             let storageFee <- self.flowProviderRef.withdraw(amount: depositEstimate.storageFee)
             let resource <- depositEstimate.withdraw()
-
             LostAndFound.deposit(
                 redeemer: to,
                 item: <-resource,
@@ -66,15 +83,14 @@ transaction(to: Address, amount: UFix64) {
                 storagePayment: &storageFee as &FungibleToken.Vault,
                 flowTokenRepayment: self.flowReceiver
             )
-
             // Return any remaining storage fees in this vault to the configured
             // flow receiver
             self.flowReceiver!.borrow()!.deposit(from: <-storageFee)
             destroy depositEstimate
 
-        }
 
-        destroy self.sentVault
+        }
     }
 
 }
+ 
