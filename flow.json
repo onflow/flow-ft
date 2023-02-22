@@ -1,37 +1,99 @@
 {
-  "contracts": {
-    "FungibleToken": {
-      "source": "./contracts/FungibleToken.cdc",
-      "aliases": {
-        "emulator": "0xee82856bf20e2aa6",
-        "testnet": "0x9a0766d93b6608b7",
-        "mainnet": "0xf233dcee88fe0abe"
-      }
+    "contracts": {
+        "FungibleToken": {
+            "source": "./contracts/FungibleToken.cdc",
+            "aliases": {
+                "emulator": "0xee82856bf20e2aa6",
+                "testnet": "0x9a0766d93b6608b7",
+                "mainnet": "0xf233dcee88fe0abe"
+            }
+        },
+        "FungibleTokenSwitchboard": {
+            "source": "./contracts/FungibleTokenSwitchboard.cdc",
+            "aliases": {
+                "emulator": "0xf8d6e0586b0a20c7",
+                "mainnet": "0xf233dcee88fe0abe",
+                "testnet": "0x9a0766d93b6608b7"
+            }
+        },
+        "FungibleTokenMetadataViews": {
+            "source": "./contracts/utility/FungibleTokenMetadataViews.cdc",
+            "aliases": {
+                "emulator": "0xf8d6e0586b0a20c7",
+                "mainnet": "0xf233dcee88fe0abe",
+                "testnet": "0x9a0766d93b6608b7"
+            }
+        },    
+        "ExampleToken": {
+            "source": "./contracts/ExampleToken.cdc",
+            "alias": {
+                "emulator": "0xf8d6e0586b0a20c7"
+            }
+        },
+        "PrivateReceiverForwarder": {
+            "source": "./contracts/utility/PrivateReceiverForwarder.cdc",
+            "alias": {
+                "emulator": "0xf8d6e0586b0a20c7"
+            }
+        },
+        "TokenForwarding": {
+            "source": "./contracts/utility/TokenForwarding.cdc",
+            "alias": {
+                "emulator": "0xf8d6e0586b0a20c7"
+            }
+        },
+        "NonFungibleToken": {
+            "source": "./contracts/utility/NonFungibleToken.cdc",
+            "aliases": {
+                "emulator": "0xf8d6e0586b0a20c7",
+                "mainnet": "0x1d7e57aa55817448",
+                "testnet": "0x631e88ae7f1d7c20"
+            }
+        },
+        "MetadataViews": {
+            "source": "./contracts/utility/MetadataViews.cdc",
+            "aliases": {
+                "emulator": "0xf8d6e0586b0a20c7",
+                "mainnet": "0x1d7e57aa55817448",
+                "testnet": "0x631e88ae7f1d7c20"
+            }
+        },
+        "FlowToken": {
+            "source": "./contracts/utility/FlowToken.cdc",
+            "aliases": {
+                "emulator": "0x0ae53cb6e3f42a79",
+                "testnet": "0x7e60df042a9c0868",
+                "mainnet": "0x1654653399040a61"
+            }
+        },
+        "FiatToken": {
+            "source": "./contracts/utility/USDC/FiatToken.cdc",
+            "aliases": {
+                "emulator": "0x0ae53cb6e3f42a79",
+                "testnet": "0xa983fecbed621163",
+                "mainnet": "0x1654653399040a61"
+            }
+        }
     },
-    "ExampleToken": "./contracts/ExampleToken.cdc",
-    "FungibleTokenSwitchboard": "./contracts/FungibleTokenSwitchboard.cdc",
-    "FungibleTokenMetadataViews": "./contracts/FungibleTokenMetadataViews.cdc",
-    "PrivateReceiverForwarder": "./contracts/utility/PrivateReceiverForwarder.cdc",
-    "TokenForwarding": "./contracts/utility/TokenForwarding.cdc",
-    "MetadataViews": "./contracts/utility/MetadataViews.cdc",
-    "NonFungibleToken": "./contracts/utility/NonFungibleToken.cdc"
-  },
-  "networks": {
-    "emulator": "127.0.0.1:3569",
-    "testnet": "access.devnet.nodes.onflow.org:9000",
-    "mainnet": "access.mainnet.nodes.onflow.org:9000"
-  },
+    "networks": {
+        "emulator": "127.0.0.1:3569",
+        "testnet": "access.devnet.nodes.onflow.org:9000",
+        "mainnet": "access.mainnet.nodes.onflow.org:9000"
+    },
     "accounts": {
         "emulator-account": {
-            "address": "f8d6e0586b0a20c7",
-            "key": "83c4da8100a5bb0086fd0835e0b48dbdf507ca4aa15dab56edccee06c82eb110"
+            "address": "0xf8d6e0586b0a20c7",
+            "key": "$EMULATOR_ACCOUNT"
+        },
+        "dummy": {
+            "address": "0xabbcc1ff55ce6d50",
+            "key": "$DUMMY_ACCOUNT"
         }
     },
     "deployments": {
         "emulator": {
             "emulator-account": [
                 "FungibleToken",
-                "ExampleToken",
                 "NonFungibleToken",
                 "MetadataViews",
                 "FungibleTokenMetadataViews",
@@ -40,3 +102,4 @@
         }
     }
 }
+ 
