@@ -69,9 +69,15 @@
         "FiatToken": {
             "source": "./contracts/utility/USDC/FiatToken.cdc",
             "aliases": {
-                "emulator": "0x0ae53cb6e3f42a79",
                 "testnet": "0xa983fecbed621163",
                 "mainnet": "0x1654653399040a61"
+            }
+        },
+        "LostAndFound": {
+            "source": "./contracts/utility/L&F/LostAndFound.cdc",
+            "aliases": {
+                "testnet": "0xbe4635353f55bbd4",
+                "mainnet": "0x473d6a2c37eab5be"
             }
         }
     },
