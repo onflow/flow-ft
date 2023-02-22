@@ -9,13 +9,21 @@ import FiatToken from "./../../contracts/utility/USDC/FiatToken.cdc"
 // public path (for instance the royalties /public/GenericFTReceiver path)
 // Using the addNewVaultWrappersByPath switchboard method allows anyone to use
 // capability wrappers such as TokenForwarders instead of the actual token vault.
-transaction () {
+transaction (address: Address) {
 
-    let flowTokenVaultCapability: Capability<&{FungibleToken.Receiver}>
-    let fiatTokenVaultCapability: Capability<&{FungibleToken.Receiver}>   
+    let vaultPaths: [PublicPath]
+    let vaultTypes: [Type]    
     let switchboardRef:  &FungibleTokenSwitchboard.Switchboard
 
     prepare(acct: AuthAccount) {
+
+        // Prepare the paths and types arrays with the Flow and USDC tokens data
+        self.vaultPaths = []
+        self.vaultPaths.append(/public/flowTokenReceiver)
+        self.vaultPaths.append(FiatToken.VaultReceiverPubPath)
+        self.vaultTypes = []
+        self.vaultTypes.append(Type<@FlowToken.Vault>())
+        self.vaultTypes.append(Type<@FiatToken.Vault>())
 
         // Check if the account already has a Flow Vault
         if acct.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault) == nil {
@@ -31,7 +39,6 @@ transaction () {
             acct.link<&{FungibleToken.Receiver}>(/public/flowTokenReceiver, 
                                                      target: /storage/flowTokenVault)
         }
-        self.flowTokenVaultCapability = acct.getCapability<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
 
         // Check if the account already has a USDC Vault
         if acct.borrow<&FiatToken.Vault>(from: FiatToken.VaultStoragePath) == nil {
@@ -48,8 +55,7 @@ transaction () {
             acct.link<&{FungibleToken.Receiver}>(FiatToken.VaultReceiverPubPath, 
                                                   target: FiatToken.VaultStoragePath)
         }
-        self.fiatTokenVaultCapability = acct.getCapability<&{FungibleToken.Receiver}>(FiatToken.VaultReceiverPubPath)
-        
+
         // Check if the account already has a Switchboard resource
         if acct.borrow<&FungibleTokenSwitchboard.Switchboard>
                                 (from: FungibleTokenSwitchboard.StoragePath) == nil {
@@ -91,9 +97,11 @@ transaction () {
     }
 
     execute {
-        // Add the capability to the switchboard using addNewVault method
-        self.switchboardRef.addNewVault(capability: self.flowTokenVaultCapability)
-        self.switchboardRef.addNewVault(capability: self.fiatTokenVaultCapability)
+
+      // Add the capabilities to the switchboard using addNewVaultWrappersByPath
+      self.switchboardRef.addNewVaultWrappersByPath(paths: self.vaultPaths, 
+                                            types: self.vaultTypes, address: address)
+
     }
 
 }
