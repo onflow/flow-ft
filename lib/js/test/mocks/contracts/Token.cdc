@@ -1,12 +1,16 @@
+/// NOTE-  Below contract is just a renaming of the FungibleToken standard contract, This has been done
+/// to test the specific functionality which is not possible with js test framework using the name of FungibleToken
+/// as a name of the contract. PLEASE DO NOT USE THE BELOW CONTRACT FOR PRODUCTION USE.
+
 /**
 
 # The Flow Fungible Token standard
 
-## `FungibleToken` contract interface
+## `Token` contract interface
 
 The interface that all Fungible Token contracts would have to conform to.
 If a users wants to deploy a new token contract, their contract
-would need to implement the FungibleToken interface.
+would need to implement the Token interface.
 
 Their contract would have to follow all the rules and naming
 that the interface specifies.
@@ -42,7 +46,7 @@ the deposit function on another user's Vault to complete the transfer.
 
 /// The interface that Fungible Token contracts implement.
 ///
-pub contract interface FungibleToken {
+pub contract interface Token {
 
     /// The total number of tokens in existence.
     /// It is up to the implementer to ensure that the total supply
@@ -115,18 +119,18 @@ pub contract interface FungibleToken {
         /// Returns the type of implementing resource i.e If `FlowToken.Vault` implements
         /// this then it would return `[Type<@FlowToken.Vault>()]` and if any custom receiver
         /// uses the default implementation then it would return empty array as its parent
-        /// resource doesn't conform with the `FungibleToken.Vault` resource.
+        /// resource doesn't conform with the `Token.Vault` resource.
         ///
         /// @return list of supported vault types by the implemented resource.
         /// 
         pub fun getSupportedVaultTypes() :[Type] {
             // Below check is implemented to make sure that run-time type would
-            // only get returned when the parent resource conforms with `FungibleToken.Vault`. 
-            if self.getType().isSubtype(of: Type<@FungibleToken.Vault>()) {
+            // only get returned when the parent resource conforms with `Token.Vault`. 
+            if self.getType().isSubtype(of: Type<@Token.Vault>()) {
                 return [self.getType()]
             } else {
                 // Return empty array as the default value for the resource who don't
-                // implements `FungibleToken.Vault`, such as `FungibleTokenSwitchboard`, `TokenForwarder` etc.
+                // implements `Token.Vault`, such as `FungibleTokenSwitchboard`, `TokenForwarder` etc.
                 return []
             }
         }
@@ -170,7 +174,7 @@ pub contract interface FungibleToken {
 
     /// The resource that contains the functions to send and receive tokens.
     /// The declaration of a concrete type in a contract interface means that
-    /// every Fungible Token contract that implements the FungibleToken interface
+    /// every Fungible Token contract that implements the Token interface
     /// must define a concrete `Vault` resource that conforms to the `Provider`, `Receiver`,
     /// and `Balance` interfaces, and declares their required fields and functions
     ///
