@@ -227,6 +227,14 @@ pub contract FungibleTokenSwitchboard {
             return effectiveTypes
         }
 
+        /// A getter function that returns the token types supported by this resource,
+        /// which can be deposited using the 'deposit' function.
+        ///
+        /// @return Array of FT types that can be deposited.
+        pub fun getSupportedVaultTypes(): [Type] { 
+            return self.getVaultTypes()
+        }
+
         init() {
             // Initialize the capabilities dictionary
             self.receiverCapabilities = {}

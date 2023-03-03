@@ -2,7 +2,7 @@
 // anyone to add a Vault resource to their account so that 
 // they can use the TestToken
 
-import FungibleToken from "../contracts/Token.cdc"
+import Token from "../contracts/Token.cdc"
 import TestToken from "../contracts/TestToken.cdc"
 import MetadataViews from "../../../../../contracts/utility/MetadataViews.cdc"
 
