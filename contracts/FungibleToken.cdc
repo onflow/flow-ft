@@ -112,21 +112,24 @@ pub contract interface FungibleToken {
 
         /// Below is referenced from the FLIP #69 https://github.com/onflow/flips/blob/main/flips/20230206-fungible-token-vault-type-discovery.md
         /// 
-        /// Returns the type of implementing resource i.e If `FlowToken.Vault` implements
+        /// Returns the Vault types that the the receiver is able to accept in its `deposit` method
         /// this then it would return `[Type<@FlowToken.Vault>()]` and if any custom receiver
         /// uses the default implementation then it would return empty array as its parent
         /// resource doesn't conform with the `FungibleToken.Vault` resource.
         ///
-        /// @return list of supported vault types by the implemented resource.
+        /// Custom receiver implementations are expected to upgrade their contracts to add an implementation
+        /// that supports this method because it is very valuable for various applications to have.
+        ///
+        /// @return list of supported deposit vault types by the implementing resource.
         /// 
-        pub fun getSupportedVaultTypes() :[Type] {
+        pub fun getSupportedVaultTypes(): [Type] {
             // Below check is implemented to make sure that run-time type would
             // only get returned when the parent resource conforms with `FungibleToken.Vault`. 
             if self.getType().isSubtype(of: Type<@FungibleToken.Vault>()) {
                 return [self.getType()]
             } else {
-                // Return empty array as the default value for the resource who don't
-                // implements `FungibleToken.Vault`, such as `FungibleTokenSwitchboard`, `TokenForwarder` etc.
+                // Return an empty array as the default value for resource who don't
+                // implement `FungibleToken.Vault`, such as `FungibleTokenSwitchboard`, `TokenForwarder` etc.
                 return []
             }
         }
