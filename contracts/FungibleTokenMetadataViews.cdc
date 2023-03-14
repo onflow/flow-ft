@@ -1,4 +1,4 @@
-import FungibleToken from "./FungibleToken.cdc"
+import FungibleToken from "./FungibleToken-v2.cdc"
 import MetadataViews from "./utility/MetadataViews.cdc"
 
 /// This contract implements the metadata standard proposed
@@ -137,7 +137,7 @@ pub contract FungibleTokenMetadataViews {
 
         /// Function that allows creation of an empty FT vault that is intended
         /// to store the funds.
-        pub let createEmptyVault: ((): @FungibleToken.Vault)
+        pub let createEmptyVault: ((): @AnyResource{FungibleToken.Vault})
 
         init(
             storagePath: StoragePath,

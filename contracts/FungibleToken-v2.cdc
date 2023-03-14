@@ -129,8 +129,8 @@ pub contract interface FungibleToken {
         ///
         pub fun deposit(from: @AnyResource{Vault})
 
-        /// getAcceptedTypes optionally returns a list of vault types that this receiver accepts
-        pub fun getAcceptedTypes(): {Type: Bool}
+        /// getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
+        pub fun getSupportedVaultTypes(): {Type: Bool}
     }
 
     /// Balance
@@ -145,13 +145,7 @@ pub contract interface FungibleToken {
         /// so there is no need to require an explicit field
         pub fun getBalance(): UFix64
 
-        pub fun getAcceptedTypes(): {Type: Bool}
-
-        /// Return the default storage path for the collection
-        pub fun getDefaultStoragePath(): StoragePath?
-
-        /// Return the default public path for the collection
-        pub fun getPublicReceiverBalancePath(): PublicPath?
+        pub fun getSupportedVaultTypes(): {Type: Bool}
 
         /// MetadataViews Methods
         ///
@@ -174,14 +168,8 @@ pub contract interface FungibleToken {
         /// Get the balance of the vault
         pub fun getBalance(): UFix64
 
-        /// getAcceptedTypes optionally returns a list of vault types that this receiver accepts
-        pub fun getAcceptedTypes(): {Type: Bool}
-
-        /// Return the default storage path for the collection
-        pub fun getDefaultStoragePath(): StoragePath?
-
-        /// Return the default public path for the collection
-        pub fun getPublicReceiverBalancePath(): PublicPath?
+        /// getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
+        pub fun getSupportedVaultTypes(): {Type: Bool}
 
         pub fun getViews(): [Type]
         pub fun resolveView(_ view: Type): AnyStruct?
