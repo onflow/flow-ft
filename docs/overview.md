@@ -4,16 +4,16 @@ This is a description of the Flow standard for fungible token contracts.  It is 
 
 ## What is Flow?
 
-Flow is a new blockchain for open worlds. Read more about it [here](https://www.onflow.org/).
+Flow is a new blockchain for open worlds. Read more about it [here](https://flow.com/).
 
 ## What is Cadence?
 
 Cadence is a new Resource-oriented programming language 
 for developing smart contracts for the Flow Blockchain.
-Read more about it [here](https://docs.onflow.org/docs) and see its implementation [here](https://github.com/onflow/cadence)
+Read more about it [here](https://developers.flow.com/) and see its implementation [here](https://github.com/onflow/cadence)
 
 We recommend that anyone who is reading this should have already
-completed the [Cadence Tutorials](https://docs.onflow.org/docs/getting-started-1) 
+completed the [Cadence Tutorials](https://developers.flow.com/cadence/tutorial/01-first-steps) 
 so they can build a basic understanding of the programming language.
 
 Resource-oriented programming, and by extension Cadence, 
@@ -171,8 +171,8 @@ A standard for token metadata is still an unsolved problem in the general blockc
 12 - Cloning the token to create a new token with the same distribution
 
 13 - Restricted ownership (For accredited investors and such)
-- whitelisting
-- blacklisting
+- allowlisting
+- denylisting
 
 # How to use the Fungible Token contract
 

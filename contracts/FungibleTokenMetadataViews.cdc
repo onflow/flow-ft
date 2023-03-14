@@ -1,5 +1,5 @@
-import FungibleToken from "./FungibleToken.cdc"
-import MetadataViews from "./utilityContracts/MetadataViews.cdc"
+import FungibleToken from "./FungibleToken-v2.cdc"
+import MetadataViews from "./utility/MetadataViews.cdc"
 
 /// This contract implements the metadata standard proposed
 /// in FLIP-1087.
@@ -16,9 +16,8 @@ pub contract FungibleTokenMetadataViews {
     /// implement this view.
     ///
     pub struct FTView {
-        pub let ftDisplay: FTDisplay?
+        pub let ftDisplay: FTDisplay?     
         pub let ftVaultData: FTVaultData?
-
         init(
             ftDisplay: FTDisplay?,
             ftVaultData: FTVaultData?
@@ -58,13 +57,11 @@ pub contract FungibleTokenMetadataViews {
         /// The abbreviated symbol for this token.
         ///
         /// Example: "FLOW"
-        ///
         pub let symbol: String
 
         /// A description the provides an overview of this token.
         ///
         /// Example: "The FLOW token is the native currency of the Flow network."
-        ///
         pub let description: String
 
         /// External link to a URL to view more information about the fungible token.
@@ -140,7 +137,7 @@ pub contract FungibleTokenMetadataViews {
 
         /// Function that allows creation of an empty FT vault that is intended
         /// to store the funds.
-        pub let createEmptyVault: ((): @FungibleToken.Vault)
+        pub let createEmptyVault: ((): @AnyResource{FungibleToken.Vault})
 
         init(
             storagePath: StoragePath,
@@ -155,7 +152,7 @@ pub contract FungibleTokenMetadataViews {
             pre {
                 receiverLinkedType.isSubtype(of: Type<&{FungibleToken.Receiver}>()): "Receiver public type must include FungibleToken.Receiver."
                 metadataLinkedType.isSubtype(of: Type<&{FungibleToken.Balance, MetadataViews.Resolver}>()): "Metadata public type must include FungibleToken.Balance and MetadataViews.Resolver interfaces."
-                providerLinkedType.isSubtype(of: Type<&{FungibleToken.Provider, MetadataViews.Resolver}>()): "Provider type must include FungibleToken.Provider and MetadataViews.Resolver interface."
+                providerLinkedType.isSubtype(of: Type<&{FungibleToken.Provider}>()): "Provider type must include FungibleToken.Provider interface."
             }
             self.storagePath = storagePath
             self.receiverPath = receiverPath
@@ -183,3 +180,4 @@ pub contract FungibleTokenMetadataViews {
     }
 
 }
+ 

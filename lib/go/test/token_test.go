@@ -3,7 +3,6 @@ package test
 import (
 	"testing"
 
-	sdktemplates "github.com/onflow/flow-go-sdk/templates"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -12,7 +11,6 @@ import (
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
 
-	"github.com/onflow/flow-ft/lib/go/contracts"
 	"github.com/onflow/flow-ft/lib/go/templates"
 )
 
@@ -20,7 +18,7 @@ func TestTokenDeployment(t *testing.T) {
 	b, accountKeys := newTestSetup(t)
 
 	exampleTokenAccountKey, _ := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
+	fungibleAddr, exampleTokenAddr, _, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	t.Run("Should have initialized Supply field correctly", func(t *testing.T) {
 		script := templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
@@ -35,13 +33,13 @@ func TestCreateToken(t *testing.T) {
 	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, _ := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
+	fungibleAddr, exampleTokenAddr, _, metadataViewsAddr := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
 	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
 
 	t.Run("Should be able to create empty Vault that doesn't affect supply", func(t *testing.T) {
-		script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+		script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, "ExampleToken")
 		tx := createTxWithTemplateAndAuthorizer(b, script, joshAddress)
 
 		signAndSubmit(
@@ -79,14 +77,14 @@ func TestExternalTransfers(t *testing.T) {
 	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, forwardingAddr :=
+	fungibleAddr, exampleTokenAddr, forwardingAddr, metadataViewsAddr :=
 		DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
 	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
 
 	// then deploy the tokens to an account
-	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, "ExampleToken")
 	tx := createTxWithTemplateAndAuthorizer(b, script, joshAddress)
 
 	signAndSubmit(
@@ -355,7 +353,7 @@ func TestExternalTransfers(t *testing.T) {
 				joshAddress,
 			},
 			[]crypto.Signer{
-				b.ServiceKey().Signer(),
+				serviceSigner,
 				joshSigner,
 			},
 			false,
@@ -389,13 +387,13 @@ func TestVaultDestroy(t *testing.T) {
 	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
+	fungibleAddr, exampleTokenAddr, _, metadataViewsAddr := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
 	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
 
 	// then deploy the tokens to an account
-	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, "ExampleToken")
 	tx := flow.NewTransaction().
 		SetScript(script).
 		SetGasLimit(100).
@@ -518,13 +516,13 @@ func TestMintingAndBurning(t *testing.T) {
 	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
+	fungibleAddr, exampleTokenAddr, _, metadataViewsAddr := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
 	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
 
 	// then deploy the tokens to an account
-	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, "ExampleToken")
 	tx := flow.NewTransaction().
 		SetScript(script).
 		SetGasLimit(100).
@@ -678,200 +676,6 @@ func TestMintingAndBurning(t *testing.T) {
 
 		script = templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
 		supply := executeScriptAndCheck(t, b, script, nil)
-		assert.Equal(t, CadenceUFix64("1000.0"), supply)
-	})
-}
-
-func TestCreateCustomToken(t *testing.T) {
-	b, accountKeys := newTestSetup(t)
-
-	serviceSigner, _ := b.ServiceKey().Signer()
-
-	exampleTokenAccountKey, tokenSigner := accountKeys.NewWithSigner()
-	// Should be able to deploy a contract as a new account with no keys.
-	fungibleTokenCode := contracts.FungibleToken()
-	fungibleAddr, err := b.CreateAccount(
-		nil,
-		[]sdktemplates.Contract{
-			{
-				Name:   "FungibleToken",
-				Source: string(fungibleTokenCode),
-			},
-		},
-	)
-	assert.NoError(t, err)
-
-	_, err = b.CommitBlock()
-	assert.NoError(t, err)
-
-	customTokenCode := contracts.CustomToken(fungibleAddr.String(), "UtilityCoin", "utilityCoin", "1000.0")
-	tokenAddr, err := b.CreateAccount(
-		[]*flow.AccountKey{exampleTokenAccountKey},
-		[]sdktemplates.Contract{
-			{
-				Name:   "UtilityCoin",
-				Source: string(customTokenCode),
-			},
-		},
-	)
-	assert.NoError(t, err)
-
-	_, err = b.CommitBlock()
-	assert.NoError(t, err)
-
-	badTokenCode := contracts.CustomToken(fungibleAddr.String(), "BadCoin", "badCoin", "1000.0")
-	badTokenAccountKey, _ := accountKeys.NewWithSigner()
-	badTokenAddr, err := b.CreateAccount(
-		[]*flow.AccountKey{badTokenAccountKey},
-		[]sdktemplates.Contract{
-			{
-				Name:   "BadCoin",
-				Source: string(badTokenCode),
-			},
-		},
-	)
-	assert.NoError(t, err)
-
-	_, err = b.CommitBlock()
-	assert.NoError(t, err)
-
-	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
-	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
-
-	t.Run("Should be able to create empty Vault that doesn't affect supply", func(t *testing.T) {
-		script := templates.GenerateCreateTokenScript(fungibleAddr, tokenAddr, "UtilityCoin")
-		tx := createTxWithTemplateAndAuthorizer(
-			b, script, joshAddress)
-
-		signAndSubmit(
-			t, b, tx,
-			[]flow.Address{
-				b.ServiceKey().Address,
-				joshAddress,
-			},
-			[]crypto.Signer{
-				serviceSigner,
-				joshSigner,
-			},
-			false,
-		)
-
-		script = templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, "UtilityCoin")
-		result := executeScriptAndCheck(t, b,
-			script,
-			[][]byte{
-				jsoncdc.MustEncode(cadence.Address(joshAddress)),
-			},
-		)
-
-		assert.Equal(t, CadenceUFix64("0.0"), result)
-
-		script = templates.GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin")
-		supply := executeScriptAndCheck(t, b, script, nil)
-		assert.Equal(t, CadenceUFix64("1000.0"), supply)
-	})
-
-	t.Run("Should mint tokens, deposit, and update balance and total supply", func(t *testing.T) {
-		script := templates.GenerateMintTokensScript(fungibleAddr, tokenAddr, "UtilityCoin")
-		tx := createTxWithTemplateAndAuthorizer(
-			b, script, tokenAddr)
-
-		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
-		_ = tx.AddArgument(CadenceUFix64("50.0"))
-
-		signAndSubmit(
-			t, b, tx,
-			[]flow.Address{
-				b.ServiceKey().Address,
-				tokenAddr,
-			},
-			[]crypto.Signer{
-				serviceSigner,
-				tokenSigner,
-			},
-			false,
-		)
-
-		// Assert that the vaults' balances are correct
-		script = templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, "UtilityCoin")
-		result := executeScriptAndCheck(t, b,
-			script,
-			[][]byte{
-				jsoncdc.MustEncode(cadence.Address(tokenAddr)),
-			},
-		)
-
-		assert.Equal(t, CadenceUFix64("1000.0"), result)
-
-		// Assert that the vaults' balances are correct
-		script = templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, "UtilityCoin")
-		result = executeScriptAndCheck(t, b,
-			script,
-			[][]byte{
-				jsoncdc.MustEncode(cadence.Address(joshAddress)),
-			},
-		)
-
-		assert.Equal(t, CadenceUFix64("50.0"), result)
-
-		script = templates.GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin")
-		supply := executeScriptAndCheck(t, b, script, nil)
-		assert.Equal(t, CadenceUFix64("1050.0"), supply)
-	})
-
-	t.Run("Shouldn't be able to transfer token from a vault to a differenly typed vault", func(t *testing.T) {
-		script := templates.GenerateTransferInvalidVaultScript(
-			fungibleAddr,
-			tokenAddr,
-			badTokenAddr,
-			badTokenAddr,
-			"UtilityCoin",
-			"BadCoin",
-			20,
-		)
-		tx := createTxWithTemplateAndAuthorizer(
-			b, script, tokenAddr)
-
-		signAndSubmit(
-			t, b, tx,
-			[]flow.Address{
-				b.ServiceKey().Address,
-				tokenAddr,
-			},
-			[]crypto.Signer{
-				serviceSigner,
-				tokenSigner,
-			},
-			true,
-		)
-
-		// Assert that the vaults' balances are correct
-		script = templates.GenerateInspectVaultScript(fungibleAddr, tokenAddr, "UtilityCoin")
-		result := executeScriptAndCheck(t, b,
-			script,
-			[][]byte{
-				jsoncdc.MustEncode(cadence.Address(tokenAddr)),
-			},
-		)
-
-		assert.Equal(t, CadenceUFix64("1000.0"), result)
-
-		script = templates.GenerateInspectVaultScript(fungibleAddr, badTokenAddr, "BadCoin")
-		result = executeScriptAndCheck(t, b,
-			script,
-			[][]byte{
-				jsoncdc.MustEncode(cadence.Address(badTokenAddr)),
-			},
-		)
-
-		assert.Equal(t, CadenceUFix64("1000.0"), result)
-
-		script = templates.GenerateInspectSupplyScript(fungibleAddr, tokenAddr, "UtilityCoin")
-		supply := executeScriptAndCheck(t, b, script, nil)
-		assert.Equal(t, CadenceUFix64("1050.0"), supply)
-
-		script = templates.GenerateInspectSupplyScript(fungibleAddr, badTokenAddr, "BadCoin")
-		supply = executeScriptAndCheck(t, b, script, nil)
 		assert.Equal(t, CadenceUFix64("1000.0"), supply)
 	})
 }

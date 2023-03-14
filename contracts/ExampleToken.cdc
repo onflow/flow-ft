@@ -1,5 +1,5 @@
 import FungibleToken from "./FungibleToken.cdc"
-import MetadataViews from "./utilityContracts/MetadataViews.cdc"
+import MetadataViews from "./utility/MetadataViews.cdc"
 import FungibleTokenMetadataViews from "./FungibleTokenMetadataViews.cdc"
 
 pub contract ExampleToken: FungibleToken {
@@ -9,8 +9,8 @@ pub contract ExampleToken: FungibleToken {
     
     /// Storage and Public Paths
     pub let VaultStoragePath: StoragePath
-    pub let ReceiverPublicPath: PublicPath
     pub let VaultPublicPath: PublicPath
+    pub let ReceiverPublicPath: PublicPath
     pub let AdminStoragePath: StoragePath
 
     /// The event that is emitted when the contract is created
@@ -49,9 +49,7 @@ pub contract ExampleToken: FungibleToken {
         /// The total balance of this vault
         pub var balance: UFix64
 
-        ///Do we need extra fields for metadata?
-
-        // Initialize the balance at resource creation time
+        /// Initialize the balance at resource creation time
         init(balance: UFix64) {
             self.balance = balance
         }
@@ -62,6 +60,9 @@ pub contract ExampleToken: FungibleToken {
         /// the money that is being transferred. It returns the newly
         /// created Vault to the context that called so it can be deposited
         /// elsewhere.
+        ///
+        /// @param amount: The amount of tokens to be withdrawn from the vault
+        /// @return The Vault resource containing the withdrawn funds
         ///
         pub fun withdraw(amount: UFix64): @FungibleToken.Vault {
             self.balance = self.balance - amount
@@ -74,6 +75,8 @@ pub contract ExampleToken: FungibleToken {
         /// It is allowed to destroy the sent Vault because the Vault
         /// was a temporary holder of the tokens. The Vault's balance has
         /// been consumed and therefore can be destroyed.
+        ///
+        /// @param from: The Vault resource containing the funds that will be deposited
         ///
         pub fun deposit(from: @FungibleToken.Vault) {
             let vault <- from as! @ExampleToken.Vault
@@ -125,7 +128,7 @@ pub contract ExampleToken: FungibleToken {
                         symbol: "EFT",
                         description: "This fungible token is used as an example to help you develop your next FT #onFlow.",
                         externalURL: MetadataViews.ExternalURL("https://example-ft.onflow.org"),
-                        logo: medias,
+                        logos: medias,
                         socials: {
                             "twitter": MetadataViews.ExternalURL("https://twitter.com/flow_blockchain")
                         }
@@ -136,9 +139,9 @@ pub contract ExampleToken: FungibleToken {
                         receiverPath: ExampleToken.ReceiverPublicPath,
                         metadataPath: ExampleToken.VaultPublicPath,
                         providerPath: /private/exampleTokenVault,
-                        receiverLinkedType: Type<&{FungibleToken.Receiver}>(),
-                        metadataLinkedType: Type<&{FungibleToken.Balance, MetadataViews.Resolver}>(),
-                        providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider, MetadataViews.Resolver}>(),
+                        receiverLinkedType: Type<&ExampleToken.Vault{FungibleToken.Receiver}>(),
+                        metadataLinkedType: Type<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(),
+                        providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider}>(),
                         createEmptyVaultFunction: (fun (): @ExampleToken.Vault {
                             return <-ExampleToken.createEmptyVault()
                         })
@@ -153,6 +156,8 @@ pub contract ExampleToken: FungibleToken {
     /// and store the returned Vault in their storage in order to allow their
     /// account to be able to receive deposits of this token type.
     ///
+    /// @return The new Vault resource
+    ///
     pub fun createEmptyVault(): @Vault {
         return <-create Vault(balance: 0.0)
     }
@@ -161,12 +166,17 @@ pub contract ExampleToken: FungibleToken {
 
         /// Function that creates and returns a new minter resource
         ///
+        /// @param allowedAmount: The maximum quantity of tokens that the minter could create
+        /// @return The Minter resource that would allow to mint tokens
+        ///
         pub fun createNewMinter(allowedAmount: UFix64): @Minter {
             emit MinterCreated(allowedAmount: allowedAmount)
             return <-create Minter(allowedAmount: allowedAmount)
         }
 
         /// Function that creates and returns a new burner resource
+        ///
+        /// @return The Burner resource
         ///
         pub fun createNewBurner(): @Burner {
             emit BurnerCreated()
@@ -183,6 +193,9 @@ pub contract ExampleToken: FungibleToken {
 
         /// Function that mints new tokens, adds them to the total supply,
         /// and returns them to the calling context.
+        ///
+        /// @param amount: The quantity of tokens to mint
+        /// @return The Vault resource containing the minted tokens
         ///
         pub fun mintTokens(amount: UFix64): @ExampleToken.Vault {
             pre {
@@ -209,6 +222,8 @@ pub contract ExampleToken: FungibleToken {
         /// Note: the burned tokens are automatically subtracted from the
         /// total supply in the Vault destructor.
         ///
+        /// @param from: The Vault resource containing the tokens to burn
+        ///
         pub fun burnTokens(from: @FungibleToken.Vault) {
             let vault <- from as! @ExampleToken.Vault
             let amount = vault.balance
@@ -220,8 +235,8 @@ pub contract ExampleToken: FungibleToken {
     init() {
         self.totalSupply = 1000.0
         self.VaultStoragePath = /storage/exampleTokenVault
-        self.ReceiverPublicPath = /public/exampleTokenReceiver
         self.VaultPublicPath = /public/exampleTokenMetadata
+        self.ReceiverPublicPath = /public/exampleTokenReceiver
         self.AdminStoragePath = /storage/exampleTokenAdmin
 
         // Create the Vault with the total supply of tokens and save it in storage.
@@ -236,9 +251,8 @@ pub contract ExampleToken: FungibleToken {
         )
 
         // Create a public capability to the stored Vault that only exposes
-        // the `balance` field through the `Balance` interface and also
-        // the `resolveView` method through the MetadataViews `Resolver` interface.
-        self.account.link<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(
+        // the `balance` field and the `resolveView` method through the `Balance` interface
+        self.account.link<&ExampleToken.Vault{FungibleToken.Balance}>(
             self.VaultPublicPath,
             target: self.VaultStoragePath
         )
@@ -250,3 +264,4 @@ pub contract ExampleToken: FungibleToken {
         emit TokensInitialized(initialSupply: self.totalSupply)
     }
 }
+ 

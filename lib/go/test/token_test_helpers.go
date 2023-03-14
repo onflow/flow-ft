@@ -9,6 +9,8 @@ import (
 
 	"github.com/onflow/flow-go-sdk"
 
+	nftcontracts "github.com/onflow/flow-nft/lib/go/contracts"
+
 	"github.com/onflow/flow-ft/lib/go/contracts"
 )
 
@@ -22,8 +24,22 @@ func DeployTokenContracts(
 	fungibleAddr flow.Address,
 	tokenAddr flow.Address,
 	forwardingAddr flow.Address,
+	metadataViewsAddr flow.Address,
 ) {
 	var err error
+
+	// Deploy the NonFungibleToken contract
+	nonFungibleTokenCode := nftcontracts.NonFungibleToken()
+	nftAddress, err := b.CreateAccount(
+		nil,
+		[]sdktemplates.Contract{
+			{
+				Name:   "NonFungibleToken",
+				Source: string(nonFungibleTokenCode),
+			},
+		},
+	)
+	assert.NoError(t, err)
 
 	// Deploy the FungibleToken contract
 	fungibleTokenCode := contracts.FungibleToken()
@@ -41,8 +57,37 @@ func DeployTokenContracts(
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
+	// Deploy the MetadataViews contract
+	metadataViewsCode := nftcontracts.MetadataViews(fungibleAddr, nftAddress)
+	metadataViewsAddr, err = b.CreateAccount(
+		nil,
+		[]sdktemplates.Contract{
+			{
+				Name:   "MetadataViews",
+				Source: string(metadataViewsCode),
+			},
+		},
+	)
+	assert.NoError(t, err)
+
+	// Deploy the FungibleTokenMetadataViews contract
+	fungibleTokenMetadataViewsCode := contracts.FungibleTokenMetadataViews(fungibleAddr.String(), metadataViewsAddr.String())
+	fungibleMetadataViewsAddr, err := b.CreateAccount(
+		nil,
+		[]sdktemplates.Contract{
+			{
+				Name:   "FungibleTokenMetadataViews",
+				Source: string(fungibleTokenMetadataViewsCode),
+			},
+		},
+	)
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
 	// Deploy the ExampleToken contract
-	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String())
+	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String(), metadataViewsAddr.String(), fungibleMetadataViewsAddr.String())
 	tokenAddr, err = b.CreateAccount(
 		key,
 		[]sdktemplates.Contract{
@@ -73,7 +118,7 @@ func DeployTokenContracts(
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
-	return fungibleAddr, tokenAddr, forwardingAddr
+	return fungibleAddr, tokenAddr, forwardingAddr, metadataViewsAddr
 }
 
 // Deploys the FungibleToken-V2, ExampleToken, and TokenForwarding contracts
@@ -105,24 +150,8 @@ func DeployV2TokenContracts(
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
-	// Deploy the FungibleTokenInterface contract
-	fungibleTokenInterfaceCode := contracts.FungibleTokenV2Interface(fungibleAddr.String())
-	fungibleInterfaceAddr, err := b.CreateAccount(
-		nil,
-		[]sdktemplates.Contract{
-			{
-				Name:   "FungibleTokenInterface",
-				Source: string(fungibleTokenInterfaceCode),
-			},
-		},
-	)
-	assert.NoError(t, err)
-
-	_, err = b.CommitBlock()
-	assert.NoError(t, err)
-
 	// Deploy the ExampleToken contract
-	exampleTokenCode := contracts.ExampleTokenV2(fungibleAddr.String(), fungibleInterfaceAddr.String())
+	exampleTokenCode := contracts.ExampleTokenV2(fungibleAddr.String())
 	_, err = b.CreateAccount(
 		key,
 		[]sdktemplates.Contract{

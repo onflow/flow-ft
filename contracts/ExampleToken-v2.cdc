@@ -1,10 +1,11 @@
 import FungibleToken from "./FungibleToken-v2.cdc"
+import MetadataViews from "./utility/MetadataViews.cdc"
 import FungibleTokenMetadataViews from "./FungibleTokenMetadataViews.cdc"
 
 pub contract ExampleToken: FungibleToken {
 
     /// Total supply of ExampleTokens in existence
-    pub var totalSupply: {Type: UFix64}
+    access(contract) var totalSupply: {Type: UFix64}
 
     /// Admin Path
     pub let AdminStoragePath: StoragePath
@@ -41,7 +42,7 @@ pub contract ExampleToken: FungibleToken {
 
         let vault <- create Vault(balance: 0.0)
 
-        typeDictionary[vault.getType()] = vault.resolveView(Type<FungibleTokenMetadataViews.FTView>())
+        typeDictionary[vault.getType()] = vault.resolveView(Type<FungibleTokenMetadataViews.FTView>()) as! FungibleTokenMetadataViews.FTView
 
         destroy vault
         
@@ -60,7 +61,7 @@ pub contract ExampleToken: FungibleToken {
     /// out of thin air. A special Minter resource needs to be defined to mint
     /// new tokens.
     ///
-    pub resource Vault: FungibleToken.Vault, FungibleToken.Provider, FungibleToken.Transferable, FungibleToken.Receiver, FungibleToken.Balance, MetadataViews.Resolver {
+    pub resource Vault: FungibleToken.Vault, FungibleToken.Provider, FungibleToken.Transferable, FungibleToken.Receiver, FungibleToken.Balance {
 
         /// The total balance of this vault
         pub var balance: UFix64
@@ -68,22 +69,69 @@ pub contract ExampleToken: FungibleToken {
         access(self) var storagePath: StoragePath
         access(self) var publicPath: PublicPath
 
-        /// Returns the standard storage path for the Vault
-        pub fun getDefaultStoragePath(): StoragePath? {
-            return self.storagePath
+        pub fun getViews(): [Type] {
+            return [Type<FungibleTokenMetadataViews.FTView>(),
+                    Type<FungibleTokenMetadataViews.FTDisplay>(),
+                    Type<FungibleTokenMetadataViews.FTVaultData>()]
         }
 
-        /// Returns the standard public path for the Vault
-        pub fun getPublicReceiverBalancePath(): PublicPath? {
-            return self.publicPath
+        pub fun resolveView(_ view: Type): AnyStruct? {
+            switch view {
+                case Type<FungibleTokenMetadataViews.FTView>():
+                    return FungibleTokenMetadataViews.FTView(
+                        ftDisplay: self.resolveView(Type<FungibleTokenMetadataViews.FTDisplay>()) as! FungibleTokenMetadataViews.FTDisplay?,
+                        ftVaultData: self.resolveView(Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
+                    )
+                case Type<FungibleTokenMetadataViews.FTDisplay>():
+                    let media = MetadataViews.Media(
+                            file: MetadataViews.HTTPFile(
+                            url: "https://assets.website-files.com/5f6294c0c7a8cdd643b1c820/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.svg"
+                        ),
+                        mediaType: "image/svg+xml"
+                    )
+                    let medias = MetadataViews.Medias([media])
+                    return FungibleTokenMetadataViews.FTDisplay(
+                        name: "Example Fungible Token",
+                        symbol: "EFT",
+                        description: "This fungible token is used as an example to help you develop your next FT #onFlow.",
+                        externalURL: MetadataViews.ExternalURL("https://example-ft.onflow.org"),
+                        logos: medias,
+                        socials: {
+                            "twitter": MetadataViews.ExternalURL("https://twitter.com/flow_blockchain")
+                        }
+                    )
+                case Type<FungibleTokenMetadataViews.FTVaultData>():
+                    let vaultRef = self.account.borrow<&ExampleToken.Vault>(from: self.storagePath)
+                        ?? panic("Could not borrow a reference to the stored vault")
+                    return FungibleTokenMetadataViews.FTVaultData(
+                        storagePath: self.storagePath,
+                        receiverPath: self.publicPath,
+                        metadataPath: self.publicPath,
+                        providerPath: /private/exampleTokenVault,
+                        receiverLinkedType: Type<&ExampleToken.Vault{FungibleToken.Receiver}>(),
+                        metadataLinkedType: Type<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(),
+                        providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider}>(),
+                        createEmptyVaultFunction: (fun (): @ExampleToken.Vault{FungibleToken.Vault} {
+                            return <-vaultRef.createEmptyVault
+                        })
+                    )
+            }
+            return nil
+        }
+
+        /// getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
+        pub fun getSupportedVaultTypes(): {Type: Bool} {
+            let supportedTypes: {Type: Bool} = {}
+            supportedTypes[self.getType()] = true
+            return supportedTypes
         }
 
         // initialize the balance at resource creation time
         init(balance: UFix64) {
             self.balance = balance
             let identifier = "exampleTokenVault"
-            self.storagePath = StoragePath(identifier: identifier)
-            self.publicPath = PublicPath(identifier: identifier)
+            self.storagePath = StoragePath(identifier: identifier)!
+            self.publicPath = PublicPath(identifier: identifier)!
         }
 
         /// Get the balance of the vault
@@ -105,13 +153,6 @@ pub contract ExampleToken: FungibleToken {
             self.balance = self.balance - amount
             emit TokensWithdrawn(amount: amount, from: self.owner?.address, type: self.getType())
             return <-create Vault(balance: amount)
-        }
-
-        /// getAcceptedTypes optionally returns a list of vault types that this receiver accepts
-        pub fun getAcceptedTypes(): {Type: Bool} {
-            let types: {Type: Bool} = {}
-            types[Type<@ExampleToken.Vault>()] = true
-            return types
         }
 
         /// deposit
@@ -160,75 +201,6 @@ pub contract ExampleToken: FungibleToken {
                 ExampleToken.totalSupply[self.getType()] = ExampleToken.totalSupply[self.getType()]! - self.balance
             }
         }
-
-        /// The way of getting all the Metadata Views implemented by ExampleToken
-        ///
-        /// @return An array of Types defining the implemented views. This value will be used by
-        ///         developers to know which parameter to pass to the resolveView() method.
-        ///
-        pub fun getViews(): [Type]{
-            return [Type<FungibleTokenMetadataViews.FTView>(),
-                    Type<FungibleTokenMetadataViews.FTDisplay>(),
-                    Type<FungibleTokenMetadataViews.FTVaultData>()]
-        }
-
-        /// The way of getting a Metadata View out of the ExampleToken
-        ///
-        /// @param view: The Type of the desired view.
-        /// @return A structure representing the requested view.
-        ///
-        pub fun resolveView(_ view: Type): AnyStruct? {
-            switch view {
-                case Type<FungibleTokenMetadataViews.FTView>():
-                    return FungibleTokenMetadataViews.FTView(
-                        ftDisplay: self.resolveView(Type<FungibleTokenMetadataViews.FTDisplay>()) as! FungibleTokenMetadataViews.FTDisplay?,
-                        ftVaultData: self.resolveView(Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-                    )
-                case Type<FungibleTokenMetadataViews.FTDisplay>():
-                    let media = MetadataViews.Media(
-                            file: MetadataViews.HTTPFile(
-                            url: "https://assets.website-files.com/5f6294c0c7a8cdd643b1c820/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.svg"
-                        ),
-                        mediaType: "image/svg+xml"
-                    )
-                    let medias = MetadataViews.Medias([media])
-                    return FungibleTokenMetadataViews.FTDisplay(
-                        name: "Example Fungible Token",
-                        symbol: "EFT",
-                        description: "This fungible token is used as an example to help you develop your next FT #onFlow.",
-                        externalURL: MetadataViews.ExternalURL("https://example-ft.onflow.org"),
-                        logo: medias,
-                        socials: {
-                            "twitter": MetadataViews.ExternalURL("https://twitter.com/flow_blockchain")
-                        }
-                    )
-                case Type<FungibleTokenMetadataViews.FTVaultData>():
-                    return FungibleTokenMetadataViews.FTVaultData(
-                        storagePath: self.getStoragePath(),
-                        receiverPath: self.getPublicReceiverBalancePath(),
-                        metadataPath: self.getPublicReceiverBalancePath(),
-                        providerPath: /private/exampleTokenVault,
-                        receiverLinkedType: Type<&{FungibleToken.Receiver}>(),
-                        metadataLinkedType: Type<&{FungibleToken.Balance, MetadataViews.Resolver}>(),
-                        providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider, MetadataViews.Resolver}>(),
-                        createEmptyVaultFunction: (fun (): @ExampleToken.Vault{FungibleToken.Vault} {
-                            return <-self.createEmptyVault()
-                        })
-                    )
-            }
-            return nil
-        }
-    }
-
-    pub resource Administrator {
-
-        /// createNewMinter
-        ///
-        /// Function that creates and returns a new minter resource
-        ///
-        pub fun createNewMinter(allowedAmount: UFix64): @Minter {
-            return <-create Minter(allowedAmount: allowedAmount)
-        }
     }
 
     /// Minter
@@ -236,28 +208,15 @@ pub contract ExampleToken: FungibleToken {
     /// Resource object that token admin accounts can hold to mint new tokens.
     ///
     pub resource Minter {
-
-        /// The amount of tokens that the minter is allowed to mint
-        pub var allowedAmount: UFix64
-
         /// mintTokens
         ///
         /// Function that mints new tokens, adds them to the total supply,
         /// and returns them to the calling context.
         ///
         pub fun mintTokens(amount: UFix64): @ExampleToken.Vault {
-            pre {
-                amount > 0.0: "Amount minted must be greater than zero"
-                amount <= self.allowedAmount: "Amount minted must be less than the allowed amount"
-            }
             ExampleToken.totalSupply[self.getType()] = ExampleToken.totalSupply[self.getType()]! + amount
-            self.allowedAmount = self.allowedAmount - amount
             emit TokensMinted(amount: amount, type: self.getType())
             return <-create Vault(balance: amount)
-        }
-
-        init(allowedAmount: UFix64) {
-            self.allowedAmount = allowedAmount
         }
     }
 
@@ -286,9 +245,10 @@ pub contract ExampleToken: FungibleToken {
         // Create the Vault with the total supply of tokens and save it in storage
         //
         let vault <- create Vault(balance: self.totalSupply[Type<@ExampleToken.Vault>()]!)
+        let ftView = vault.resolveView(Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData
 
-        let storagePath = vault.StoragePath
-        let receiverBalancePath = vault.PublicReceiverBalancePath
+        let storagePath = ftView.storagePath
+        let receiverBalancePath = ftView.receiverPath
 
         self.account.save(<-vault, to: storagePath)
 
@@ -301,7 +261,7 @@ pub contract ExampleToken: FungibleToken {
             target: storagePath
         )
 
-        let admin <- create Administrator()
+        let admin <- create Minter()
         self.account.save(<-admin, to: self.AdminStoragePath)
     }
 }

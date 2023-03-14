@@ -18,16 +18,16 @@ import (
 func TestPrivateForwarder(t *testing.T) {
 	b, accountKeys := newTestSetup(t)
 
+	serviceSigner, _ := b.ServiceKey().Signer()
+
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _ :=
+	fungibleAddr, exampleTokenAddr, _, _ :=
 		DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	forwardingCode := contracts.PrivateReceiverForwarder(fungibleAddr.String())
 	cadenceCode := bytesToCadenceArray(forwardingCode)
 
 	name, _ := cadence.NewString("PrivateReceiverForwarder")
-
-	serviceSigner, _ := b.ServiceKey().Signer()
 
 	tx := flow.NewTransaction().
 		SetScript(templates.GenerateDeployPrivateForwardingScript()).
