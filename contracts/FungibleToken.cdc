@@ -40,6 +40,8 @@ the deposit function on another user's Vault to complete the transfer.
 
 */
 
+/// FungibleToken
+///
 /// The interface that Fungible Token contracts implement.
 ///
 pub contract interface FungibleToken {
@@ -198,6 +200,24 @@ pub contract interface FungibleToken {
                 self.balance == before(self.balance) + before(from.balance):
                     "New Vault balance must be the sum of the previous balance and the deposited Vault"
             }
+        }
+
+        /// Function that returns all the Metadata Views implemented by a Fungible Token
+        ///
+        /// @return An array of Types defining the implemented views. This value will be used by
+        ///         developers to know which parameter to pass to the resolveView() method.
+        ///
+        pub fun getViews(): [Type] {
+            return []
+        }
+
+        /// Function that resolves a metadata view for this fungible token by type.
+        ///
+        /// @param view: The Type of the desired view.
+        /// @return A structure representing the requested view.
+        ///
+        pub fun resolveView(_ view: Type): AnyStruct? {
+            return nil
         }
     }
 
