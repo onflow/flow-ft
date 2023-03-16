@@ -56,12 +56,14 @@ pub contract TokenForwarding {
         /// which can be deposited using the 'deposit' function.
         ///
         /// @return Array of FT types that can be deposited.
-        pub fun getSupportedVaultTypes(): [Type] { 
+        pub fun getSupportedVaultTypes(): {Type: Bool} {
             if !self.recipient.check<&{FungibleToken.Receiver}>() {
-                return []
+                return {}
             }
             let vaultRef = self.recipient.borrow<&{FungibleToken.Receiver}>()!
-            return [vaultRef.getType()]
+            let supportedVaults: {Type: Bool} = {}
+            supportedVaults[vaultRef.getType()] = true
+            return supportedVaults
         }
 
         init(recipient: Capability) {
