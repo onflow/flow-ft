@@ -12,5 +12,5 @@ pub fun main(target: Address, targetPath: PublicPath): [Type] {
                     .borrow() 
                     ?? panic("Unable to borrow capability with restricted sub type {Token.Receiver} from path".concat(targetPath.toString()))
     // Return the supported vault types.
-    return capabilityRef.getSupportedVaultTypes()
+    return (capabilityRef.getSupportedVaultTypes()).keys
 }
