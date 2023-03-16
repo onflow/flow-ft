@@ -113,7 +113,7 @@ pub contract interface FungibleToken {
         /// Below is referenced from the FLIP #69 https://github.com/onflow/flips/blob/main/flips/20230206-fungible-token-vault-type-discovery.md
         /// 
         /// Returns the dictionary of Vault types that the the receiver is able to accept in its `deposit` method
-        /// this then it would return `{ype<@FlowToken.Vault>(): true}` and if any custom receiver
+        /// this then it would return `{Type<@FlowToken.Vault>(): true}` and if any custom receiver
         /// uses the default implementation then it would return empty dictionary as its parent
         /// resource doesn't conform with the `FungibleToken.Vault` resource.
         ///
