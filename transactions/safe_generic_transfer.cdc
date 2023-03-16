@@ -30,7 +30,7 @@ transaction(amount: UFix64, to: Address, senderPath: StoragePath, receiverPath: 
         let receiverRef = getAccount(to).getCapability<&{FungibleToken.Receiver}>(receiverPath).borrow()!
         let supportedVaultTypes = receiverRef.getSupportedVaultTypes()
         // Only transfer tokens when the receiver is willing to receive the targeted FT.
-        if supportedVaultTypes.contains(self.tempVault.getType()) {
+        if supportedVaultTypes.containsKey(self.tempVault.getType()) {
             // Transfer tokens from the signer's stored vault to the receiver capability
             receiverRef.deposit(from: <-self.tempVault)
         } else {

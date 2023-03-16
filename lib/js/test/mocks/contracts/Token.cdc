@@ -116,22 +116,25 @@ pub contract interface Token {
 
         /// Below is referenced from the FLIP #69 https://github.com/onflow/flips/blob/main/flips/20230206-fungible-token-vault-type-discovery.md
         /// 
-        /// Returns the type of implementing resource i.e If `FlowToken.Vault` implements
-        /// this then it would return `[Type<@FlowToken.Vault>()]` and if any custom receiver
-        /// uses the default implementation then it would return empty array as its parent
-        /// resource doesn't conform with the `Token.Vault` resource.
+        /// Returns the dictionary of Vault types that the the receiver is able to accept in its `deposit` method
+        /// this then it would return `{ype<@FlowToken.Vault>(): true}` and if any custom receiver
+        /// uses the default implementation then it would return empty dictionary as its parent
+        /// resource doesn't conform with the `FungibleToken.Vault` resource.
         ///
-        /// @return list of supported vault types by the implemented resource.
+        /// Custom receiver implementations are expected to upgrade their contracts to add an implementation
+        /// that supports this method because it is very valuable for various applications to have.
+        ///
+        /// @return dictionary of supported deposit vault types by the implementing resource.
         /// 
-        pub fun getSupportedVaultTypes() :[Type] {
+        pub fun getSupportedVaultTypes(): {Type: Bool} {
             // Below check is implemented to make sure that run-time type would
-            // only get returned when the parent resource conforms with `Token.Vault`. 
+            // only get returned when the parent resource conforms with `FungibleToken.Vault`. 
             if self.getType().isSubtype(of: Type<@Token.Vault>()) {
-                return [self.getType()]
+                return {self.getType(): true}
             } else {
-                // Return empty array as the default value for the resource who don't
-                // implements `Token.Vault`, such as `FungibleTokenSwitchboard`, `TokenForwarder` etc.
-                return []
+                // Return an empty dictionary as the default value for resource who don't
+                // implement `FungibleToken.Vault`, such as `FungibleTokenSwitchboard`, `TokenForwarder` etc.
+                return {}
             }
         }
     }
