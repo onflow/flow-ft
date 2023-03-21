@@ -1,21 +1,41 @@
 {
-	"emulators": {
-		"default": {
-			"port": 3569,
-			"serviceAccount": "emulator-account"
-		}
+	"contracts": {
+	  "Token": "./mocks/contracts/Token.cdc",
+	  "TestToken": "./mocks/contracts/TestToken.cdc",
+	  "TokenSwitchboard":"./mocks/contracts/TokenSwitchboard.cdc",
+	  "FungibleToken": "./contracts/FungibleToken.cdc",
+	  "ExampleToken": "./contracts/ExampleToken.cdc",
+	  "FungibleTokenSwitchboard": "./contracts/FungibleTokenSwitchboard.cdc",
+	  "FungibleTokenMetadataViews": "./contracts/FungibleTokenMetadataViews.cdc",
+	  "PrivateReceiverForwarder": "./contracts/utility/PrivateReceiverForwarder.cdc",
+	  "TokenForwarding": "./contracts/utility/TokenForwarding.cdc",
+	  "MetadataViews": "./contracts/utility/MetadataViews.cdc",
+	  "NonFungibleToken": "./contracts/utility/NonFungibleToken.cdc"
 	},
-	"contracts": {},
 	"networks": {
-		"emulator": "127.0.0.1:3569",
-		"mainnet": "access.mainnet.nodes.onflow.org:9000",
-		"testnet": "access.devnet.nodes.onflow.org:9000"
+	  "emulator": "127.0.0.1:3569",
+	  "testnet": "access.devnet.nodes.onflow.org:9000",
+	  "mainnet": "access.mainnet.nodes.onflow.org:9000"
 	},
-	"accounts": {
-		"emulator-account": {
-			"address": "f8d6e0586b0a20c7",
-			"key": "cf0c8a744e68368b1ddca6892ab593a6f7f2dc0ccc006567b5fce5d0d0717630"
-		}
-	},
-	"deployments": {}
-}
+	  "accounts": {
+		  "emulator-account": {
+			  "address": "f8d6e0586b0a20c7",
+			  "key": "83c4da8100a5bb0086fd0835e0b48dbdf507ca4aa15dab56edccee06c82eb110"
+		  }
+	  },
+	  "deployments": {
+		  "emulator": {
+			  "emulator-account": [
+				  "Token",
+				  "TokenSwitchboard",
+				  "FungibleToken",
+				  "NonFungibleToken",
+				  "MetadataViews",
+				  "TestToken",
+				  "ExampleToken",
+				  "FungibleTokenMetadataViews",
+				  "FungibleTokenSwitchboard"
+			  ]
+		  }
+	  }
+  }

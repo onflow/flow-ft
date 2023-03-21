@@ -24,6 +24,7 @@ const (
 	filenameTokenForwarding  = "utility/TokenForwarding.cdc"
 	filenamePrivateForwarder = "utility/PrivateReceiverForwarder.cdc"
 	filenameFTMetadataViews  = "FungibleTokenMetadataViews.cdc"
+	filenameFTSwitchboard    = "FungibleTokenSwitchboard.cdc"
 )
 
 // FungibleToken returns the FungibleToken contract interface.
@@ -39,6 +40,15 @@ func FungibleTokenMetadataViews(fungibleTokenAddr, metadataViewsAddr string) []b
 
 	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
 	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)
+
+	return []byte(code)
+}
+
+// FungibleTokenSwitchboard returns the FungibleTokenSwitchboard contract.
+func FungibleTokenSwitchboard(fungibleTokenAddr string) []byte {
+	code := assets.MustAssetString(filenameFTSwitchboard)
+
+	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
 
 	return []byte(code)
 }

@@ -2,7 +2,7 @@
 
 # Fungible Token Forwarding Contract
 
-This contract shows how an account could set up a custom FungibleToken Receiver
+This contract shows how an account could set up a custom Token Receiver
 to allow them to forward tokens to a different account whenever they receive tokens.
 
 They can publish this Forwarder resource as a Receiver capability just like a Vault,
@@ -14,14 +14,14 @@ their tokens to.
 
 */
 
-import FungibleToken from "./../FungibleToken.cdc"
+import Token from "./Token.cdc"
 
 pub contract TokenForwarding {
 
     // Event that is emitted when tokens are deposited to the target receiver
     pub event ForwardedDeposit(amount: UFix64, from: Address?)
 
-    pub resource Forwarder: FungibleToken.Receiver {
+    pub resource Forwarder: Token.Receiver {
 
         // This is where the deposited tokens will be sent.
         // The type indicates that it is a reference to a receiver
@@ -33,8 +33,8 @@ pub contract TokenForwarding {
         // Function that takes a Vault object as an argument and forwards
         // it to the recipient's Vault using the stored reference
         //
-        pub fun deposit(from: @FungibleToken.Vault) {
-            let receiverRef = self.recipient.borrow<&{FungibleToken.Receiver}>()!
+        pub fun deposit(from: @Token.Vault) {
+            let receiverRef = self.recipient.borrow<&{Token.Receiver}>()!
 
             let balance = from.balance
 
@@ -47,7 +47,7 @@ pub contract TokenForwarding {
         //
         pub fun changeRecipient(_ newRecipient: Capability) {
             pre {
-                newRecipient.borrow<&{FungibleToken.Receiver}>() != nil: "Could not borrow Receiver reference from the Capability"
+                newRecipient.borrow<&{Token.Receiver}>() != nil: "Could not borrow Receiver reference from the Capability"
             }
             self.recipient = newRecipient
         }
@@ -55,20 +55,18 @@ pub contract TokenForwarding {
         /// A getter function that returns the token types supported by this resource,
         /// which can be deposited using the 'deposit' function.
         ///
-        /// @return Array of FT types that can be deposited.
-        pub fun getSupportedVaultTypes(): {Type: Bool} {
-            if !self.recipient.check<&{FungibleToken.Receiver}>() {
+        /// @return Dictionary of FT types that can be deposited.
+        pub fun getSupportedVaultTypes(): {Type: Bool} { 
+            if !self.recipient.check<&{Token.Receiver}>() {
                 return {}
             }
-            let vaultRef = self.recipient.borrow<&{FungibleToken.Receiver}>()!
-            let supportedVaults: {Type: Bool} = {}
-            supportedVaults[vaultRef.getType()] = true
-            return supportedVaults
+            let vaultRef = self.recipient.borrow<&{Token.Receiver}>()!
+            return {vaultRef.getType(): true}
         }
 
         init(recipient: Capability) {
             pre {
-                recipient.borrow<&{FungibleToken.Receiver}>() != nil: "Could not borrow Receiver reference from the Capability"
+                recipient.borrow<&{Token.Receiver}>() != nil: "Could not borrow Receiver reference from the Capability"
             }
             self.recipient = recipient
         }
