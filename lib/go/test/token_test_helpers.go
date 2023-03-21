@@ -118,5 +118,21 @@ func DeployTokenContracts(
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
+	// Deploy the FungibleTokenSwitchboard contract
+	switchboardCode := contracts.FungibleTokenSwitchboard(fungibleAddr.String())
+	_, err = b.CreateAccount(
+		key,
+		[]sdktemplates.Contract{
+			{
+				Name:   "FungibleTokenSwitchboard",
+				Source: string(switchboardCode),
+			},
+		},
+	)
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
 	return fungibleAddr, tokenAddr, forwardingAddr, metadataViewsAddr
 }
