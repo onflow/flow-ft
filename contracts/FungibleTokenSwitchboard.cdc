@@ -40,6 +40,8 @@ pub contract FungibleTokenSwitchboard {
         pub fun getSupportedVaultTypes(): {Type: Bool}
         pub fun deposit(from: @FungibleToken.Vault)
         pub fun safeDeposit(from: @FungibleToken.Vault): @FungibleToken.Vault?
+        pub fun checkReceiverByType(type: Type): Bool
+        pub fun safeBorrowByType(type: Type): &{FungibleToken.Receiver}?
     }
 
     /// The resource that stores the multiple fungible token receiver 
@@ -249,6 +251,35 @@ pub contract FungibleTokenSwitchboard {
             }
             destroy from 
             return nil
+        }
+
+        /// Checks that the capability tied to a type is valid
+        ///
+        /// @param vaultType: The type of the ft vault whose capability needs to be checked
+        ///
+        /// @return a boolean marking the capability for a type as valid or not
+        pub fun checkReceiverByType(type: Type): Bool {
+            if self.receiverCapabilities[type] == nil {
+                return false
+            }
+
+            return self.receiverCapabilities[type]!.check()
+        }
+
+        /// Gets the receiver assigned to a provided vault type.
+        /// This is necessary because without it, it is not possible to look under the hood and see if a capability
+        /// is of an expected type or not. This helps guard against infinitely chained TokenForwarding or other invalid 
+        /// malicious kinds of updates that could prevent listings from being made that are valid on storefronts.
+        ///
+        /// @param vaultType: The type of the ft vault whose capability needs to be checked
+        ///
+        /// @return an optional receiver capability for consumers of the switchboard to check/validate on their own
+        pub fun safeBorrowByType(type: Type): &{FungibleToken.Receiver}? {
+            if !self.checkReceiverByType(type: type) {
+                return nil
+            }
+
+            return self.receiverCapabilities[type]!.borrow()
         }
 
         /// A getter function to know which tokens a certain switchboard 
