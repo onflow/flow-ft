@@ -140,3 +140,67 @@ func DeployTokenContracts(
 
 	return fungibleAddr, tokenAddr, forwardingAddr, metadataViewsAddr, fungibleMetadataViewsAddr
 }
+
+// Deploys the FungibleToken-V2, ExampleToken, and TokenForwarding contracts
+// to different accounts and returns their addresses
+func DeployV2TokenContracts(
+	b *emulator.Blockchain,
+	t *testing.T,
+	key []*flow.AccountKey,
+) (
+	fungibleAddr flow.Address,
+	//tokenAddr flow.Address,
+	//forwardingAddr flow.Address,
+) {
+	var err error
+
+	// Deploy the FungibleToken contract
+	fungibleTokenCode := contracts.FungibleTokenV2()
+	fungibleAddr, err = b.CreateAccount(
+		nil,
+		[]sdktemplates.Contract{
+			{
+				Name:   "FungibleToken",
+				Source: string(fungibleTokenCode),
+			},
+		},
+	)
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
+	// Deploy the ExampleToken contract
+	exampleTokenCode := contracts.ExampleTokenV2(fungibleAddr.String())
+	_, err = b.CreateAccount(
+		key,
+		[]sdktemplates.Contract{
+			{
+				Name:   "ExampleToken",
+				Source: string(exampleTokenCode),
+			},
+		},
+	)
+	assert.NoError(t, err)
+
+	_, err = b.CommitBlock()
+	assert.NoError(t, err)
+
+	// // Deploy the TokenForwarding contract
+	// forwardingCode := contracts.TokenForwarding(fungibleAddr.String())
+	// forwardingAddr, err = b.CreateAccount(
+	// 	key,
+	// 	[]sdktemplates.Contract{
+	// 		{
+	// 			Name:   "TokenForwarding",
+	// 			Source: string(forwardingCode),
+	// 		},
+	// 	},
+	// )
+	// assert.NoError(t, err)
+
+	// _, err = b.CommitBlock()
+	// assert.NoError(t, err)
+
+	return fungibleAddr //, nil, nil
+}
