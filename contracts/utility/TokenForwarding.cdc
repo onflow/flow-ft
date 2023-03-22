@@ -21,7 +21,22 @@ pub contract TokenForwarding {
     // Event that is emitted when tokens are deposited to the target receiver
     pub event ForwardedDeposit(amount: UFix64, from: Address?)
 
-    pub resource Forwarder: FungibleToken.Receiver {
+    pub resource interface ForwarderPublic {
+
+        /// Helper function to check whether set `recipient` capability
+        /// is not latent or the capability tied to a type is valid.
+        pub fun check(): Bool
+
+        /// Gets the receiver assigned to a recipient capability.
+        /// This is necessary because without it, it is not possible to look under the hood and see if a capability
+        /// is of an expected type or not. This helps guard against infinitely chained TokenForwarding or other invalid 
+        /// malicious kinds of updates that could prevent listings from being made that are valid on storefronts.
+        ///
+        /// @return an optional receiver capability for consumers of the TokenForwarding to check/validate on their own
+        pub fun safeBorrow(): &{FungibleToken.Receiver}?
+    }
+
+    pub resource Forwarder: FungibleToken.Receiver, ForwarderPublic {
 
         // This is where the deposited tokens will be sent.
         // The type indicates that it is a reference to a receiver
@@ -41,6 +56,22 @@ pub contract TokenForwarding {
             receiverRef.deposit(from: <-from)
 
             emit ForwardedDeposit(amount: balance, from: self.owner?.address)
+        }
+
+        /// Helper function to check whether set `recipient` capability
+        /// is not latent or the capability tied to a type is valid.
+        pub fun check(): Bool {
+            return self.recipient.check<&{FungibleToken.Receiver}>()
+        }
+
+        /// Gets the receiver assigned to a recipient capability.
+        /// This is necessary because without it, it is not possible to look under the hood and see if a capability
+        /// is of an expected type or not. This helps guard against infinitely chained TokenForwarding or other invalid 
+        /// malicious kinds of updates that could prevent listings from being made that are valid on storefronts.
+        ///
+        /// @return an optional receiver capability for consumers of the TokenForwarding to check/validate on their own
+        pub fun safeBorrow(): &{FungibleToken.Receiver}? {
+            return self.recipient.borrow<&{FungibleToken.Receiver}>()
         }
 
         // changeRecipient changes the recipient of the forwarder to the provided recipient

@@ -49,5 +49,11 @@ transaction(receiver: Address) {
             ExampleToken.ReceiverPublicPath,
             target: /storage/exampleTokenForwarder
         )
+
+        // Link the new ForwarderPublic capability
+        acct.link<&{TokenForwarding.ForwarderPublic}>(
+            /public/exampleTokenForwarder,
+            target: /storage/exampleTokenForwarder
+        )
     }
 }
