@@ -1,5 +1,5 @@
-import FungibleToken from "../contracts/FungibleToken.cdc"
-import ExampleToken from "../contracts/ExampleToken.cdc"
+import "FungibleToken"
+import "ExampleToken"
 
 /// Transfers tokens to a list of addresses specified in the `addressAmountMap` parameter
 

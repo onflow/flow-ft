@@ -1,6 +1,6 @@
-import FungibleToken from "../../../../../contracts/FungibleToken.cdc"
-import ExampleToken from "../../../../../contracts/ExampleToken.cdc"
-import FungibleTokenSwitchboard from "../../../../../contracts/FungibleTokenSwitchboard.cdc"
+import "FungibleToken"
+import "ExampleToken"
+import "FungibleTokenSwitchboard"
 
 transaction() {
 

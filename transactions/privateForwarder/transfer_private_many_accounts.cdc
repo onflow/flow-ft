@@ -1,6 +1,6 @@
-import FungibleToken from "../../contracts/FungibleToken.cdc"
-import ExampleToken from "../../contracts/ExampleToken.cdc"
-import PrivateReceiverForwarder from "../../contracts/PrivateReceiverForwarder.cdc"
+import "FungibleToken"
+import "ExampleToken"
+import "PrivateReceiverForwarder"
 
 /// This transaction transfers to many addresses through their private receivers
 

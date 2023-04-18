@@ -1,8 +1,8 @@
-import FungibleToken from "./../../contracts/FungibleToken.cdc"
-import FungibleTokenSwitchboard from "./../../contracts/FungibleTokenSwitchboard.cdc"
-import FiatToken from "./../../contracts/utility/USDC/FiatToken.cdc"
-import LostAndFound from "./../../contracts/utility/L&F/LostAndFound.cdc"
-import FlowToken from "./../../contracts/utility/FlowToken.cdc"
+import "FungibleToken"
+import "FungibleTokenSwitchboard"
+import "FiatToken"
+import "LostAndFound"
+import "FlowToken"
 
 // This transaction templates how to send USDC funds `to` any `Address` without knowing 
 // if it holds a vault of that specific token type. The transaction will attempt to 

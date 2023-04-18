@@ -2,9 +2,9 @@
 // anyone to add a Vault resource to their account so that 
 // they can use the exampleToken
 
-import FungibleToken from "./../contracts/FungibleToken.cdc"
-import ExampleToken from "./../contracts/ExampleToken.cdc"
-import MetadataViews from "./../contracts/utility/MetadataViews.cdc"
+import "FungibleToken"
+import "ExampleToken"
+import "MetadataViews"
 
 transaction () {
 

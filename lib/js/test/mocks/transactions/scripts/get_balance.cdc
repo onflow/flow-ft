@@ -1,7 +1,7 @@
 // This script reads the balance field of an account's ExampleToken Balance
 
-import Token from "../../contracts/Token.cdc"
-import TestToken from "../../contracts/TestToken.cdc"
+import "Token"
+import "TestToken"
 
 pub fun main(account: Address): UFix64 {
     let acct = getAccount(account)

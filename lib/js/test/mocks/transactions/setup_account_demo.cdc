@@ -2,9 +2,9 @@
 // anyone to add a Vault resource to their account so that 
 // they can use the DemoToken
 
-import Token from "../contracts/Token.cdc"
-import DemoToken from "../contracts/DemoToken.cdc"
-import MetadataViews from "../../../../../contracts/utility/MetadataViews.cdc"
+import "Token"
+import "DemoToken"
+import "MetadataViews"
 
 transaction () {
 

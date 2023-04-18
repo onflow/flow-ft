@@ -14,7 +14,7 @@ their tokens to.
 
 */
 
-import Token from "./Token.cdc"
+import "Token"
 
 pub contract TokenForwarding {
 

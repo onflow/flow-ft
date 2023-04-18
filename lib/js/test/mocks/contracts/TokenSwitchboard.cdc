@@ -2,7 +2,7 @@
 /// to test the specific functionality which is not possible with js test framework using the name of FungibleToken
 /// as a name of the contract. PLEASE DO NOT USE THE BELOW CONTRACT FOR PRODUCTION USE.
 
-import Token from "./Token.cdc"
+import "Token"
 
 /// The contract that allows an account to receive payments in multiple fungible
 /// tokens using a single `{Token.Receiver}` capability.

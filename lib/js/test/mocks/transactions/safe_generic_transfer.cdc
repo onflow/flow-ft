@@ -1,4 +1,4 @@
-import Token from "../contracts/Token.cdc"
+import "Token"
 
 /// Can pass in any storage path and receiver path instead of just the default.
 /// This lets you choose the token you want to send as well the capability you want to send it to.

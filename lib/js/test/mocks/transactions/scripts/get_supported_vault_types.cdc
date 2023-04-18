@@ -1,4 +1,4 @@
-import Token from "../../contracts/Token.cdc"
+import "Token"
 
 /// This scripts returns the supported FungibleToken's type by the provided `target` address.
 /// `target` address should hold the capability which conforms with FungibleToken.Receiver restricted type

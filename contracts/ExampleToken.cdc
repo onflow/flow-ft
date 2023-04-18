@@ -1,6 +1,6 @@
-import FungibleToken from "./FungibleToken.cdc"
-import MetadataViews from "./utility/MetadataViews.cdc"
-import FungibleTokenMetadataViews from "./FungibleTokenMetadataViews.cdc"
+import "FungibleToken"
+import "MetadataViews"
+import "FungibleTokenMetadataViews"
 
 pub contract ExampleToken: FungibleToken {
 

@@ -17,7 +17,7 @@
             }
         },
         "FungibleTokenMetadataViews": {
-            "source": "./contracts/utility/FungibleTokenMetadataViews.cdc",
+            "source": "./contracts/FungibleTokenMetadataViews.cdc",
             "aliases": {
                 "emulator": "0xf8d6e0586b0a20c7",
                 "mainnet": "0xf233dcee88fe0abe",

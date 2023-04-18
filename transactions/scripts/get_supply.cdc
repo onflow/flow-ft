@@ -1,7 +1,7 @@
 // This script reads the total supply field
 // of the ExampleToken smart contract
 
-import ExampleToken from "../../contracts/ExampleToken.cdc"
+import "ExampleToken"
 
 pub fun main(): UFix64 {
 

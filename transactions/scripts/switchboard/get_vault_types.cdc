@@ -1,5 +1,5 @@
-import FungibleToken from "../../../contracts/FungibleToken.cdc"
-import FungibleTokenSwitchboard from "../../../contracts/FungibleTokenSwitchboard.cdc"
+import "FungibleToken"
+import "FungibleTokenSwitchboard"
 
 // This script reads the stored vault capabilities from a switchboard on the
 // passed account

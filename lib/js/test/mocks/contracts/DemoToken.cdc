@@ -1,5 +1,5 @@
-import Token from "./Token.cdc"
-import MetadataViews from "../../../../contracts/utility/MetadataViews.cdc"
+import "Token"
+import "MetadataViews"
 
 pub contract DemoToken: Token {
 

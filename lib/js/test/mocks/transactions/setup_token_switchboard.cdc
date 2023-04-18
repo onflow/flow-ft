@@ -1,5 +1,5 @@
-import TokenSwitchboard from "./../../contracts/TokenSwitchboard.cdc"
-import Token from "./../../contracts/Token.cdc"
+import "TokenSwitchboard"
+import "Token"
 
 // This transaction is a template for a transaction that could be used by 
 // anyone to to add a Switchboard resource to their account so that they can
