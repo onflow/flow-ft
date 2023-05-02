@@ -1,5 +1,6 @@
 import FungibleToken from "FungibleToken"
 import MetadataViews from "MetadataViews"
+import ViewResolver from "ViewResolver"
 
 /// This contract implements the metadata standard proposed
 /// in FLIP-1087.
@@ -33,7 +34,7 @@ pub contract FungibleTokenMetadataViews {
     /// @param viewResolver: A reference to the resolver resource
     /// @return A FTView struct
     ///
-    pub fun getFTView(viewResolver: &{MetadataViews.Resolver}): FTView {
+    pub fun getFTView(viewResolver: &{ViewResolver.Resolver}): FTView {
         let maybeFTView = viewResolver.resolveView(Type<FTView>())
         if let ftView = maybeFTView {
             return ftView as! FTView
@@ -97,7 +98,7 @@ pub contract FungibleTokenMetadataViews {
     /// @param viewResolver: A reference to the resolver resource
     /// @return An optional FTDisplay struct
     ///
-    pub fun getFTDisplay(_ viewResolver: &{MetadataViews.Resolver}): FTDisplay? {
+    pub fun getFTDisplay(_ viewResolver: &{ViewResolver.Resolver}): FTDisplay? {
         if let maybeDisplayView = viewResolver.resolveView(Type<FTDisplay>()) {
             if let displayView = maybeDisplayView as? FTDisplay {
                 return displayView
@@ -129,7 +130,7 @@ pub contract FungibleTokenMetadataViews {
         pub let receiverLinkedType: Type
 
         /// Type that should be linked at the `receiverPath`. This is a restricted type requiring 
-        /// the `FungibleToken.Balance` and `MetadataViews.Resolver` interfaces.
+        /// the `FungibleToken.Balance` and `ViewResolver.Resolver` interfaces.
         pub let metadataLinkedType: Type
 
         /// Type that should be linked at the aforementioned private path. This 
@@ -138,7 +139,7 @@ pub contract FungibleTokenMetadataViews {
 
         /// Function that allows creation of an empty FT vault that is intended
         /// to store the funds.
-        pub let createEmptyVault: ((): @FungibleToken.Vault)
+        pub let createEmptyVault: ((): @{FungibleToken.Vault})
 
         init(
             storagePath: StoragePath,
@@ -148,11 +149,11 @@ pub contract FungibleTokenMetadataViews {
             receiverLinkedType: Type,
             metadataLinkedType: Type,
             providerLinkedType: Type,
-            createEmptyVaultFunction: ((): @FungibleToken.Vault)
+            createEmptyVaultFunction: ((): @{FungibleToken.Vault})
         ) {
             pre {
                 receiverLinkedType.isSubtype(of: Type<&{FungibleToken.Receiver}>()): "Receiver public type must include FungibleToken.Receiver."
-                metadataLinkedType.isSubtype(of: Type<&{FungibleToken.Balance, MetadataViews.Resolver}>()): "Metadata public type must include FungibleToken.Balance and MetadataViews.Resolver interfaces."
+                metadataLinkedType.isSubtype(of: Type<&{FungibleToken.Balance, ViewResolver.Resolver}>()): "Metadata public type must include FungibleToken.Balance and ViewResolver.Resolver interfaces."
                 providerLinkedType.isSubtype(of: Type<&{FungibleToken.Provider}>()): "Provider type must include FungibleToken.Provider interface."
             }
             self.storagePath = storagePath
@@ -171,7 +172,7 @@ pub contract FungibleTokenMetadataViews {
     /// @param viewResolver: A reference to the resolver resource
     /// @return A optional FTVaultData struct
     ///
-    pub fun getFTVaultData(_ viewResolver: &{MetadataViews.Resolver}): FTVaultData? {
+    pub fun getFTVaultData(_ viewResolver: &{ViewResolver.Resolver}): FTVaultData? {
         if let view = viewResolver.resolveView(Type<FTVaultData>()) {
             if let v = view as? FTVaultData {
                 return v

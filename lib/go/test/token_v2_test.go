@@ -19,11 +19,5 @@ func TestV2TokenDeployment(t *testing.T) {
 	b, accountKeys := newTestSetup(t)
 
 	exampleTokenAccountKey, _ := accountKeys.NewWithSigner()
-	_ = DeployV2TokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
-
-	// t.Run("Should have initialized Supply field correctly", func(t *testing.T) {
-	// 	script := templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
-	// 	supply := executeScriptAndCheck(t, b, script, nil)
-	// 	assert.Equal(t, CadenceUFix64("1000.0"), supply)
-	// })
+	_, _ = DeployV2TokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
 }

@@ -149,13 +149,16 @@ func DeployV2TokenContracts(
 	key []*flow.AccountKey,
 ) (
 	fungibleAddr flow.Address,
-	//tokenAddr flow.Address,
+	tokenAddr flow.Address,
 	//forwardingAddr flow.Address,
 ) {
 	var err error
 
+	// Deploy the ViewResolver contract
+	resolverAddress := deploy(t, b, "ViewResolver", nftcontracts.Resolver())
+
 	// Deploy the FungibleToken contract
-	fungibleTokenCode := contracts.FungibleTokenV2()
+	fungibleTokenCode := contracts.FungibleTokenV2(resolverAddress.String())
 	fungibleAddr, err = b.CreateAccount(
 		nil,
 		[]sdktemplates.Contract{
@@ -170,9 +173,21 @@ func DeployV2TokenContracts(
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
+	// Deploy the NonFungibleToken contract (required for Metadata Views)
+	NFTAddress := deploy(t, b, "NonFungibleToken", nftcontracts.NonFungibleToken(resolverAddress))
+
+	// Deploy the MetadataViews contract
+	metadataViewsAddr := deploy(t, b, "MetadataViews", nftcontracts.MetadataViews(fungibleAddr, NFTAddress, resolverAddress))
+
+	// Deploy the FTMetadataViews contract
+	ftMetadataViewsAddr := deploy(t, b, "FungibleTokenMetadataViews", contracts.FungibleTokenMetadataViews(fungibleAddr.String(), metadataViewsAddr.String(), resolverAddress.String()))
+
+	// Deploy the MultipleVaults contract interface
+	multipleVaultsAddress := deploy(t, b, "MultipleVaults", contracts.MultipleVaults(fungibleAddr.String()))
+
 	// Deploy the ExampleToken contract
-	exampleTokenCode := contracts.ExampleTokenV2(fungibleAddr.String())
-	_, err = b.CreateAccount(
+	exampleTokenCode := contracts.ExampleTokenV2(fungibleAddr.String(), metadataViewsAddr.String(), ftMetadataViewsAddr.String(), resolverAddress.String(), multipleVaultsAddress.String())
+	exampleTokenAddress, err := b.CreateAccount(
 		key,
 		[]sdktemplates.Contract{
 			{
@@ -202,5 +217,5 @@ func DeployV2TokenContracts(
 	// _, err = b.CommitBlock()
 	// assert.NoError(t, err)
 
-	return fungibleAddr //, nil, nil
+	return fungibleAddr, exampleTokenAddress //, nil
 }

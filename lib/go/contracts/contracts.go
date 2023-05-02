@@ -16,6 +16,10 @@ var (
 	placeholderExampleToken    = regexp.MustCompile(`"ExampleToken"`)
 	placeholderMetadataViews   = regexp.MustCompile(`"MetadataViews"`)
 	placeholderFTMetadataViews = regexp.MustCompile(`"FungibleTokenMetadataViews"`)
+	placeholderFungibleTokenV2 = regexp.MustCompile(`"FungibleToken-v2"`)
+	placeholderExampleTokenV2  = regexp.MustCompile(`"ExampleToken-v2"`)
+	placeholderViewResolver    = regexp.MustCompile(`"ViewResolver"`)
+	placeholderMultipleVaults  = regexp.MustCompile(`"MultipleVaults"`)
 )
 
 const (
@@ -25,7 +29,10 @@ const (
 	filenameExampleTokenV2   = "ExampleToken-v2.cdc"
 	filenameTokenForwarding  = "utility/TokenForwarding.cdc"
 	filenamePrivateForwarder = "utility/PrivateReceiverForwarder.cdc"
+	filenameFTSwitchboard    = "FungibleTokenSwitchboard.cdc"
 	filenameFTMetadataViews  = "FungibleTokenMetadataViews.cdc"
+	filenameViewResolver     = "utility/ViewResolver.cdc"
+	filenameMultipleVaults   = "MultipleVaults.cdc"
 )
 
 // FungibleToken returns the FungibleToken contract interface.
@@ -36,16 +43,21 @@ func FungibleToken() []byte {
 }
 
 // FungibleTokenV2 returns the FungibleToken-v2 contract.
-func FungibleTokenV2() []byte {
-	return assets.MustAsset(filenameFungibleTokenV2)
+func FungibleTokenV2(resolverAddr string) []byte {
+	code := assets.MustAssetString(filenameFungibleTokenV2)
+
+	code = placeholderViewResolver.ReplaceAllString(code, "0x"+resolverAddr)
+
+	return []byte(code)
 }
 
 // FungibleToken returns the FungibleToken contract interface.
-func FungibleTokenMetadataViews(fungibleTokenAddr, metadataViewsAddr string) []byte {
+func FungibleTokenMetadataViews(fungibleTokenAddr, metadataViewsAddr, viewResolverAddr string) []byte {
 	code := assets.MustAssetString(filenameFTMetadataViews)
 
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = placeholderFungibleTokenV2.ReplaceAllString(code, "0x"+fungibleTokenAddr)
 	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)
+	code = placeholderViewResolver.ReplaceAllString(code, "0x"+viewResolverAddr)
 
 	return []byte(code)
 }
@@ -55,6 +67,15 @@ func FungibleTokenSwitchboard(fungibleTokenAddr string) []byte {
 	code := assets.MustAssetString(filenameFTSwitchboard)
 
 	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+
+	return []byte(code)
+}
+
+// MultipleVaults returns the MultipleVaults contract.
+func MultipleVaults(fungibleTokenAddr string) []byte {
+	code := assets.MustAssetString(filenameMultipleVaults)
+
+	code = placeholderFungibleTokenV2.ReplaceAllString(code, "0x"+fungibleTokenAddr)
 
 	return []byte(code)
 }
@@ -75,10 +96,14 @@ func ExampleToken(fungibleTokenAddr, metadataViewsAddr, ftMetadataViewsAddr stri
 // ExampleTokenV2 returns the second version of the ExampleToken contract.
 //
 // The returned contract will import the FungibleToken interface from the specified address.
-func ExampleTokenV2(fungibleTokenAddr string) []byte {
+func ExampleTokenV2(fungibleTokenAddr, metadataViewsAddr, ftMetadataViewsAddr, viewResolverAddr, multipleVaultsAddr string) []byte {
 	code := assets.MustAssetString(filenameExampleTokenV2)
 
 	code = placeholderFungibleTokenV2.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)
+	code = placeholderFTMetadataViews.ReplaceAllString(code, "0x"+ftMetadataViewsAddr)
+	code = placeholderViewResolver.ReplaceAllString(code, "0x"+viewResolverAddr)
+	code = placeholderMultipleVaults.ReplaceAllString(code, "0x"+multipleVaultsAddr)
 
 	return []byte(code)
 }
@@ -155,14 +180,6 @@ func CustomTokenForwarding(fungibleTokenAddr, tokenName, storageName string) []b
 }
 
 func PrivateReceiverForwarder(fungibleTokenAddr string) []byte {
-	code := assets.MustAssetString(filenamePrivateForwarder)
-
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
-
-	return []byte(code)
-}
-
-func MetadataViews(fungibleTokenAddr string) []byte {
 	code := assets.MustAssetString(filenamePrivateForwarder)
 
 	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
