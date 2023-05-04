@@ -1,35 +1,3 @@
-# Resource Interface `SwitchboardPublic`
+# This document has been moved to a new location:
 
-```cadence
-resource interface SwitchboardPublic {
-}
-```
-
-The interface that enforces the method to allow anyone to check on the
-available capabilities of a switchboard resource and also exposes the
-deposit methods to deposit funds on it.
-## Functions
-
-### fun `getVaultTypes()`
-
-```cadence
-func getVaultTypes(): [Type]
-```
-
----
-
-### fun `deposit()`
-
-```cadence
-func deposit(from FungibleToken.Vault)
-```
-
----
-
-### fun `safeDeposit()`
-
-```cadence
-func safeDeposit(from FungibleToken.Vault): FungibleToken.Vault?
-```
-
----
+https://github.com/onflow/docs/tree/main/docs/concepts/token-standards/flow-ft/FungibleTokenSwitchboard/FungibleTokenSwitchboard.md

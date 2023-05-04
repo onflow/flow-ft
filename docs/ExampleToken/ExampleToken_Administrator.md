@@ -1,33 +1,3 @@
-# Resource `Administrator`
+# This document has been moved to a new location:
 
-```cadence
-resource Administrator {
-}
-```
-
-## Functions
-
-### fun `createNewMinter()`
-
-```cadence
-func createNewMinter(allowedAmount UFix64): Minter
-```
-Function that creates and returns a new minter resource
-
-Parameters:
-  - allowedAmount : _The maximum quantity of tokens that the minter could create_
-
-Returns: The Minter resource that would allow to mint tokens
-
----
-
-### fun `createNewBurner()`
-
-```cadence
-func createNewBurner(): Burner
-```
-Function that creates and returns a new burner resource
-
-Returns: The Burner resource
-
----
+https://github.com/onflow/docs/tree/main/docs/concepts/token-standards/flow-ft/ExampleToken/ExampleToken_Administrator.md
