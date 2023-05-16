@@ -133,7 +133,7 @@ This spec covers much of the same ground that a spec like ERC-20 covers, but wit
 
 ## FT Metadata
 
-FT Metadata is represented in a flexible and modular way using both the [standard proposed in FLIP-0636](https://github.com/onflow/flow/blob/master/flips/20210916-nft-metadata.md) and the [standard proposed in FLIP-1087](https://github.com/onflow/flips/blob/main/flips/20220811-fungible-tokens-metadata.md).
+FT Metadata is represented in a flexible and modular way using both the [standard proposed in FLIP-0636](https://github.com/onflow/flips/blob/main/application/20210916-nft-metadata.md) and the [standard proposed in FLIP-1087](https://github.com/onflow/flips/blob/main/application/20220811-fungible-tokens-metadata.md).
 
 When writing an NFT contract, you should implement the [`MetadataViews.Resolver`](contracts/utility/MetadataViews.cdc#L20-L23) interface, which allows your `Vault` resource to implement one or more metadata types called views.
 

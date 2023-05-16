@@ -8,7 +8,7 @@ contract FungibleTokenMetadataViews {
 This contract implements the metadata standard proposed
 in FLIP-1087.
 
-Ref: https://github.com/onflow/flow/blob/master/flips/20220811-fungible-tokens-metadata.md
+Ref: https://github.com/onflow/flips/blob/main/application/20220811-fungible-tokens-metadata.md
 
 Structs and resources can implement one or more
 metadata types, called views. Each view type represents
