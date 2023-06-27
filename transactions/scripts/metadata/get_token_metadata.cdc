@@ -1,17 +1,16 @@
-import ExampleToken from "../../../contracts/ExampleToken.cdc"
-import FungibleTokenMetadataViews from "../../../contracts/FungibleTokenMetadataViews.cdc"
-import MetadataViews from "../../../contracts/utility/MetadataViews.cdc"
+import ExampleToken from "ExampleToken"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import MetadataViews from "MetadataViews"
 
-pub fun main(address: Address): FungibleTokenMetadataViews.FTView{
-  let account = getAccount(address)
+pub fun main(address: Address): FungibleTokenMetadataViews.FTView {
+    let account = getAccount(address)
 
-  let vaultRef = account
-    .getCapability(ExampleToken.VaultPublicPath)
-    .borrow<&{MetadataViews.Resolver}>()
-    ?? panic("Could not borrow a reference to the vault resolver")
+    let vaultRef = account
+        .getCapability(ExampleToken.VaultPublicPath)
+        .borrow<&{MetadataViews.Resolver}>()
+        ?? panic("Could not borrow a reference to the vault resolver")
 
-  let ftView = FungibleTokenMetadataViews.getFTView(viewResolver: vaultRef)
+    let ftView = FungibleTokenMetadataViews.getFTView(viewResolver: vaultRef)
 
-  return ftView
-
+    return ftView
 }
