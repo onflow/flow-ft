@@ -1,12 +1,12 @@
-import FungibleToken from "./FungibleToken.cdc"
-import MetadataViews from "./utility/MetadataViews.cdc"
-import FungibleTokenMetadataViews from "./FungibleTokenMetadataViews.cdc"
+import FungibleToken from "FungibleToken"
+import MetadataViews from "MetadataViews"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 pub contract ExampleToken: FungibleToken {
 
     /// Total supply of ExampleTokens in existence
     pub var totalSupply: UFix64
-    
+
     /// Storage and Public Paths
     pub let VaultStoragePath: StoragePath
     pub let VaultPublicPath: PublicPath
@@ -97,10 +97,12 @@ pub contract ExampleToken: FungibleToken {
         /// @return An array of Types defining the implemented views. This value will be used by
         ///         developers to know which parameter to pass to the resolveView() method.
         ///
-        pub fun getViews(): [Type]{
-            return [Type<FungibleTokenMetadataViews.FTView>(),
-                    Type<FungibleTokenMetadataViews.FTDisplay>(),
-                    Type<FungibleTokenMetadataViews.FTVaultData>()]
+        pub fun getViews(): [Type] {
+            return [
+                Type<FungibleTokenMetadataViews.FTView>(),
+                Type<FungibleTokenMetadataViews.FTDisplay>(),
+                Type<FungibleTokenMetadataViews.FTVaultData>()
+            ]
         }
 
         /// The way of getting a Metadata View out of the ExampleToken
@@ -117,7 +119,7 @@ pub contract ExampleToken: FungibleToken {
                     )
                 case Type<FungibleTokenMetadataViews.FTDisplay>():
                     let media = MetadataViews.Media(
-                            file: MetadataViews.HTTPFile(
+                        file: MetadataViews.HTTPFile(
                             url: "https://assets.website-files.com/5f6294c0c7a8cdd643b1c820/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.svg"
                         ),
                         mediaType: "image/svg+xml"
@@ -264,4 +266,3 @@ pub contract ExampleToken: FungibleToken {
         emit TokensInitialized(initialSupply: self.totalSupply)
     }
 }
- 
