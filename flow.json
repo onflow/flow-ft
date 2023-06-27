@@ -89,11 +89,7 @@
     "accounts": {
         "emulator-account": {
             "address": "0xf8d6e0586b0a20c7",
-            "key": "$EMULATOR_ACCOUNT"
-        },
-        "dummy": {
-            "address": "0xabbcc1ff55ce6d50",
-            "key": "$DUMMY_ACCOUNT"
+            "key": "1a05ba433be5af2988e814d1e4fa08f1574140e6cb5649a861cc6377718c51be"
         }
     },
     "deployments": {
