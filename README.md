@@ -43,7 +43,7 @@ and `FungibleTokenSwitchboard` is still pending for emulator/canary, so you will
 
 The code for the standard is in `contracts/FungibleToken.cdc`. An example implementation of the standard that simulates what a simple token would be like is in `contracts/ExampleToken.cdc`. 
 
-The exact smart contract that is used for the official Flow Network Token is in `contracts/FlowToken.cdc`
+The exact smart contract that is used for the official Flow Network Token is in the `flow-core-contracts` repository.
 
 Example transactions that users could use to interact with fungible tokens are located in the `transactions/` directory. These templates are mostly generic and can be used with any fungible token implementation by providing the correct addresses, names, and values.
 

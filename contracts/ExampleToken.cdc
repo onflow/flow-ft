@@ -2,37 +2,37 @@ import FungibleToken from "FungibleToken"
 import MetadataViews from "MetadataViews"
 import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
-pub contract ExampleToken: FungibleToken {
+access(all) contract ExampleToken: FungibleToken {
 
     /// Total supply of ExampleTokens in existence
-    pub var totalSupply: UFix64
-
+    access(all) var totalSupply: UFix64
+    
     /// Storage and Public Paths
-    pub let VaultStoragePath: StoragePath
-    pub let VaultPublicPath: PublicPath
-    pub let ReceiverPublicPath: PublicPath
-    pub let AdminStoragePath: StoragePath
+    access(all) let VaultStoragePath: StoragePath
+    access(all) let VaultPublicPath: PublicPath
+    access(all) let ReceiverPublicPath: PublicPath
+    access(all) let AdminStoragePath: StoragePath
 
     /// The event that is emitted when the contract is created
-    pub event TokensInitialized(initialSupply: UFix64)
+    access(all) event TokensInitialized(initialSupply: UFix64)
 
     /// The event that is emitted when tokens are withdrawn from a Vault
-    pub event TokensWithdrawn(amount: UFix64, from: Address?)
+    access(all) event TokensWithdrawn(amount: UFix64, from: Address?)
 
     /// The event that is emitted when tokens are deposited to a Vault
-    pub event TokensDeposited(amount: UFix64, to: Address?)
+    access(all) event TokensDeposited(amount: UFix64, to: Address?)
 
     /// The event that is emitted when new tokens are minted
-    pub event TokensMinted(amount: UFix64)
+    access(all) event TokensMinted(amount: UFix64)
 
     /// The event that is emitted when tokens are destroyed
-    pub event TokensBurned(amount: UFix64)
+    access(all) event TokensBurned(amount: UFix64)
 
     /// The event that is emitted when a new minter resource is created
-    pub event MinterCreated(allowedAmount: UFix64)
+    access(all) event MinterCreated(allowedAmount: UFix64)
 
     /// The event that is emitted when a new burner resource is created
-    pub event BurnerCreated()
+    access(all) event BurnerCreated()
 
     /// Each user stores an instance of only the Vault in their storage
     /// The functions in the Vault and governed by the pre and post conditions
@@ -44,10 +44,10 @@ pub contract ExampleToken: FungibleToken {
     /// out of thin air. A special Minter resource needs to be defined to mint
     /// new tokens.
     ///
-    pub resource Vault: FungibleToken.Provider, FungibleToken.Receiver, FungibleToken.Balance, MetadataViews.Resolver {
+    access(all) resource Vault: FungibleToken.Provider, FungibleToken.Receiver, FungibleToken.Balance, MetadataViews.Resolver {
 
         /// The total balance of this vault
-        pub var balance: UFix64
+        access(all) var balance: UFix64
 
         /// Initialize the balance at resource creation time
         init(balance: UFix64) {
@@ -64,7 +64,7 @@ pub contract ExampleToken: FungibleToken {
         /// @param amount: The amount of tokens to be withdrawn from the vault
         /// @return The Vault resource containing the withdrawn funds
         ///
-        pub fun withdraw(amount: UFix64): @FungibleToken.Vault {
+        access(FungibleToken.Withdrawable) fun withdraw(amount: UFix64): @FungibleToken.Vault {
             self.balance = self.balance - amount
             emit TokensWithdrawn(amount: amount, from: self.owner?.address)
             return <-create Vault(balance: amount)
@@ -78,7 +78,7 @@ pub contract ExampleToken: FungibleToken {
         ///
         /// @param from: The Vault resource containing the funds that will be deposited
         ///
-        pub fun deposit(from: @FungibleToken.Vault) {
+        access(all) fun deposit(from: @FungibleToken.Vault) {
             let vault <- from as! @ExampleToken.Vault
             self.balance = self.balance + vault.balance
             emit TokensDeposited(amount: vault.balance, to: self.owner?.address)
@@ -111,7 +111,7 @@ pub contract ExampleToken: FungibleToken {
         /// @param view: The Type of the desired view.
         /// @return A structure representing the requested view.
         ///
-        pub fun resolveView(_ view: Type): AnyStruct? {
+        access(all) fun resolveView(_ view: Type): AnyStruct? {
             switch view {
                 case Type<FungibleTokenMetadataViews.FTView>():
                     return FungibleTokenMetadataViews.FTView(
@@ -163,18 +163,18 @@ pub contract ExampleToken: FungibleToken {
     ///
     /// @return The new Vault resource
     ///
-    pub fun createEmptyVault(): @Vault {
+    access(all) fun createEmptyVault(): @Vault {
         return <-create Vault(balance: 0.0)
     }
 
-    pub resource Administrator {
+    access(all) resource Administrator {
 
         /// Function that creates and returns a new minter resource
         ///
         /// @param allowedAmount: The maximum quantity of tokens that the minter could create
         /// @return The Minter resource that would allow to mint tokens
         ///
-        pub fun createNewMinter(allowedAmount: UFix64): @Minter {
+        access(all) fun createNewMinter(allowedAmount: UFix64): @Minter {
             emit MinterCreated(allowedAmount: allowedAmount)
             return <-create Minter(allowedAmount: allowedAmount)
         }
@@ -183,7 +183,7 @@ pub contract ExampleToken: FungibleToken {
         ///
         /// @return The Burner resource
         ///
-        pub fun createNewBurner(): @Burner {
+        access(all) fun createNewBurner(): @Burner {
             emit BurnerCreated()
             return <-create Burner()
         }
@@ -191,10 +191,10 @@ pub contract ExampleToken: FungibleToken {
 
     /// Resource object that token admin accounts can hold to mint new tokens.
     ///
-    pub resource Minter {
+    access(all) resource Minter {
 
         /// The amount of tokens that the minter is allowed to mint
-        pub var allowedAmount: UFix64
+        access(all) var allowedAmount: UFix64
 
         /// Function that mints new tokens, adds them to the total supply,
         /// and returns them to the calling context.
@@ -202,7 +202,7 @@ pub contract ExampleToken: FungibleToken {
         /// @param amount: The quantity of tokens to mint
         /// @return The Vault resource containing the minted tokens
         ///
-        pub fun mintTokens(amount: UFix64): @ExampleToken.Vault {
+        access(all) fun mintTokens(amount: UFix64): @ExampleToken.Vault {
             pre {
                 amount > 0.0: "Amount minted must be greater than zero"
                 amount <= self.allowedAmount: "Amount minted must be less than the allowed amount"
@@ -220,7 +220,7 @@ pub contract ExampleToken: FungibleToken {
 
     /// Resource object that token admin accounts can hold to burn tokens.
     ///
-    pub resource Burner {
+    access(all) resource Burner {
 
         /// Function that destroys a Vault instance, effectively burning the tokens.
         ///
@@ -229,7 +229,7 @@ pub contract ExampleToken: FungibleToken {
         ///
         /// @param from: The Vault resource containing the tokens to burn
         ///
-        pub fun burnTokens(from: @FungibleToken.Vault) {
+        access(all) fun burnTokens(from: @FungibleToken.Vault) {
             let vault <- from as! @ExampleToken.Vault
             let amount = vault.balance
             destroy vault
