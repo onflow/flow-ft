@@ -1,7 +1,7 @@
-import FungibleToken from "./../../contracts/FungibleToken.cdc"
-import FungibleTokenSwitchboard from "./../../contracts/FungibleTokenSwitchboard.cdc"
-import FlowToken from "./../../contracts/utility/FlowToken.cdc"
-import FiatToken from "./../../contracts/utility/USDC/FiatToken.cdc"
+import FungibleToken from "FungibleToken"
+import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
+import FlowToken from "FlowToken"
+import FiatToken from "FiatToken"
 
 
 // This transaction is a template for a transaction that could be used by 

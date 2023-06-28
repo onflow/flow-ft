@@ -1,6 +1,6 @@
-import FungibleToken from "./../../contracts/FungibleToken.cdc"
-import FungibleTokenSwitchboard from "./../../contracts/FungibleTokenSwitchboard.cdc"
-import ExampleToken from "./../../contracts/ExampleToken.cdc"
+import FungibleToken from "FungibleToken"
+import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
+import ExampleToken from "ExampleToken"
 
 // This transaction is a template for a transaction that could be used by anyone 
 // to send tokens to another account through a switchboard using the deposit

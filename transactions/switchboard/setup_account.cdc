@@ -1,5 +1,5 @@
-import FungibleTokenSwitchboard from "./../../contracts/FungibleTokenSwitchboard.cdc"
-import FungibleToken from "./../../contracts/FungibleToken.cdc"
+import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
+import FungibleToken from "FungibleToken"
 
 // This transaction is a template for a transaction that could be used by 
 // anyone to to add a Switchboard resource to their account so that they can

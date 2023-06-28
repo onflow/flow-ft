@@ -16,10 +16,10 @@ var (
 )
 
 var (
-	placeholderFungibleToken = regexp.MustCompile(`"[^"\s].*/FungibleToken.cdc"`)
-	placeholderExampleToken  = regexp.MustCompile(`"[^"\s].*/ExampleToken.cdc"`)
-	placeholderForwarding    = regexp.MustCompile(`"[^"\s].*/TokenForwarding.cdc"`)
-	placeholderMetadataViews = regexp.MustCompile(`"[^"\s].*/MetadataViews.cdc"`)
+	placeholderFungibleToken = regexp.MustCompile(`"FungibleToken"`)
+	placeholderExampleToken  = regexp.MustCompile(`"ExampleToken"`)
+	placeholderForwarding    = regexp.MustCompile(`"TokenForwarding"`)
+	placeholderMetadataViews = regexp.MustCompile(`"MetadataViews"`)
 )
 
 func replaceAddresses(code string, ftAddress, tokenAddress, forwardingAddress, metadataViewsAddress flow.Address, tokenName string) []byte {

@@ -1,7 +1,7 @@
 
-import FungibleToken from "../../contracts/FungibleToken.cdc"
-import ExampleToken from "../../contracts/ExampleToken.cdc"
-import PrivateReceiverForwarder from "../../contracts/PrivateReceiverForwarder.cdc"
+import FungibleToken from "FungibleToken"
+import ExampleToken from "ExampleToken"
+import PrivateReceiverForwarder from "PrivateReceiverForwarder"
 
 /// This transaction adds a Vault, a private receiver forwarder
 /// a balance capability, and a public capability for the receiver
