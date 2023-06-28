@@ -20,7 +20,7 @@ const (
 )
 
 const (
-	defaultPrivateForwardAddr = "\"../../contracts/PrivateReceiverForwarder.cdc\""
+	defaultPrivateForwardAddr = "\"PrivateReceiverForwarder\""
 )
 
 func GenerateDeployPrivateForwardingScript() []byte {

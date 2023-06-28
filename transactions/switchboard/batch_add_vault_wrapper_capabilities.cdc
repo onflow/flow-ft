@@ -1,5 +1,5 @@
-import FungibleTokenSwitchboard from "./../../contracts/FungibleTokenSwitchboard.cdc"
-import ExampleToken from "./../../contracts/ExampleToken.cdc"
+import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
+import ExampleToken from "ExampleToken"
 
 // This transaction is a template for a transaction that could be used by anyone
 // to add several capabilities that point to fungible token vaults of a different   

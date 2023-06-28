@@ -1,5 +1,5 @@
-import FungibleTokenSwitchboard from "../../../contracts/FungibleTokenSwitchboard.cdc"
-import ExampleToken from "../../../contracts/ExampleToken.cdc"
+import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
+import ExampleToken from "ExampleToken"
 
 pub fun main(switchboard: Address): Bool {
 let switchboardRef = getAccount(switchboard)

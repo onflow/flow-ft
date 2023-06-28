@@ -14,7 +14,7 @@ their tokens to.
 
 */
 
-import FungibleToken from "./../FungibleToken.cdc"
+import FungibleToken from "FungibleToken"
 
 pub contract TokenForwarding {
 

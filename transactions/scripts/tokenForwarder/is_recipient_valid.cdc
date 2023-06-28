@@ -1,4 +1,4 @@
-import TokenForwarding from "../../../contracts/utility/TokenForwarding.cdc"
+import TokenForwarding from "TokenForwarding"
 
 pub fun main(addr: Address, tokenForwardingPath: PublicPath): Bool {
     let forwarderRef = getAccount(addr)
