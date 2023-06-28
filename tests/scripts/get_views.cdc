@@ -1,7 +1,13 @@
+// This script checks the supported views from ExampleToken
+// are the expected ones. This is merely used in testing,
+// since we cannot return on-chain types to the test
+// files yet.
+
 import MetadataViews from "MetadataViews"
 import ExampleToken from "ExampleToken"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
-pub fun main(address: Address): [String] {
+pub fun main(address: Address): Bool {
     let account = getAccount(address)
 
     let vaultRef = account.getCapability(ExampleToken.VaultPublicPath)
@@ -9,10 +15,13 @@ pub fun main(address: Address): [String] {
         ?? panic("Could not borrow Balance reference to the Vault")
 
     let views = vaultRef.getViews()
-    let viewIDs: [String] = []
-    for view in views {
-        viewIDs.append(view.identifier)
-    }
+    let expected: [Type] = [
+        Type<FungibleTokenMetadataViews.FTView>(),
+        Type<FungibleTokenMetadataViews.FTDisplay>(),
+        Type<FungibleTokenMetadataViews.FTVaultData>()
+    ]
 
-    return viewIDs
+    assert(expected == views)
+
+    return true
 }
