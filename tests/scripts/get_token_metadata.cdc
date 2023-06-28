@@ -1,3 +1,8 @@
+// This script checks the FTView view from ExampleToken
+// is the expected one. This is merely used in testing,
+// since we cannot return on-chain types to the test
+// files yet.
+
 import ExampleToken from "ExampleToken"
 import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 import MetadataViews from "MetadataViews"
