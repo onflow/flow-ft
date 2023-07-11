@@ -17,6 +17,7 @@
 // ../../../transactions/scripts/metadata/get_token_metadata.cdc (554B)
 // ../../../transactions/scripts/metadata/get_vault_data.cdc (618B)
 // ../../../transactions/scripts/metadata/get_vault_display.cdc (612B)
+// ../../../transactions/scripts/metadata/get_vault_supply_view.cdc (695B)
 // ../../../transactions/scripts/switchboard/check_receiver_by_type.cdc (562B)
 // ../../../transactions/scripts/switchboard/get_vault_types.cdc (690B)
 // ../../../transactions/scripts/switchboard/get_vault_types_and_address.cdc (721B)
@@ -442,6 +443,26 @@ func scriptsMetadataGet_vault_displayCdc() (*asset, error) {
 
 	info := bindataFileInfo{name: "scripts/metadata/get_vault_display.cdc", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x2b, 0x88, 0xc5, 0xf0, 0xf3, 0x55, 0x38, 0xcc, 0xbc, 0x76, 0xcb, 0xd1, 0x4d, 0x6, 0xc7, 0x35, 0xf1, 0x9f, 0x3c, 0x68, 0x4e, 0xb0, 0x5f, 0x41, 0x46, 0x28, 0x24, 0xe0, 0x82, 0xc1, 0xe4, 0xad}}
+	return a, nil
+}
+
+var _scriptsMetadataGet_vault_supply_viewCdc = "\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x7c\x92\x41\xef\x9a\x40\x10\xc5\xef\xfb\x29\x46\x0e\x2d\x5c\xf0\xd2\xf4\x60\x44\x63\x4c\xed\xa9\x89\xb1\xd6\xfb\x02\x83\x6e\xba\xec\x6e\x76\x67\x55\x62\xfc\xee\x0d\x2c\x02\x6d\xea\x9f\xd3\x32\xfb\xde\x6f\x98\x37\x88\xda\x68\x4b\xf0\xed\xce\x6b\x23\xf1\xa8\x7f\xa3\x82\xca\xea\x1a\xa2\x69\x29\x62\xbd\x6e\xe7\xd5\x59\xe4\x7d\xf5\x07\x12\x2f\x39\xf1\x93\xc0\x9b\xeb\x5d\xef\x05\x03\xe3\x7f\xb6\x7f\x94\x6c\x3e\x9f\xc3\x77\x24\x07\x74\x41\x20\x4d\x5c\x82\xf3\xc6\xc8\x06\x74\xd5\xd5\xae\xdc\x4b\xfa\xec\x80\xba\x2f\x2e\x85\xc5\x82\x64\x13\x68\xc3\x3d\x63\xc6\xe7\x50\x79\x05\x35\x17\x2a\xe6\x65\x69\xd1\xb9\x05\x6c\xc2\x21\x59\xc0\xaf\x9d\xb8\x7f\xfd\x02\x0f\x06\x00\x20\x91\x80\x17\x85\xf6\x8a\x20\x83\x33\xd2\x26\xbc\xbc\x8c\x09\x1b\x64\x1d\xfe\x80\x15\x64\x2f\x47\x77\xd5\x3e\xe9\x19\x69\xcb\x0d\xcf\x85\x14\xd4\xc4\xd3\x18\xd3\x53\x6b\xdb\xfb\x5c\x8a\x62\xcf\xe9\x92\x8c\xa6\x5c\x5b\xab\x6f\xcb\x4f\x8f\xbf\x92\x48\x0f\xe8\xb4\xbc\xa2\x7d\xae\xe2\x51\xbc\x5e\x83\xe1\x4a\x14\x71\xb4\xd5\x5e\x96\xa0\x34\x41\xf0\x03\x07\x8b\x15\x5a\x54\x45\x1b\xdb\x98\x04\xd8\x1e\x14\x4d\x86\xa8\xe8\x67\xc8\x34\x1b\xe6\x49\x7b\x5d\xdb\x3d\x3e\x36\x06\x97\xef\x17\x9a\x1e\xdb\xbd\x04\xc4\x2a\x4e\x92\xd9\x48\x0e\xbb\x6a\x55\x90\x8d\x6d\xb8\x9b\x7d\xf0\x03\x4d\x71\x81\x64\x91\xbc\x55\x13\x58\x1a\x8e\xec\xc9\xfe\x04\x00\x00\xff\xff\x64\xda\x15\x73\xb7\x02\x00\x00"
+
+func scriptsMetadataGet_vault_supply_viewCdcBytes() ([]byte, error) {
+	return bindataRead(
+		_scriptsMetadataGet_vault_supply_viewCdc,
+		"scripts/metadata/get_vault_supply_view.cdc",
+	)
+}
+
+func scriptsMetadataGet_vault_supply_viewCdc() (*asset, error) {
+	bytes, err := scriptsMetadataGet_vault_supply_viewCdcBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "scripts/metadata/get_vault_supply_view.cdc", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xa9, 0xf4, 0x97, 0x7, 0x1a, 0x5a, 0xb3, 0x78, 0x62, 0xda, 0xea, 0x72, 0xcd, 0x10, 0xe3, 0x91, 0x7b, 0xcd, 0x30, 0xb, 0x80, 0x58, 0xac, 0xef, 0x93, 0xab, 0x5f, 0xe9, 0x99, 0x1c, 0x8f, 0xc7}}
 	return a, nil
 }
 
@@ -933,6 +954,7 @@ var _bindata = map[string]func() (*asset, error){
 	"scripts/metadata/get_token_metadata.cdc":               scriptsMetadataGet_token_metadataCdc,
 	"scripts/metadata/get_vault_data.cdc":                   scriptsMetadataGet_vault_dataCdc,
 	"scripts/metadata/get_vault_display.cdc":                scriptsMetadataGet_vault_displayCdc,
+	"scripts/metadata/get_vault_supply_view.cdc":            scriptsMetadataGet_vault_supply_viewCdc,
 	"scripts/switchboard/check_receiver_by_type.cdc":        scriptsSwitchboardCheck_receiver_by_typeCdc,
 	"scripts/switchboard/get_vault_types.cdc":               scriptsSwitchboardGet_vault_typesCdc,
 	"scripts/switchboard/get_vault_types_and_address.cdc":   scriptsSwitchboardGet_vault_types_and_addressCdc,
@@ -1021,6 +1043,7 @@ var _bintree = &bintree{nil, map[string]*bintree{
 			"get_token_metadata.cdc": {scriptsMetadataGet_token_metadataCdc, map[string]*bintree{}},
 			"get_vault_data.cdc": {scriptsMetadataGet_vault_dataCdc, map[string]*bintree{}},
 			"get_vault_display.cdc": {scriptsMetadataGet_vault_displayCdc, map[string]*bintree{}},
+			"get_vault_supply_view.cdc": {scriptsMetadataGet_vault_supply_viewCdc, map[string]*bintree{}},
 		}},
 		"switchboard": {nil, map[string]*bintree{
 			"check_receiver_by_type.cdc": {scriptsSwitchboardCheck_receiver_by_typeCdc, map[string]*bintree{}},

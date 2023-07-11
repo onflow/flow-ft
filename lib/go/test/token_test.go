@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/onflow/cadence"
 	jsoncdc "github.com/onflow/cadence/encoding/json"
+	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
 
@@ -15,10 +17,10 @@ import (
 )
 
 func TestTokenDeployment(t *testing.T) {
-	b, accountKeys := newTestSetup(t)
+	b, adapter, accountKeys := newTestSetup(t)
 
 	exampleTokenAccountKey, _ := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _, _ := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
+	fungibleAddr, exampleTokenAddr, _, _, _ := DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	t.Run("Should have initialized Supply field correctly", func(t *testing.T) {
 		script := templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
@@ -28,15 +30,15 @@ func TestTokenDeployment(t *testing.T) {
 }
 
 func TestCreateToken(t *testing.T) {
-	b, accountKeys := newTestSetup(t)
+	b, adapter, accountKeys := newTestSetup(t)
 
 	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, _ := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _, metadataViewsAddr := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
+	fungibleAddr, exampleTokenAddr, _, metadataViewsAddr, fungibleMetadataViewsAddr := DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
-	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
+	joshAddress, _ := adapter.CreateAccount(context.Background(), []*flow.AccountKey{joshAccountKey}, nil)
 
 	t.Run("Should be able to create empty Vault that doesn't affect supply", func(t *testing.T) {
 		script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, "ExampleToken")
@@ -68,20 +70,26 @@ func TestCreateToken(t *testing.T) {
 		script = templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
 		supply := executeScriptAndCheck(t, b, script, nil)
 		assert.Equal(t, CadenceUFix64("1000.0"), supply)
+
+		script = templates.GenerateInspectSupplyViewScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, fungibleMetadataViewsAddr, "ExampleToken")
+		supply = executeScriptAndCheck(t, b, script, [][]byte{
+			jsoncdc.MustEncode(cadence.Address(joshAddress)),
+		})
+		assert.Equal(t, CadenceUFix64("1000.0"), supply)
 	})
 }
 
 func TestExternalTransfers(t *testing.T) {
-	b, accountKeys := newTestSetup(t)
+	b, adapter, accountKeys := newTestSetup(t)
 
 	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, forwardingAddr, metadataViewsAddr :=
-		DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
+	fungibleAddr, exampleTokenAddr, forwardingAddr, metadataViewsAddr, _ :=
+		DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
-	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
+	joshAddress, _ := adapter.CreateAccount(context.Background(), []*flow.AccountKey{joshAccountKey}, nil)
 
 	// then deploy the tokens to an account
 	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, "ExampleToken")
@@ -340,8 +348,8 @@ func TestExternalTransfers(t *testing.T) {
 		_ = tx.AddArgument(CadenceUFix64("300.0"))
 		_ = tx.AddArgument(cadence.NewAddress(exampleTokenAddr))
 
-		storagePath := cadence.Path{Domain: "storage", Identifier: "exampleTokenVault"}
-		publicPath := cadence.Path{Domain: "public", Identifier: "exampleTokenReceiver"}
+		storagePath := cadence.Path{Domain: common.PathDomainStorage, Identifier: "exampleTokenVault"}
+		publicPath := cadence.Path{Domain: common.PathDomainPublic, Identifier: "exampleTokenReceiver"}
 
 		_ = tx.AddArgument(storagePath)
 		_ = tx.AddArgument(publicPath)
@@ -382,15 +390,15 @@ func TestExternalTransfers(t *testing.T) {
 }
 
 func TestVaultDestroy(t *testing.T) {
-	b, accountKeys := newTestSetup(t)
+	b, adapter, accountKeys := newTestSetup(t)
 
 	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _, metadataViewsAddr := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
+	fungibleAddr, exampleTokenAddr, _, metadataViewsAddr, _ := DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
-	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
+	joshAddress, _ := adapter.CreateAccount(context.Background(), []*flow.AccountKey{joshAccountKey}, nil)
 
 	// then deploy the tokens to an account
 	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, "ExampleToken")
@@ -511,15 +519,15 @@ func TestVaultDestroy(t *testing.T) {
 }
 
 func TestMintingAndBurning(t *testing.T) {
-	b, accountKeys := newTestSetup(t)
+	b, adapter, accountKeys := newTestSetup(t)
 
 	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _, metadataViewsAddr := DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
+	fungibleAddr, exampleTokenAddr, _, metadataViewsAddr, _ := DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
-	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
+	joshAddress, _ := adapter.CreateAccount(context.Background(), []*flow.AccountKey{joshAccountKey}, nil)
 
 	// then deploy the tokens to an account
 	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, "ExampleToken")

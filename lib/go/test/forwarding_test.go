@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/onflow/cadence"
 	jsoncdc "github.com/onflow/cadence/encoding/json"
+	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
 
@@ -16,13 +18,13 @@ import (
 )
 
 func TestPrivateForwarder(t *testing.T) {
-	b, accountKeys := newTestSetup(t)
+	b, adapter, accountKeys := newTestSetup(t)
 
 	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _, _ :=
-		DeployTokenContracts(b, t, []*flow.AccountKey{exampleTokenAccountKey})
+	fungibleAddr, exampleTokenAddr, _, _, _ :=
+		DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	forwardingCode := contracts.PrivateReceiverForwarder(fungibleAddr.String())
 	cadenceCode := bytesToCadenceArray(forwardingCode)
@@ -38,9 +40,9 @@ func TestPrivateForwarder(t *testing.T) {
 		AddRawArgument(jsoncdc.MustEncode(name)).
 		AddRawArgument(jsoncdc.MustEncode(cadenceCode))
 
-	_ = tx.AddArgument(cadence.Path{Domain: "storage", Identifier: "privateForwardingSender"})
-	_ = tx.AddArgument(cadence.Path{Domain: "storage", Identifier: "privateForwardingStorage"})
-	_ = tx.AddArgument(cadence.Path{Domain: "public", Identifier: "privateForwardingPublic"})
+	_ = tx.AddArgument(cadence.Path{Domain: common.PathDomainStorage, Identifier: "privateForwardingSender"})
+	_ = tx.AddArgument(cadence.Path{Domain: common.PathDomainStorage, Identifier: "privateForwardingStorage"})
+	_ = tx.AddArgument(cadence.Path{Domain: common.PathDomainPublic, Identifier: "privateForwardingPublic"})
 
 	signAndSubmit(
 		t, b, tx,
@@ -50,7 +52,7 @@ func TestPrivateForwarder(t *testing.T) {
 	)
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
-	joshAddress, _ := b.CreateAccount([]*flow.AccountKey{joshAccountKey}, nil)
+	joshAddress, _ := adapter.CreateAccount(context.Background(), []*flow.AccountKey{joshAccountKey}, nil)
 
 	t.Run("Should be able to set up an account to accept private deposits", func(t *testing.T) {
 

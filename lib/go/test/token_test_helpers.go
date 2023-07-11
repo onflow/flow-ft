@@ -1,9 +1,11 @@
 package test
 
 import (
+	"context"
 	"testing"
 
-	"github.com/onflow/flow-emulator"
+	"github.com/onflow/flow-emulator/adapters"
+	"github.com/onflow/flow-emulator/emulator"
 	sdktemplates "github.com/onflow/flow-go-sdk/templates"
 	"github.com/stretchr/testify/assert"
 
@@ -17,7 +19,8 @@ import (
 // Deploys the FungibleToken, ExampleToken, and TokenForwarding contracts
 // to different accounts and returns their addresses
 func DeployTokenContracts(
-	b *emulator.Blockchain,
+	b emulator.Emulator,
+	adapter *adapters.SDKAdapter,
 	t *testing.T,
 	key []*flow.AccountKey,
 ) (
@@ -25,12 +28,13 @@ func DeployTokenContracts(
 	tokenAddr flow.Address,
 	forwardingAddr flow.Address,
 	metadataViewsAddr flow.Address,
+	fungibleMetadataViewsAddr flow.Address,
 ) {
 	var err error
 
 	// Deploy the NonFungibleToken contract
 	nonFungibleTokenCode := nftcontracts.NonFungibleToken()
-	nftAddress, err := b.CreateAccount(
+	nftAddress, err := adapter.CreateAccount(context.Background(),
 		nil,
 		[]sdktemplates.Contract{
 			{
@@ -43,7 +47,7 @@ func DeployTokenContracts(
 
 	// Deploy the FungibleToken contract
 	fungibleTokenCode := contracts.FungibleToken()
-	fungibleAddr, err = b.CreateAccount(
+	fungibleAddr, err = adapter.CreateAccount(context.Background(),
 		nil,
 		[]sdktemplates.Contract{
 			{
@@ -59,7 +63,7 @@ func DeployTokenContracts(
 
 	// Deploy the MetadataViews contract
 	metadataViewsCode := nftcontracts.MetadataViews(fungibleAddr, nftAddress)
-	metadataViewsAddr, err = b.CreateAccount(
+	metadataViewsAddr, err = adapter.CreateAccount(context.Background(),
 		nil,
 		[]sdktemplates.Contract{
 			{
@@ -72,7 +76,7 @@ func DeployTokenContracts(
 
 	// Deploy the FungibleTokenMetadataViews contract
 	fungibleTokenMetadataViewsCode := contracts.FungibleTokenMetadataViews(fungibleAddr.String(), metadataViewsAddr.String())
-	fungibleMetadataViewsAddr, err := b.CreateAccount(
+	fungibleMetadataViewsAddr, err = adapter.CreateAccount(context.Background(),
 		nil,
 		[]sdktemplates.Contract{
 			{
@@ -88,7 +92,7 @@ func DeployTokenContracts(
 
 	// Deploy the ExampleToken contract
 	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String(), metadataViewsAddr.String(), fungibleMetadataViewsAddr.String())
-	tokenAddr, err = b.CreateAccount(
+	tokenAddr, err = adapter.CreateAccount(context.Background(),
 		key,
 		[]sdktemplates.Contract{
 			{
@@ -104,7 +108,7 @@ func DeployTokenContracts(
 
 	// Deploy the TokenForwarding contract
 	forwardingCode := contracts.TokenForwarding(fungibleAddr.String())
-	forwardingAddr, err = b.CreateAccount(
+	forwardingAddr, err = adapter.CreateAccount(context.Background(),
 		key,
 		[]sdktemplates.Contract{
 			{
@@ -120,7 +124,7 @@ func DeployTokenContracts(
 
 	// Deploy the FungibleTokenSwitchboard contract
 	switchboardCode := contracts.FungibleTokenSwitchboard(fungibleAddr.String())
-	_, err = b.CreateAccount(
+	_, err = adapter.CreateAccount(context.Background(),
 		key,
 		[]sdktemplates.Contract{
 			{
@@ -134,5 +138,5 @@ func DeployTokenContracts(
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
-	return fungibleAddr, tokenAddr, forwardingAddr, metadataViewsAddr
+	return fungibleAddr, tokenAddr, forwardingAddr, metadataViewsAddr, fungibleMetadataViewsAddr
 }

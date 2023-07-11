@@ -11,6 +11,7 @@ import MetadataViews from "MetadataViews"
 /// a different kind of metadata.
 ///
 pub contract FungibleTokenMetadataViews {
+
     /// FTView wraps FTDisplay and FTVaultData, and is used to give a complete 
     /// picture of a Fungible Token. Most Fungible Token contracts should 
     /// implement this view.
@@ -179,5 +180,13 @@ pub contract FungibleTokenMetadataViews {
         return nil
     }
 
+    /// View to expose the total supply of the Vault's token
+    access(all) struct TotalSupply {
+        access(all) let supply: UFix64
+
+        init(totalSupply: UFix64) {
+            self.supply = totalSupply
+        }
+    }
 }
  

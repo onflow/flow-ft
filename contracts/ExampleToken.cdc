@@ -101,7 +101,8 @@ pub contract ExampleToken: FungibleToken {
             return [
                 Type<FungibleTokenMetadataViews.FTView>(),
                 Type<FungibleTokenMetadataViews.FTDisplay>(),
-                Type<FungibleTokenMetadataViews.FTVaultData>()
+                Type<FungibleTokenMetadataViews.FTVaultData>(),
+                Type<FungibleTokenMetadataViews.TotalSupply>()
             ]
         }
 
@@ -148,6 +149,8 @@ pub contract ExampleToken: FungibleToken {
                             return <-ExampleToken.createEmptyVault()
                         })
                     )
+                case Type<FungibleTokenMetadataViews.TotalSupply>():
+                    return FungibleTokenMetadataViews.TotalSupply(totalSupply: ExampleToken.totalSupply)
             }
             return nil
         }
