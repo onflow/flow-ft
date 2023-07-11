@@ -30,7 +30,7 @@ func GenerateCreateTokenScript(fungibleAddr, tokenAddr, metadataViewsAddr flow.A
 
 	code := assets.MustAssetString(setupAccountFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, metadataViewsAddr, tokenName)
+	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, metadataViewsAddr, flow.EmptyAddress, tokenName)
 }
 
 // GenerateDestroyVaultScript creates a script that withdraws
@@ -65,7 +65,7 @@ func GenerateTransferVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName
 
 	code := assets.MustAssetString(transferTokensFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, tokenName)
+	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
 }
 
 // GenerateTransferGenericVaultScript creates a script that withdraws an tokens from an account
@@ -74,7 +74,7 @@ func GenerateTransferGenericVaultScript(fungibleAddr flow.Address) []byte {
 
 	code := assets.MustAssetString(genericTransferFilename)
 
-	return replaceAddresses(code, fungibleAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, "")
+	return replaceAddresses(code, fungibleAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, "")
 }
 
 // GenerateTransferManyAccountsScript creates a script that transfers the same number of tokens
@@ -83,7 +83,7 @@ func GenerateTransferManyAccountsScript(fungibleAddr, tokenAddr flow.Address, to
 
 	code := assets.MustAssetString(transferManyAccountsFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, tokenName)
+	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
 }
 
 // GenerateMintTokensScript creates a script that uses the admin resource
@@ -92,7 +92,7 @@ func GenerateMintTokensScript(fungibleAddr, tokenAddr flow.Address, tokenName st
 
 	code := assets.MustAssetString(mintTokensFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, tokenName)
+	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
 }
 
 // GenerateBurnTokensScript creates a script that uses the admin resource
@@ -100,7 +100,7 @@ func GenerateMintTokensScript(fungibleAddr, tokenAddr flow.Address, tokenName st
 func GenerateBurnTokensScript(fungibleAddr, tokenAddr flow.Address, tokenName string) []byte {
 	code := assets.MustAssetString(burnTokensFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, tokenName)
+	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
 }
 
 // GenerateTransferInvalidVaultScript creates a script that withdraws an tokens from an account
@@ -140,5 +140,5 @@ func GenerateTransferInvalidVaultScript(fungibleAddr, tokenAddr, otherTokenAddr,
 func GenerateCreateForwarderScript(fungibleAddr, forwardingAddr, tokenAddr flow.Address, tokenName string) []byte {
 	code := assets.MustAssetString(createForwarderFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, forwardingAddr, flow.EmptyAddress, tokenName)
+	return replaceAddresses(code, fungibleAddr, tokenAddr, forwardingAddr, flow.EmptyAddress, flow.EmptyAddress, tokenName)
 }
