@@ -20,7 +20,7 @@ access(all) contract FungibleTokenMetadataViews {
     access(all) struct FTView {
         access(all) let ftDisplay: FTDisplay?     
         access(all) let ftVaultData: FTVaultData?
-        init(
+        view init(
             ftDisplay: FTDisplay?,
             ftVaultData: FTVaultData?
         ) {
@@ -76,7 +76,7 @@ access(all) contract FungibleTokenMetadataViews {
         /// Possible keys may be "instagram", "twitter", "discord", etc.
         access(all) let socials: {String: MetadataViews.ExternalURL}
 
-        init(
+        view init(
             name: String,
             symbol: String,
             description: String,
@@ -139,9 +139,9 @@ access(all) contract FungibleTokenMetadataViews {
 
         /// Function that allows creation of an empty FT vault that is intended
         /// to store the funds.
-        access(all) let createEmptyVault: fun(): @{FungibleToken.Vault}
+        access(all) let createEmptyVault: fun(): @AnyResource{FungibleToken.Vault}
 
-        init(
+        view init(
             storagePath: StoragePath,
             receiverPath: PublicPath,
             metadataPath: PublicPath,
@@ -149,7 +149,7 @@ access(all) contract FungibleTokenMetadataViews {
             receiverLinkedType: Type,
             metadataLinkedType: Type,
             providerLinkedType: Type,
-            createEmptyVaultFunction: fun(): @{FungibleToken.Vault}
+            createEmptyVaultFunction: fun(): @AnyResource{FungibleToken.Vault}
         ) {
             pre {
                 receiverLinkedType.isSubtype(of: Type<&{FungibleToken.Receiver}>()): "Receiver public type must include FungibleToken.Receiver."
@@ -185,7 +185,7 @@ access(all) contract FungibleTokenMetadataViews {
     access(all) struct TotalSupply {
         access(all) let supply: UFix64
 
-        init(totalSupply: UFix64) {
+        view init(totalSupply: UFix64) {
             self.supply = totalSupply
         }
     }
