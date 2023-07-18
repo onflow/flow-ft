@@ -16,8 +16,6 @@ var (
 	placeholderExampleToken    = regexp.MustCompile(`"ExampleToken"`)
 	placeholderMetadataViews   = regexp.MustCompile(`"MetadataViews"`)
 	placeholderFTMetadataViews = regexp.MustCompile(`"FungibleTokenMetadataViews"`)
-	placeholderFungibleTokenV2 = regexp.MustCompile(`"FungibleToken-v2"`)
-	placeholderExampleTokenV2  = regexp.MustCompile(`"ExampleToken-v2"`)
 	placeholderViewResolver    = regexp.MustCompile(`"ViewResolver"`)
 	placeholderMultipleVaults  = regexp.MustCompile(`"MultipleVaults"`)
 )
@@ -55,7 +53,7 @@ func FungibleTokenV2(resolverAddr string) []byte {
 func FungibleTokenMetadataViews(fungibleTokenAddr, metadataViewsAddr, viewResolverAddr string) []byte {
 	code := assets.MustAssetString(filenameFTMetadataViews)
 
-	code = placeholderFungibleTokenV2.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
 	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)
 	code = placeholderViewResolver.ReplaceAllString(code, "0x"+viewResolverAddr)
 
@@ -75,7 +73,7 @@ func FungibleTokenSwitchboard(fungibleTokenAddr string) []byte {
 func MultipleVaults(fungibleTokenAddr string) []byte {
 	code := assets.MustAssetString(filenameMultipleVaults)
 
-	code = placeholderFungibleTokenV2.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
 
 	return []byte(code)
 }
@@ -99,7 +97,7 @@ func ExampleToken(fungibleTokenAddr, metadataViewsAddr, ftMetadataViewsAddr stri
 func ExampleTokenV2(fungibleTokenAddr, metadataViewsAddr, ftMetadataViewsAddr, viewResolverAddr, multipleVaultsAddr string) []byte {
 	code := assets.MustAssetString(filenameExampleTokenV2)
 
-	code = placeholderFungibleTokenV2.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
 	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)
 	code = placeholderFTMetadataViews.ReplaceAllString(code, "0x"+ftMetadataViewsAddr)
 	code = placeholderViewResolver.ReplaceAllString(code, "0x"+viewResolverAddr)
