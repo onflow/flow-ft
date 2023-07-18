@@ -107,7 +107,7 @@ access(all) contract FungibleToken {
                 // `result` refers to the return value
                 result.getBalance() == amount:
                     "Withdrawal amount must be the same as the balance of the withdrawn Vault"
-                FungibleToken.emitWithdrawEvent(amount: amount, from: self.owner?.address, type: self.getType().identifier)
+                //FungibleToken.emitWithdrawEvent(amount: amount, from: self.owner?.address, type: self.getType().identifier)
             }
         }
     }
@@ -232,7 +232,7 @@ access(all) contract FungibleToken {
             pre {
                 from.isInstance(self.getType()): 
                     "Cannot deposit an incompatible token type"
-                FungibleToken.emitDepositEvent(amount: from.getBalance(), to: self.owner?.address, type: from.getType().identifier)
+                //FungibleToken.emitDepositEvent(amount: from.getBalance(), to: self.owner?.address, type: from.getType().identifier)
             }
             post {
                 self.getBalance() == before(self.getBalance()) + before(from.getBalance()):
@@ -246,7 +246,7 @@ access(all) contract FungibleToken {
             post {
                 self.getBalance() == before(self.getBalance()) - amount:
                     "New Vault balance from the sender must be the difference of the previous balance and the withdrawn Vault balance"
-                FungibleToken.emitTransferEvent(amount: amount, from: self.owner?.address, to: receiver.borrow()?.owner?.address, type: self.getType().identifier)
+                //FungibleToken.emitTransferEvent(amount: amount, from: self.owner?.address, to: receiver.borrow()?.owner?.address, type: self.getType().identifier)
             }
         }
 
@@ -260,7 +260,7 @@ access(all) contract FungibleToken {
 
         destroy() {
             pre {
-                FungibleToken.emitBurnEvent(amount: self.getBalance(), type: self.getType().identifier)
+                //FungibleToken.emitBurnEvent(amount: self.getBalance(), type: self.getType().identifier)
             }
         }
     }
