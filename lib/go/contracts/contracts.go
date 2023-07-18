@@ -37,7 +37,7 @@ const (
 
 // FungibleToken returns the FungibleToken contract interface.
 func FungibleToken() []byte {
-	code := assets.MustAssetString(filenameFungibleToken)
+	code := assets.MustAssetString(filenameFungibleTokenV2)
 
 	return []byte(code)
 }

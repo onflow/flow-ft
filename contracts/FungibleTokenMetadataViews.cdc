@@ -11,15 +11,15 @@ import ViewResolver from "ViewResolver"
 /// metadata types, called views. Each view type represents
 /// a different kind of metadata.
 ///
-pub contract FungibleTokenMetadataViews {
+access(all) contract FungibleTokenMetadataViews {
 
     /// FTView wraps FTDisplay and FTVaultData, and is used to give a complete 
     /// picture of a Fungible Token. Most Fungible Token contracts should 
     /// implement this view.
     ///
-    pub struct FTView {
-        pub let ftDisplay: FTDisplay?     
-        pub let ftVaultData: FTVaultData?
+    access(all) struct FTView {
+        access(all) let ftDisplay: FTDisplay?     
+        access(all) let ftVaultData: FTVaultData?
         init(
             ftDisplay: FTDisplay?,
             ftVaultData: FTVaultData?
@@ -34,7 +34,7 @@ pub contract FungibleTokenMetadataViews {
     /// @param viewResolver: A reference to the resolver resource
     /// @return A FTView struct
     ///
-    pub fun getFTView(viewResolver: &{ViewResolver.Resolver}): FTView {
+    access(all) view fun getFTView(viewResolver: &{ViewResolver.Resolver}): FTView {
         let maybeFTView = viewResolver.resolveView(Type<FTView>())
         if let ftView = maybeFTView {
             return ftView as! FTView
@@ -49,32 +49,32 @@ pub contract FungibleTokenMetadataViews {
     /// This can be used by applications to give an overview and 
     /// graphics of the FT.
     ///
-    pub struct FTDisplay {
+    access(all) struct FTDisplay {
         /// The display name for this token.
         ///
         /// Example: "Flow"
         ///
-        pub let name: String
+        access(all) let name: String
 
         /// The abbreviated symbol for this token.
         ///
         /// Example: "FLOW"
-        pub let symbol: String
+        access(all) let symbol: String
 
         /// A description the provides an overview of this token.
         ///
         /// Example: "The FLOW token is the native currency of the Flow network."
-        pub let description: String
+        access(all) let description: String
 
         /// External link to a URL to view more information about the fungible token.
-        pub let externalURL: MetadataViews.ExternalURL
+        access(all) let externalURL: MetadataViews.ExternalURL
 
         /// One or more versions of the fungible token logo.
-        pub let logos: MetadataViews.Medias
+        access(all) let logos: MetadataViews.Medias
 
         /// Social links to reach the fungible token's social homepages.
         /// Possible keys may be "instagram", "twitter", "discord", etc.
-        pub let socials: {String: MetadataViews.ExternalURL}
+        access(all) let socials: {String: MetadataViews.ExternalURL}
 
         init(
             name: String,
@@ -98,7 +98,7 @@ pub contract FungibleTokenMetadataViews {
     /// @param viewResolver: A reference to the resolver resource
     /// @return An optional FTDisplay struct
     ///
-    pub fun getFTDisplay(_ viewResolver: &{ViewResolver.Resolver}): FTDisplay? {
+    access(all) view fun getFTDisplay(_ viewResolver: &{ViewResolver.Resolver}): FTDisplay? {
         if let maybeDisplayView = viewResolver.resolveView(Type<FTDisplay>()) {
             if let displayView = maybeDisplayView as? FTDisplay {
                 return displayView
@@ -111,35 +111,35 @@ pub contract FungibleTokenMetadataViews {
     /// This can be used by applications to setup a FT vault with proper 
     /// storage and public capabilities.
     ///
-    pub struct FTVaultData {
+    access(all) struct FTVaultData {
         /// Path in storage where this FT vault is recommended to be stored.
-        pub let storagePath: StoragePath
+        access(all) let storagePath: StoragePath
 
         /// Public path which must be linked to expose the public receiver capability.
-        pub let receiverPath: PublicPath
+        access(all) let receiverPath: PublicPath
 
         /// Public path which must be linked to expose the balance and resolver public capabilities.
-        pub let metadataPath: PublicPath
+        access(all) let metadataPath: PublicPath
 
         /// Private path which should be linked to expose the provider capability to withdraw funds 
         /// from the vault.
-        pub let providerPath: PrivatePath
+        access(all) let providerPath: PrivatePath
 
         /// Type that should be linked at the `receiverPath`. This is a restricted type requiring 
         /// the `FungibleToken.Receiver` interface.
-        pub let receiverLinkedType: Type
+        access(all) let receiverLinkedType: Type
 
         /// Type that should be linked at the `receiverPath`. This is a restricted type requiring 
         /// the `FungibleToken.Balance` and `ViewResolver.Resolver` interfaces.
-        pub let metadataLinkedType: Type
+        access(all) let metadataLinkedType: Type
 
         /// Type that should be linked at the aforementioned private path. This 
         /// is normally a restricted type with at a minimum the `FungibleToken.Provider` interface.
-        pub let providerLinkedType: Type
+        access(all) let providerLinkedType: Type
 
         /// Function that allows creation of an empty FT vault that is intended
         /// to store the funds.
-        pub let createEmptyVault: ((): @{FungibleToken.Vault})
+        access(all) let createEmptyVault: fun(): @{FungibleToken.Vault}
 
         init(
             storagePath: StoragePath,
@@ -149,7 +149,7 @@ pub contract FungibleTokenMetadataViews {
             receiverLinkedType: Type,
             metadataLinkedType: Type,
             providerLinkedType: Type,
-            createEmptyVaultFunction: ((): @{FungibleToken.Vault})
+            createEmptyVaultFunction: fun(): @{FungibleToken.Vault}
         ) {
             pre {
                 receiverLinkedType.isSubtype(of: Type<&{FungibleToken.Receiver}>()): "Receiver public type must include FungibleToken.Receiver."
@@ -172,7 +172,7 @@ pub contract FungibleTokenMetadataViews {
     /// @param viewResolver: A reference to the resolver resource
     /// @return A optional FTVaultData struct
     ///
-    pub fun getFTVaultData(_ viewResolver: &{ViewResolver.Resolver}): FTVaultData? {
+    access(all) view fun getFTVaultData(_ viewResolver: &{ViewResolver.Resolver}): FTVaultData? {
         if let view = viewResolver.resolveView(Type<FTVaultData>()) {
             if let v = view as? FTVaultData {
                 return v

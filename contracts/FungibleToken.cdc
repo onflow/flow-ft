@@ -125,7 +125,7 @@ access(all) contract interface FungibleToken {
         ///
         /// @return dictionary of supported deposit vault types by the implementing resource.
         /// 
-        access(all) fun getSupportedVaultTypes(): {Type: Bool} {
+        access(all) view fun getSupportedVaultTypes(): {Type: Bool} {
             // Below check is implemented to make sure that run-time type would
             // only get returned when the parent resource conforms with `FungibleToken.Vault`. 
             if self.getType().isSubtype(of: Type<@FungibleToken.Vault>()) {
@@ -160,7 +160,7 @@ access(all) contract interface FungibleToken {
         /// @return An array of Types defining the implemented views. This value will be used by
         ///         developers to know which parameter to pass to the resolveView() method.
         ///
-        access(all) fun getViews(): [Type] {
+        access(all) view fun getViews(): [Type] {
             return []
         }
 
@@ -169,7 +169,7 @@ access(all) contract interface FungibleToken {
         /// @param view: The Type of the desired view.
         /// @return A structure representing the requested view.
         ///
-        access(all) fun resolveView(_ view: Type): AnyStruct? {
+        access(all) view fun resolveView(_ view: Type): AnyStruct? {
             return nil
         }
     }

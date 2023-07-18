@@ -145,7 +145,7 @@ access(all) contract ExampleToken: FungibleToken {
                         receiverLinkedType: Type<&ExampleToken.Vault{FungibleToken.Receiver}>(),
                         metadataLinkedType: Type<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(),
                         providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider}>(),
-                        createEmptyVaultFunction: (fun (): @ExampleToken.Vault {
+                        createEmptyVaultFunction: (fun(): @ExampleToken.Vault {
                             return <-ExampleToken.createEmptyVault()
                         })
                     )
