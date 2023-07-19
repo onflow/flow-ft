@@ -57,7 +57,7 @@ access(all) contract ExampleToken: ViewResolver, MultipleVaults {
                     Type<FungibleTokenMetadataViews.FTVaultData>()]
         }
 
-        access(all) view fun resolveView(_ view: Type): AnyStruct? {
+        access(all) fun resolveView(_ view: Type): AnyStruct? {
             switch view {
                 case Type<FungibleTokenMetadataViews.FTView>():
                     return FungibleTokenMetadataViews.FTView(

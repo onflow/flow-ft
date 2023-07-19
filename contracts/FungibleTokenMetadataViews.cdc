@@ -34,7 +34,7 @@ access(all) contract FungibleTokenMetadataViews {
     /// @param viewResolver: A reference to the resolver resource
     /// @return A FTView struct
     ///
-    access(all) view fun getFTView(viewResolver: &{ViewResolver.Resolver}): FTView {
+    access(all) fun getFTView(viewResolver: &{ViewResolver.Resolver}): FTView {
         let maybeFTView = viewResolver.resolveView(Type<FTView>())
         if let ftView = maybeFTView {
             return ftView as! FTView
@@ -98,7 +98,7 @@ access(all) contract FungibleTokenMetadataViews {
     /// @param viewResolver: A reference to the resolver resource
     /// @return An optional FTDisplay struct
     ///
-    access(all) view fun getFTDisplay(_ viewResolver: &{ViewResolver.Resolver}): FTDisplay? {
+    access(all) fun getFTDisplay(_ viewResolver: &{ViewResolver.Resolver}): FTDisplay? {
         if let maybeDisplayView = viewResolver.resolveView(Type<FTDisplay>()) {
             if let displayView = maybeDisplayView as? FTDisplay {
                 return displayView
@@ -172,7 +172,7 @@ access(all) contract FungibleTokenMetadataViews {
     /// @param viewResolver: A reference to the resolver resource
     /// @return A optional FTVaultData struct
     ///
-    access(all) view fun getFTVaultData(_ viewResolver: &{ViewResolver.Resolver}): FTVaultData? {
+    access(all) fun getFTVaultData(_ viewResolver: &{ViewResolver.Resolver}): FTVaultData? {
         if let view = viewResolver.resolveView(Type<FTVaultData>()) {
             if let v = view as? FTVaultData {
                 return v

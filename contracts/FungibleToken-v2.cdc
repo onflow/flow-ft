@@ -176,7 +176,7 @@ access(all) contract FungibleToken {
         /// ViewResolver Methods
         ///
         access(all) view fun getViews(): [Type]
-        access(all) view fun resolveView(_ view: Type): AnyStruct?
+        access(all) fun resolveView(_ view: Type): AnyStruct?
     }
 
     /// Vault
@@ -205,7 +205,7 @@ access(all) contract FungibleToken {
         }
 
         access(all) view fun getViews(): [Type]
-        access(all) view fun resolveView(_ view: Type): AnyStruct?
+        access(all) fun resolveView(_ view: Type): AnyStruct?
 
         /// withdraw subtracts `amount` from the Vault's balance
         /// and returns a new Vault with the subtracted balance
