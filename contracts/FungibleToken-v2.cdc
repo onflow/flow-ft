@@ -129,23 +129,11 @@ access(all) contract FungibleToken {
         access(all) fun deposit(from: @AnyResource{Vault})
 
         /// getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
-        access(all) view fun getSupportedVaultTypes(): {Type: Bool} {
-            // Below check is implemented to make sure that run-time type would
-            // only get returned when the parent resource conforms with `FungibleToken.Vault`. 
-            if self.getType().isSubtype(of: Type<@AnyResource{FungibleToken.Vault}>()) {
-                return {self.getType(): true}
-            } else {
-                // Return an empty dictionary as the default value for resource who don't
-                // implement `FungibleToken.Vault`, such as `FungibleTokenSwitchboard`, `TokenForwarder` etc.
-                return {}
-            }
-        }
+        access(all) view fun getSupportedVaultTypes(): {Type: Bool}
 
         /// Returns whether or not the given type is accepted by the Receiver
         /// A vault that can accept any type should just return true by default
-        access(all) view fun isSupportedVaultType(type: Type): Bool {
-            return false
-        }
+        access(all) view fun isSupportedVaultType(type: Type): Bool
     }
 
     access(all) resource interface Transferor {
