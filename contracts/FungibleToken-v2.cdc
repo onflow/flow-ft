@@ -102,7 +102,7 @@ access(all) contract FungibleToken {
         /// capability that allows all users to access the provider
         /// resource through a reference.
         ///
-        access(Withdrawable) fun withdraw(amount: UFix64): @AnyResource{Vault} {
+        access(Withdrawable) fun withdraw(amount: UFix64): @{Vault} {
             post {
                 // `result` refers to the return value
                 result.getBalance() == amount:
@@ -126,7 +126,7 @@ access(all) contract FungibleToken {
 
         /// deposit takes a Vault and deposits it into the implementing resource type
         ///
-        access(all) fun deposit(from: @AnyResource{Vault})
+        access(all) fun deposit(from: @{Vault})
 
         /// getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
         access(all) view fun getSupportedVaultTypes(): {Type: Bool}
@@ -181,7 +181,7 @@ access(all) contract FungibleToken {
         access(all) view fun getSupportedVaultTypes(): {Type: Bool} {
             // Below check is implemented to make sure that run-time type would
             // only get returned when the parent resource conforms with `FungibleToken.Vault`. 
-            if self.getType().isSubtype(of: Type<@AnyResource{FungibleToken.Vault}>()) {
+            if self.getType().isSubtype(of: Type<@{FungibleToken.Vault}>()) {
                 return {self.getType(): true}
             } else {
                 // Return an empty dictionary as the default value for resource who don't
@@ -210,7 +210,7 @@ access(all) contract FungibleToken {
         /// withdraw subtracts `amount` from the Vault's balance
         /// and returns a new Vault with the subtracted balance
         ///
-        access(Withdrawable) fun withdraw(amount: UFix64): @AnyResource{Vault} {
+        access(Withdrawable) fun withdraw(amount: UFix64): @{Vault} {
             pre {
                 self.getBalance() >= amount:
                     "Amount withdrawn must be less than or equal than the balance of the Vault"
@@ -226,7 +226,7 @@ access(all) contract FungibleToken {
 
         /// deposit takes a Vault and adds its balance to the balance of this Vault
         ///
-        access(all) fun deposit(from: @AnyResource{FungibleToken.Vault}) {
+        access(all) fun deposit(from: @{FungibleToken.Vault}) {
             // Assert that the concrete type of the deposited vault is the same
             // as the vault that is accepting the deposit
             pre {
@@ -252,7 +252,7 @@ access(all) contract FungibleToken {
 
         /// createEmptyVault allows any user to create a new Vault that has a zero balance
         ///
-        access(all) fun createEmptyVault(): @AnyResource{Vault} {
+        access(all) fun createEmptyVault(): @{Vault} {
             post {
                 result.getBalance() == 0.0: "The newly created Vault must have zero balance"
             }

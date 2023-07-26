@@ -16,7 +16,7 @@ access(all) contract interface MultipleVaults {
 
     /// createEmptyVault allows any user to create a new Vault that has a zero balance
     ///
-    access(all) fun createEmptyVault(vaultType: Type): @AnyResource{FungibleToken.Vault} {
+    access(all) fun createEmptyVault(vaultType: Type): @{FungibleToken.Vault} {
         post {
             result.getBalance() == 0.0: "The newly created Vault must have zero balance"
         }

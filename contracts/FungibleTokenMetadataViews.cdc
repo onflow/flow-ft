@@ -139,7 +139,7 @@ access(all) contract FungibleTokenMetadataViews {
 
         /// Function that allows creation of an empty FT vault that is intended
         /// to store the funds.
-        access(all) let createEmptyVault: fun(): @AnyResource{FungibleToken.Vault}
+        access(all) let createEmptyVault: fun(): @{FungibleToken.Vault}
 
         view init(
             storagePath: StoragePath,
@@ -149,7 +149,7 @@ access(all) contract FungibleTokenMetadataViews {
             receiverLinkedType: Type,
             metadataLinkedType: Type,
             providerLinkedType: Type,
-            createEmptyVaultFunction: fun(): @AnyResource{FungibleToken.Vault}
+            createEmptyVaultFunction: fun(): @{FungibleToken.Vault}
         ) {
             pre {
                 receiverLinkedType.isSubtype(of: Type<&{FungibleToken.Receiver}>()): "Receiver public type must include FungibleToken.Receiver."

@@ -149,7 +149,7 @@ access(all) contract ExampleToken: ViewResolver, MultipleVaults {
         /// was a temporary holder of the tokens. The Vault's balance has
         /// been consumed and therefore can be destroyed.
         ///
-        access(all) fun deposit(from: @AnyResource{FungibleToken.Vault}) {
+        access(all) fun deposit(from: @{FungibleToken.Vault}) {
             let vault <- from as! @ExampleToken.Vault
             self.balance = self.balance + vault.balance
             vault.balance = 0.0
