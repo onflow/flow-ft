@@ -211,6 +211,8 @@ pub fun testVaultTypes() {
     let code = Test.readFile("./scripts/get_views.cdc")
     let scriptResult = blockchain.executeScript(code, [recipient.address])
 
+    log(scriptResult.error)
+
     Test.expect(scriptResult, Test.beSucceeded())
 }
 

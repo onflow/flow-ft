@@ -5,16 +5,16 @@ import ExampleToken from "ExampleToken"
 // This transaction is a template for a transaction that
 // could be used by anyone to remove fungible token vault
 // capability from their switchboard resource
-transaction {
+transaction(path: PublicPath) {
 
     let exampleTokenVaultCapabilty: Capability<&{FungibleToken.Receiver}>
     let switchboardRef:  &FungibleTokenSwitchboard.Switchboard
 
     prepare(signer: AuthAccount) {
 
-      // Get the example token vault capability from the signer's account
+      // Get the capability from the signer's account
       self.exampleTokenVaultCapabilty = signer.getCapability
-                    <&{FungibleToken.Receiver}>(ExampleToken.ReceiverPublicPath)
+                    <&{FungibleToken.Receiver}>(path)
       
       // Get a reference to the signers switchboard  
       self.switchboardRef = signer.borrow<&FungibleTokenSwitchboard.Switchboard>

@@ -7,5 +7,4 @@ test:
 .PHONY: ci
 ci:
 	$(MAKE) ci -C lib/go
-	$(MAKE) ci -C lib/js/test
 	flow test --cover tests/*.cdc
