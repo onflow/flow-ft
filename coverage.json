@@ -1,0 +1,959 @@
+{
+  "coverage": {
+    "A.01cf0e2f2f715450.ExampleToken": {
+      "line_hits": {
+        "101": 1,
+        "115": 6,
+        "117": 1,
+        "122": 2,
+        "128": 2,
+        "129": 2,
+        "140": 2,
+        "149": 1,
+        "153": 0,
+        "155": 1,
+        "167": 3,
+        "178": 1,
+        "179": 1,
+        "187": 1,
+        "188": 1,
+        "207": 1,
+        "208": 1,
+        "210": 1,
+        "211": 1,
+        "212": 1,
+        "213": 1,
+        "217": 1,
+        "233": 1,
+        "234": 1,
+        "235": 1,
+        "236": 1,
+        "241": 2,
+        "242": 2,
+        "243": 2,
+        "244": 2,
+        "245": 2,
+        "248": 2,
+        "249": 2,
+        "253": 2,
+        "260": 2,
+        "265": 2,
+        "266": 2,
+        "269": 2,
+        "54": 12,
+        "68": 6,
+        "69": 6,
+        "70": 6,
+        "82": 5,
+        "83": 5,
+        "84": 5,
+        "85": 5,
+        "86": 5,
+        "90": 7,
+        "91": 1
+      },
+      "missed_lines": [
+        153
+      ],
+      "statements": 49,
+      "percentage": "98.0%"
+    },
+    "A.01cf0e2f2f715450.FungibleTokenMetadataViews": {
+      "line_hits": {
+        "101": 1,
+        "102": 1,
+        "103": 1,
+        "106": 0,
+        "154": 2,
+        "155": 2,
+        "156": 2,
+        "158": 2,
+        "159": 2,
+        "160": 2,
+        "161": 2,
+        "162": 2,
+        "163": 2,
+        "164": 2,
+        "165": 2,
+        "175": 1,
+        "176": 1,
+        "177": 1,
+        "180": 0,
+        "188": 0,
+        "26": 1,
+        "27": 1,
+        "37": 1,
+        "38": 1,
+        "39": 1,
+        "41": 0,
+        "86": 2,
+        "87": 2,
+        "88": 2,
+        "89": 2,
+        "90": 2,
+        "91": 2
+      },
+      "missed_lines": [
+        41,
+        106,
+        180,
+        188
+      ],
+      "statements": 32,
+      "percentage": "87.5%"
+    },
+    "A.01cf0e2f2f715450.FungibleTokenSwitchboard": {
+      "line_hits": {
+        "102": 0,
+        "105": 0,
+        "108": 0,
+        "111": 0,
+        "137": 0,
+        "139": 0,
+        "142": 0,
+        "161": 1,
+        "164": 1,
+        "165": 1,
+        "170": 1,
+        "174": 1,
+        "177": 1,
+        "194": 1,
+        "197": 1,
+        "200": 1,
+        "212": 4,
+        "216": 3,
+        "219": 3,
+        "236": 0,
+        "240": 0,
+        "243": 0,
+        "247": 0,
+        "248": 0,
+        "250": 0,
+        "252": 0,
+        "253": 0,
+        "262": 1,
+        "263": 0,
+        "266": 1,
+        "278": 1,
+        "279": 0,
+        "282": 1,
+        "293": 4,
+        "294": 4,
+        "295": 2,
+        "296": 2,
+        "299": 4,
+        "310": 0,
+        "312": 0,
+        "313": 0,
+        "315": 0,
+        "319": 0,
+        "327": 4,
+        "328": 4,
+        "329": 4,
+        "330": 2,
+        "332": 4,
+        "337": 1,
+        "346": 1,
+        "350": 1,
+        "351": 1,
+        "352": 1,
+        "68": 1,
+        "71": 1,
+        "74": 1,
+        "77": 1,
+        "82": 0,
+        "94": 0,
+        "97": 0,
+        "98": 0
+      },
+      "missed_lines": [
+        82,
+        94,
+        97,
+        98,
+        102,
+        105,
+        108,
+        111,
+        137,
+        139,
+        142,
+        236,
+        240,
+        243,
+        247,
+        248,
+        250,
+        252,
+        253,
+        263,
+        279,
+        310,
+        312,
+        313,
+        315,
+        319
+      ],
+      "statements": 61,
+      "percentage": "57.4%"
+    },
+    "A.01cf0e2f2f715450.TokenForwarding": {
+      "line_hits": {
+        "102": 1,
+        "104": 1,
+        "111": 1,
+        "52": 1,
+        "54": 1,
+        "56": 1,
+        "58": 1,
+        "64": 0,
+        "74": 0,
+        "81": 0,
+        "83": 0,
+        "91": 0,
+        "92": 0,
+        "94": 0,
+        "95": 0,
+        "96": 0,
+        "97": 0
+      },
+      "missed_lines": [
+        64,
+        74,
+        81,
+        83,
+        91,
+        92,
+        94,
+        95,
+        96,
+        97
+      ],
+      "statements": 17,
+      "percentage": "41.2%"
+    },
+    "s.1d96c4c8ce3dcfeb51c5b582fa92db1add3c3b1cf48219c6e56ac58ed6097663": {
+      "line_hits": {
+        "7": 2
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "s.41a7e15842b5b20dd06b65f8165930466bdca8a743f69abec261df4eb1ebd053": {
+      "line_hits": {
+        "13": 7,
+        "8": 7,
+        "9": 7
+      },
+      "missed_lines": [],
+      "statements": 3,
+      "percentage": "100.0%"
+    },
+    "s.52cf53a5513441758921ef660b66ee487efde7f55f6cde9d2f4c85f88cde13fd": {
+      "line_hits": {
+        "10": 1,
+        "11": 1,
+        "15": 1,
+        "17": 1
+      },
+      "missed_lines": [],
+      "statements": 4,
+      "percentage": "100.0%"
+    },
+    "s.5d48d12ba6d418eef6d4eb6db39fa3976e266fdb31c52c518fd36367299fbf36": {
+      "line_hits": {
+        "12": 1,
+        "14": 1,
+        "19": 1,
+        "22": 1,
+        "23": 1,
+        "24": 1,
+        "25": 1,
+        "26": 1,
+        "27": 1,
+        "28": 1,
+        "29": 1,
+        "30": 1,
+        "31": 1,
+        "33": 1,
+        "35": 1
+      },
+      "missed_lines": [],
+      "statements": 15,
+      "percentage": "100.0%"
+    },
+    "s.6bce1ab49cad52353eafb9fba45e392f1ef1e492539ccfff9c7ee1ec2b8697b2": {
+      "line_hits": {
+        "10": 4,
+        "15": 4
+      },
+      "missed_lines": [],
+      "statements": 2,
+      "percentage": "100.0%"
+    },
+    "s.7335c8ce2351851b63b76a10918b6f2ae06917c8256e042681cf6ca3dcbabf59": {
+      "line_hits": {
+        "11": 1,
+        "13": 1,
+        "18": 1,
+        "21": 1,
+        "22": 1,
+        "23": 1,
+        "24": 1,
+        "25": 1,
+        "26": 1,
+        "28": 1
+      },
+      "missed_lines": [],
+      "statements": 10,
+      "percentage": "100.0%"
+    },
+    "s.8b84b07f38923d2d86e6e3948458ae313ff63d983f3ad741e30a91a2f9dbe2e5": {
+      "line_hits": {
+        "11": 1,
+        "13": 1,
+        "18": 1,
+        "20": 1
+      },
+      "missed_lines": [],
+      "statements": 4,
+      "percentage": "100.0%"
+    },
+    "s.dd19d3895e8e5be594b205172cf385e11550cd61a202681ff6bf70be0e8221f5": {
+      "line_hits": {
+        "11": 1,
+        "13": 1,
+        "17": 1,
+        "18": 1,
+        "25": 1,
+        "27": 1
+      },
+      "missed_lines": [],
+      "statements": 6,
+      "percentage": "100.0%"
+    },
+    "t.00c0089ba57a0db13d06ad748c7ad393af593bda39d46bacfb50e0814691a134": {
+      "line_hits": {
+        "13": 1,
+        "14": 0,
+        "5": 1,
+        "8": 1,
+        "9": 1
+      },
+      "missed_lines": [
+        14
+      ],
+      "statements": 5,
+      "percentage": "80.0%"
+    },
+    "t.0b2dcd2022e9ae574c8739d40cc7a7a4f8a5a324b0486b77c7c8f9148c81dbea": {
+      "line_hits": {
+        "3": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.11640d95d583cf70ab11a13c721bcdce2cc1e60b62b8b3d95e8d022dde046cfc": {
+      "line_hits": {
+        "20": 1,
+        "24": 1,
+        "31": 1,
+        "34": 1,
+        "40": 1
+      },
+      "missed_lines": [],
+      "statements": 5,
+      "percentage": "100.0%"
+    },
+    "t.146c6706c5cde1bfac08e0c69a3f75073cf5c1be7039511547769766e4483b2b": {
+      "line_hits": {
+        "4": 2,
+        "5": 2
+      },
+      "missed_lines": [],
+      "statements": 2,
+      "percentage": "100.0%"
+    },
+    "t.14966eba5a49b59dcfb2a5f2bba70b8846f885118f60d960b27c5fb0d3c1a21c": {
+      "line_hits": {
+        "3": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.181ce3b2d98f4b21bcf95b79dd4d0877d5c1bd421bc08d471973db42adf8975e": {
+      "line_hits": {
+        "16": 2,
+        "17": 2,
+        "18": 2,
+        "19": 0,
+        "20": 0,
+        "23": 2
+      },
+      "missed_lines": [
+        19,
+        20
+      ],
+      "statements": 6,
+      "percentage": "66.7%"
+    },
+    "t.1ae42f498b3abbb4c57a741416a295ebddd548f4b89ef7031e42ef7cee9e643e": {
+      "line_hits": {
+        "3": 2
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.1ccc05826161f18c7ff8fac4d71a233e9eaf97a319b26ab037af3808fca346bf": {
+      "line_hits": {
+        "4": 2
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.20c9c674877f887bc3b2b1171a6330e289809a3439c3e545a57fc18a506c1cf6": {
+      "line_hits": {
+        "13": 1,
+        "14": 0,
+        "5": 1,
+        "8": 1,
+        "9": 1
+      },
+      "missed_lines": [
+        14
+      ],
+      "statements": 5,
+      "percentage": "80.0%"
+    },
+    "t.262222dbc7c8b1bf2b1f92f007880d4d9bd45c397964df80e9bfa4e49fb8f21c": {
+      "line_hits": {
+        "3": 2
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.32375e07b6cd2f3d0bd1ed6ef18ef1fe1c8bb9b2baa519c149064640af50888b": {
+      "line_hits": {
+        "3": 2,
+        "4": 2
+      },
+      "missed_lines": [],
+      "statements": 2,
+      "percentage": "100.0%"
+    },
+    "t.385efc3703889a37ee358ea653e96a14f630c84df87452c96fc985ce57d990f2": {
+      "line_hits": {
+        "19": 1,
+        "23": 1,
+        "29": 0,
+        "32": 0,
+        "37": 0
+      },
+      "missed_lines": [
+        29,
+        32,
+        37
+      ],
+      "statements": 5,
+      "percentage": "40.0%"
+    },
+    "t.3ee9cabb29837e00e70a3b6f255c76f2162bfedd7f1ea1da2919386614a58e1e": {
+      "line_hits": {
+        "3": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.44c94dfb5a72cfcd4ba286969ba175116b18629fe8812f06649ee93ee84397ed": {
+      "line_hits": {
+        "3": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.46e2f84fd1642e4ac90ce5410356e0c2b141912d9fc5c4fa252f783993b2543c": {
+      "line_hits": {
+        "3": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.4c8a73a6a77f16b167fb968a64f4f3ae0a70cf47c3330a50acbed6aa704ded4c": {
+      "line_hits": {
+        "35": 1,
+        "39": 1,
+        "40": 1,
+        "43": 1,
+        "44": 1,
+        "48": 1,
+        "54": 1
+      },
+      "missed_lines": [],
+      "statements": 7,
+      "percentage": "100.0%"
+    },
+    "t.513a0514f2cea3bb4272bb6281f57877da2c4c4f8ba34d1e011ce548ca67557d": {
+      "line_hits": {
+        "14": 1,
+        "15": 0,
+        "19": 1,
+        "26": 1,
+        "32": 1
+      },
+      "missed_lines": [
+        15
+      ],
+      "statements": 5,
+      "percentage": "80.0%"
+    },
+    "t.5371237dabf71e68440e29dcf62d6c2636fae6b63117c5671600cd1290c9b9e9": {
+      "line_hits": {
+        "16": 1,
+        "20": 1,
+        "30": 1
+      },
+      "missed_lines": [],
+      "statements": 3,
+      "percentage": "100.0%"
+    },
+    "t.58271af589bd464d1c6f17f111e43e19b2ca4b949b47cf21950ee1f6e5786da7": {
+      "line_hits": {
+        "13": 1,
+        "14": 0,
+        "5": 1,
+        "8": 1,
+        "9": 1
+      },
+      "missed_lines": [
+        14
+      ],
+      "statements": 5,
+      "percentage": "80.0%"
+    },
+    "t.5b606a5e88b6bf4e432d699edbf684b46c8920f986e69ee1e16510cfcf677821": {
+      "line_hits": {
+        "20": 1,
+        "23": 1,
+        "27": 1,
+        "36": 1,
+        "37": 1,
+        "40": 1,
+        "42": 1,
+        "46": 1
+      },
+      "missed_lines": [],
+      "statements": 7,
+      "percentage": "100.0%"
+    },
+    "t.605dfb815d84164c5637cda6e4253230c41a6cd8cce2701d423c5f667f576934": {
+      "line_hits": {
+        "3": 2
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.66e4893c1ad2261377be31a9bd174d13db1a7010144547491a2f625b99e7ed98": {
+      "line_hits": {
+        "16": 1,
+        "21": 1,
+        "25": 1,
+        "34": 1
+      },
+      "missed_lines": [],
+      "statements": 4,
+      "percentage": "100.0%"
+    },
+    "t.69e95cdeedcb7c41b4c1a1d4dcfac802f87164fd54df8f8911f9b6660d69e043": {
+      "line_hits": {
+        "3": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.6b1033243552da96bb48dcca4b4fc9a1c9b6dbd47d73f1d3dbf7ab3307ff421b": {
+      "line_hits": {
+        "3": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.6b73cbfb2db6fb2effee28ea3c72a2ff9e747f54cdc9f268c02765fcdd8f7efb": {
+      "line_hits": {
+        "12": 1,
+        "16": 1,
+        "22": 1,
+        "30": 1
+      },
+      "missed_lines": [],
+      "statements": 4,
+      "percentage": "100.0%"
+    },
+    "t.7a951893dca4bda1c00f4c7042b87d88647fbebd672aec5033d5dc1b1e7c4529": {
+      "line_hits": {
+        "3": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.82f4680f1e5b7c5ca3b092e57e951e777c9e1e1ead0ccd52e36f1bb66409f2fe": {
+      "line_hits": {
+        "3": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.8b60d3241bac609027413fe11f1a4f75d6f14a52c04e777e0b29072cd4b1a8ed": {
+      "line_hits": {
+        "3": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.9482dcd7aaad3521415041a1e0ca102c92264b91bab87164f0fc2f7832a88688": {
+      "line_hits": {
+        "3": 2
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.9616e796ee4e312ad21c3caf747e4570874a7874a2b9c125914b5abde640e531": {
+      "line_hits": {
+        "4": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.97c78e9cd07a678c8dd60fbec24e063c413d53394102f764877e69970cdaf351": {
+      "line_hits": {
+        "23": 1,
+        "26": 1,
+        "30": 1,
+        "35": 1,
+        "37": 1,
+        "39": 1,
+        "43": 1
+      },
+      "missed_lines": [],
+      "statements": 6,
+      "percentage": "100.0%"
+    },
+    "t.a2d6d72dc5c18fea8e39d5b358be3101fdbaebcff9b10584694007c793a170fc": {
+      "line_hits": {
+        "12": 2,
+        "17": 2
+      },
+      "missed_lines": [],
+      "statements": 2,
+      "percentage": "100.0%"
+    },
+    "t.a64301659877651418fa41e35eaa6aac24e6ef0acf6ca782f86483434486d402": {
+      "line_hits": {
+        "14": 1,
+        "15": 0,
+        "19": 1,
+        "26": 1,
+        "32": 1
+      },
+      "missed_lines": [
+        15
+      ],
+      "statements": 5,
+      "percentage": "80.0%"
+    },
+    "t.a73e9e34b97944320e6cf04191f2d8826778826d204f772a0d88d2b53cee0cf1": {
+      "line_hits": {
+        "3": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.a8b7d7ddf64067d1cf27d46c6433ce20250b5e9e3ea9ce3c1e7dba3d989d68fe": {
+      "line_hits": {
+        "3": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.af2805172627d96c53605130918e962d7f84aba21ad14958be015aed7408964c": {
+      "line_hits": {
+        "10": 2,
+        "13": 2,
+        "16": 2,
+        "17": 8,
+        "18": 8,
+        "19": 8,
+        "20": 6,
+        "22": 8,
+        "25": 8
+      },
+      "missed_lines": [],
+      "statements": 9,
+      "percentage": "100.0%"
+    },
+    "t.b8c074b147d7fa0bcaaf07b3cf3cdbcfb347b5a23917de6c9ffc81501a67b91b": {
+      "line_hits": {
+        "3": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.ba8afaca103dc5a747cdd6a8a743158cdcc23f00ce56850fa0db1d4676466c98": {
+      "line_hits": {
+        "3": 2
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.bd4dabad3649b37cc31188a39a539363f01d01dc6f1554e6e35d117d28fb7027": {
+      "line_hits": {
+        "4": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.be55fb4435b9578c53f1fed04de8ceef3a3fd07adf1f145c5310fe0d16020e89": {
+      "line_hits": {
+        "12": 2,
+        "13": 2,
+        "14": 2,
+        "15": 2,
+        "6": 2,
+        "9": 2
+      },
+      "missed_lines": [],
+      "statements": 6,
+      "percentage": "100.0%"
+    },
+    "t.c158028b8bc660ceafad8085f25fab4e6ca24dbe152615a9220a2c0f34085617": {
+      "line_hits": {
+        "4": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.c1795359d2281be9a1a8ce6985f85ab76aac4bf73c09b596fb0990cf7f9eaf45": {
+      "line_hits": {
+        "20": 1,
+        "24": 1,
+        "31": 1,
+        "34": 1,
+        "40": 1
+      },
+      "missed_lines": [],
+      "statements": 5,
+      "percentage": "100.0%"
+    },
+    "t.c3e55c30443d00eb278cbc137d0c864afbb4b08788b5c6879cca8ce2c32f965c": {
+      "line_hits": {
+        "3": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.c8cba2492567c78e53ab7b688f049fba5adb883311fe76b530a50b5a50f0c24c": {
+      "line_hits": {
+        "17": 1,
+        "18": 1,
+        "22": 1,
+        "23": 1,
+        "26": 1,
+        "35": 1
+      },
+      "missed_lines": [],
+      "statements": 6,
+      "percentage": "100.0%"
+    },
+    "t.cbc48fa4a853af1da617f57224c98a89b891f800f6df5123f8d7b0222406c36e": {
+      "line_hits": {
+        "19": 1,
+        "23": 1,
+        "29": 1,
+        "32": 1,
+        "37": 1
+      },
+      "missed_lines": [],
+      "statements": 5,
+      "percentage": "100.0%"
+    },
+    "t.cbcc637d0ed3708180ebf785724d45a2ca06162b0fc8c268f3f2ed218548fb36": {
+      "line_hits": {
+        "20": 1,
+        "24": 1,
+        "31": 1,
+        "34": 1,
+        "40": 1
+      },
+      "missed_lines": [],
+      "statements": 5,
+      "percentage": "100.0%"
+    },
+    "t.d40628913113329ec0559980137c561ccdf99eb994d89b5475f2b31549f947a4": {
+      "line_hits": {
+        "4": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.d52b4ecc45043902cd36d4a1baa753289ded7a9be63dcdef9350842fc6f27118": {
+      "line_hits": {
+        "19": 1,
+        "23": 1,
+        "30": 1,
+        "33": 1,
+        "38": 1,
+        "39": 1,
+        "41": 0
+      },
+      "missed_lines": [
+        41
+      ],
+      "statements": 7,
+      "percentage": "85.7%"
+    },
+    "t.d81f652c58df5d2de7f5ad5f0b9fb922ce4762142fbdeb59f3b2828c9844a009": {
+      "line_hits": {
+        "4": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.d9cf026411bf11e26fbe5c62fe9ebc80041232694af90154ff15599a83e7b3f2": {
+      "line_hits": {
+        "3": 2
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.dae02fd5a649af88cc3a3ddd161cfd24efa858d6cf34ed3fb2e4419b124b4368": {
+      "line_hits": {
+        "3": 2
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.db106e259f99ed5c82f56c610c809ba8f41d986f057f52cc6720306c28c76fe0": {
+      "line_hits": {
+        "3": 2,
+        "4": 2
+      },
+      "missed_lines": [],
+      "statements": 2,
+      "percentage": "100.0%"
+    },
+    "t.de1e10b32fffd6cd2162abe9e7194570f7f5b48882a47d90a1d5e8322880935e": {
+      "line_hits": {
+        "6": 2,
+        "9": 2
+      },
+      "missed_lines": [],
+      "statements": 2,
+      "percentage": "100.0%"
+    },
+    "t.e29f329f766aba7073d9850a868c6a591e3731ed7f49401e4a102b817b65d933": {
+      "line_hits": {
+        "4": 1
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.e48156d044a71942d9e3f5ee8daccda994352f4afbc021be09e1992e25fdc0a8": {
+      "line_hits": {
+        "13": 1,
+        "14": 0,
+        "5": 1,
+        "8": 1,
+        "9": 1
+      },
+      "missed_lines": [
+        14
+      ],
+      "statements": 5,
+      "percentage": "80.0%"
+    },
+    "t.f12527c00369e8106d0e16a891bb6ca08140991138fe44ecb8a9fb86c6368268": {
+      "line_hits": {
+        "10": 2,
+        "12": 2,
+        "6": 2
+      },
+      "missed_lines": [],
+      "statements": 3,
+      "percentage": "100.0%"
+    },
+    "t.fb161c0fef86990eba40812e13f1b1f7adb3d5ee1abed02d1ba9301da42b1011": {
+      "line_hits": {
+        "3": 2
+      },
+      "missed_lines": [],
+      "statements": 1,
+      "percentage": "100.0%"
+    },
+    "t.fdf37782b5d4018fbd958bd341ba1a1562eee7870fd87d551e21b14fe0b623a8": {
+      "line_hits": {
+        "10": 2,
+        "14": 2,
+        "21": 2,
+        "22": 2,
+        "24": 2,
+        "26": 2
+      },
+      "missed_lines": [],
+      "statements": 6,
+      "percentage": "100.0%"
+    }
+  },
+  "excluded_locations": [
+    "A.0ae53cb6e3f42a79.FlowToken",
+    "A.f8d6e0586b0a20c7.FlowIDTableStaking",
+    "A.f8d6e0586b0a20c7.LockedTokens",
+    "A.f8d6e0586b0a20c7.FlowDKG",
+    "A.f8d6e0586b0a20c7.NFTStorefrontV2",
+    "s.7465737400000000000000000000000000000000000000000000000000000000",
+    "A.f8d6e0586b0a20c7.FlowStakingCollection",
+    "A.f8d6e0586b0a20c7.FlowServiceAccount",
+    "A.f8d6e0586b0a20c7.ExampleNFT",
+    "A.f8d6e0586b0a20c7.FlowStorageFees",
+    "A.f8d6e0586b0a20c7.FlowEpoch",
+    "I.Crypto",
+    "A.ee82856bf20e2aa6.FungibleToken",
+    "A.f8d6e0586b0a20c7.FlowClusterQC",
+    "A.f8d6e0586b0a20c7.NodeVersionBeacon",
+    "A.f8d6e0586b0a20c7.StakingProxy",
+    "A.e5a8b7f23e8b548f.FlowFees",
+    "A.f8d6e0586b0a20c7.NonFungibleToken",
+    "A.f8d6e0586b0a20c7.ViewResolver",
+    "I.Test",
+    "A.f8d6e0586b0a20c7.FUSD",
+    "A.f8d6e0586b0a20c7.MetadataViews",
+    "A.f8d6e0586b0a20c7.NFTStorefront"
+  ]
+}

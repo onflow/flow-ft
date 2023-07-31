@@ -18,7 +18,8 @@ pub fun main(address: Address): Bool {
     let expected: [Type] = [
         Type<FungibleTokenMetadataViews.FTView>(),
         Type<FungibleTokenMetadataViews.FTDisplay>(),
-        Type<FungibleTokenMetadataViews.FTVaultData>()
+        Type<FungibleTokenMetadataViews.FTVaultData>(),
+        Type<FungibleTokenMetadataViews.TotalSupply>()
     ]
 
     assert(expected == views)
