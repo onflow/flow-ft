@@ -3,17 +3,18 @@ module github.com/onflow/flow-ft/lib/go/test
 go 1.18
 
 require (
-	github.com/onflow/cadence v0.40.0
-	github.com/onflow/flow-emulator v0.54.0
-	github.com/onflow/flow-ft/lib/go/contracts v0.7.0
+	github.com/onflow/cadence v0.39.13-stable-cadence.0.20230811182010-c66466eb6b1a
+	github.com/onflow/flow-emulator v0.54.1-0.20230810231813-53e63bcc9c8f
+	github.com/onflow/flow-ft/lib/go/contracts v0.7.1-0.20230726183918-f90805445bfa
 	github.com/onflow/flow-ft/lib/go/templates v0.0.0-00010101000000-000000000000
-	github.com/onflow/flow-go-sdk v0.41.10
-	github.com/onflow/flow-nft/lib/go/contracts v1.1.0
+	github.com/onflow/flow-go-sdk v0.41.10-0.20230719221154-2a4946e41c23
+	github.com/onflow/flow-nft/lib/go/contracts v1.1.1-0.20230811183441-b882831b7c12
 	github.com/rs/zerolog v1.29.0
 	github.com/stretchr/testify v1.8.4
 )
 
 require (
+	github.com/SaveTheRbtz/mph v0.1.2 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.5.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.2.1 // indirect
@@ -61,7 +62,8 @@ require (
 	github.com/ipfs/go-log/v2 v2.5.1 // indirect
 	github.com/ipfs/go-metrics-interface v0.0.1 // indirect
 	github.com/jbenet/goprocess v0.1.4 // indirect
-	github.com/kevinburke/go-bindata v3.23.0+incompatible // indirect
+	github.com/k0kubun/pp v3.0.1+incompatible // indirect
+	github.com/kevinburke/go-bindata v3.24.0+incompatible // indirect
 	github.com/klauspost/compress v1.16.5 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
@@ -84,9 +86,9 @@ require (
 	github.com/multiformats/go-multistream v0.4.1 // indirect
 	github.com/multiformats/go-varint v0.0.7 // indirect
 	github.com/onflow/atree v0.6.0 // indirect
-	github.com/onflow/flow-core-contracts/lib/go/contracts v1.2.4-0.20230703193002-53362441b57d // indirect
-	github.com/onflow/flow-core-contracts/lib/go/templates v1.2.3 // indirect
-	github.com/onflow/flow-go v0.31.1-0.20230808172820-f074502a67e3 // indirect
+	github.com/onflow/flow-core-contracts/lib/go/contracts v1.2.4-0.20230808220007-f00e74ca675b // indirect
+	github.com/onflow/flow-core-contracts/lib/go/templates v1.2.4-0.20230808220007-f00e74ca675b // indirect
+	github.com/onflow/flow-go v0.31.1-0.20230810172105-725d883609b7 // indirect
 	github.com/onflow/flow-go/crypto v0.24.9 // indirect
 	github.com/onflow/flow/protobuf/go/flow v0.3.2-0.20230628215638-83439d22e0ce // indirect
 	github.com/onflow/nft-storefront/lib/go/contracts v0.0.0-20221222181731-14b90207cead // indirect
@@ -121,8 +123,8 @@ require (
 	github.com/vmihailenco/msgpack/v4 v4.3.11 // indirect
 	github.com/vmihailenco/tagparser v0.1.1 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
-	github.com/zeebo/assert v1.3.0 // indirect
 	github.com/zeebo/blake3 v0.2.3 // indirect
+	github.com/zeebo/xxh3 v1.0.2 // indirect
 	go.opentelemetry.io/otel v1.16.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/internal/retry v1.16.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.16.0 // indirect
