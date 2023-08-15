@@ -6,12 +6,12 @@ import ExampleToken from "ExampleToken"
 transaction(addressAmountMap: {Address: UFix64}) {
 
     // The Vault resource that holds the tokens that are being transferred
-    let vaultRef: &ExampleToken.Vault
+    let vaultRef: auth(FungibleToken.Withdrawable) &ExampleToken.Vault
 
     prepare(signer: AuthAccount) {
 
         // Get a reference to the signer's stored vault
-        self.vaultRef = signer.borrow<&ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)
+        self.vaultRef = signer.borrow<auth(FungibleToken.Withdrawable) &ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)
 			?? panic("Could not borrow reference to the owner's Vault!")
     }
 

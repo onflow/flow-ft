@@ -9,7 +9,7 @@ import PrivateReceiverForwarder from "PrivateReceiverForwarder"
 transaction {
 
     prepare(signer: AuthAccount) {
-        receiverCapability = signer.link<&ExampleToken.Vault{FungibleToken.Receiver}>(
+        receiverCapability = signer.link<&{FungibleToken.Receiver}>(
             /private/exampleTokenReceiver,
             target: ExampleToken.VaultStoragePath
         )

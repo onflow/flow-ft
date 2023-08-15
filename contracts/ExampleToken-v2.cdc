@@ -1,24 +1,44 @@
-import FungibleToken from "FungibleToken-v2"
+import FungibleToken from "FungibleToken"
 import MetadataViews from "MetadataViews"
 import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
-import MultipleVaults from "MultipleVaults.cdc"
-import ViewResolver from "ViewResolver.cdc"
+import MultipleVaults from "MultipleVaults"
+import ViewResolver from "ViewResolver"
 
-access(all) contract ExampleToken: ViewResolver, MultipleVaults {
+access(all) contract ExampleToken: ViewResolver {
 
     /// The event that is emitted when new tokens are minted
     access(all) event TokensMinted(amount: UFix64, type: String)
 
     /// Total supply of ExampleTokens in existence
-    access(contract) var totalSupply: {Type: UFix64}
+    access(all) var totalSupply: UFix64
 
     /// Admin Path
     access(all) let AdminStoragePath: StoragePath
+
+    /// User Paths
+    access(all) let VaultStoragePath: StoragePath
+    access(all) let VaultPublicPath: PublicPath
 
     /// Function to return the types that the contract implements
     access(all) view fun getVaultTypes(): [Type] {
         let typeArray: [Type] = [Type<@ExampleToken.Vault>()]
         return typeArray
+    }
+
+    access(all) view fun getViews(): [Type] {
+        let vaultRef = self.account.getCapability(/public/exampleTokenVault)
+            .borrow<&ExampleToken.Vault>()
+            ?? panic("Could not borrow a reference to the vault resolver")
+        
+        return vaultRef.getViews()
+    }
+
+    access(all) fun resolveView(_ view: Type): AnyStruct? {
+        let vaultRef = self.account.getCapability(/public/exampleTokenVault)
+            .borrow<&ExampleToken.Vault>()
+            ?? panic("Could not borrow a reference to the vault resolver")
+        
+        return vaultRef.resolveView(view)
     }
 
     /// Vault
@@ -54,7 +74,8 @@ access(all) contract ExampleToken: ViewResolver, MultipleVaults {
         access(all) view fun getViews(): [Type] {
             return [Type<FungibleTokenMetadataViews.FTView>(),
                     Type<FungibleTokenMetadataViews.FTDisplay>(),
-                    Type<FungibleTokenMetadataViews.FTVaultData>()]
+                    Type<FungibleTokenMetadataViews.FTVaultData>(),
+                    Type<FungibleTokenMetadataViews.TotalSupply>()]
         }
 
         access(all) fun resolveView(_ view: Type): AnyStruct? {
@@ -90,10 +111,10 @@ access(all) contract ExampleToken: ViewResolver, MultipleVaults {
                         receiverPath: self.publicPath,
                         metadataPath: self.publicPath,
                         providerPath: /private/exampleTokenVault,
-                        receiverLinkedType: Type<&ExampleToken.Vault{FungibleToken.Receiver}>(),
-                        metadataLinkedType: Type<&ExampleToken.Vault{FungibleToken.Balance, ViewResolver.Resolver}>(),
-                        providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider}>(),
-                        createEmptyVaultFunction: (fun(): @ExampleToken.Vault{FungibleToken.Vault} {
+                        receiverLinkedType: Type<&ExampleToken.Vault>(),
+                        metadataLinkedType: Type<&ExampleToken.Vault>(),
+                        providerLinkedType: Type<&ExampleToken.Vault>(),
+                        createEmptyVaultFunction: (fun(): @{FungibleToken.Vault} {
                             return <-vaultRef.createEmptyVault()
                         })
                     )
@@ -135,7 +156,7 @@ access(all) contract ExampleToken: ViewResolver, MultipleVaults {
         /// created Vault to the context that called so it can be deposited
         /// elsewhere.
         ///
-        access(FungibleToken.Withdrawable) fun withdraw(amount: UFix64): @ExampleToken.Vault{FungibleToken.Vault} {
+        access(FungibleToken.Withdrawable) fun withdraw(amount: UFix64): @ExampleToken.Vault {
             self.balance = self.balance - amount
             return <-create Vault(balance: amount)
         }
@@ -156,7 +177,7 @@ access(all) contract ExampleToken: ViewResolver, MultipleVaults {
             destroy vault
         }
 
-        access(all) fun transfer(amount: UFix64, receiver: Capability<&{FungibleToken.Receiver}>) {
+        access(FungibleToken.Withdrawable) fun transfer(amount: UFix64, receiver: Capability<&{FungibleToken.Receiver}>) {
             let transferVault <- self.withdraw(amount: amount)
 
             // Get a reference to the recipient's Receiver
@@ -174,13 +195,13 @@ access(all) contract ExampleToken: ViewResolver, MultipleVaults {
         /// and store the returned Vault in their storage in order to allow their
         /// account to be able to receive deposits of this token type.
         ///
-        access(all) fun createEmptyVault(): @ExampleToken.Vault{FungibleToken.Vault} {
+        access(all) fun createEmptyVault(): @ExampleToken.Vault {
             return <-create Vault(balance: 0.0)
         }
 
         destroy() {
             if self.balance > 0.0 {
-                ExampleToken.totalSupply[self.getType()] = ExampleToken.totalSupply[self.getType()]! - self.balance
+                ExampleToken.totalSupply = ExampleToken.totalSupply - self.balance
             }
         }
     }
@@ -196,7 +217,7 @@ access(all) contract ExampleToken: ViewResolver, MultipleVaults {
         /// and returns them to the calling context.
         ///
         access(all) fun mintTokens(amount: UFix64): @ExampleToken.Vault {
-            ExampleToken.totalSupply[self.getType()] = ExampleToken.totalSupply[self.getType()]! + amount
+            ExampleToken.totalSupply = ExampleToken.totalSupply + amount
             emit TokensMinted(amount: amount, type: self.getType().identifier)
             return <-create Vault(balance: amount)
         }
@@ -209,33 +230,29 @@ access(all) contract ExampleToken: ViewResolver, MultipleVaults {
     /// and store the returned Vault in their storage in order to allow their
     /// account to be able to receive deposits of this token type.
     ///
-    access(all) fun createEmptyVault(vaultType: Type): @{FungibleToken.Vault} {
-        switch vaultType {
-            case Type<@ExampleToken.Vault>():
-                return <- create Vault(balance: 0.0)
-            default:
-                return <- create Vault(balance: 0.0)
-        }
+    access(all) fun createEmptyVault(): @ExampleToken.Vault {
+        return <- create Vault(balance: 0.0)
     }
 
     init() {
-        self.totalSupply = {}
-        self.totalSupply[Type<@ExampleToken.Vault>()] = 1000.0
+        self.totalSupply = 1000.0
 
         self.AdminStoragePath = /storage/exampleTokenAdmin 
 
         // Create the Vault with the total supply of tokens and save it in storage
         //
-        let vault <- create Vault(balance: self.totalSupply[Type<@ExampleToken.Vault>()]!)
-        self.account.save(<-vault, to: /storage/exampleTokenVault)
+        let vault <- create Vault(balance: self.totalSupply)
+        self.VaultStoragePath = vault.getDefaultStoragePath()!
+        self.VaultPublicPath = vault.getDefaultPublicPath()!
+        self.account.save(<-vault, to: self.VaultStoragePath)
 
         // Create a public capability to the stored Vault that exposes
         // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
         // and the `getBalance()` method through the `Balance` interface
         //
-        self.account.link<&{FungibleToken.Receiver, FungibleToken.Balance}>(
-            /public/exampleTokenVault,
-            target: /storage/exampleTokenVault
+        self.account.link<&{FungibleToken.Receiver, FungibleToken.Balance, ViewResolver.Resolver}>(
+            self.VaultPublicPath,
+            target: self.VaultStoragePath
         )
 
         let admin <- create Minter()

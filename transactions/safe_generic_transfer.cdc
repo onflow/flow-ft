@@ -17,7 +17,7 @@ transaction(amount: UFix64, to: Address, senderPath: StoragePath, receiverPath: 
     prepare(signer: AuthAccount) {
 
         // Get a reference to the signer's stored vault
-        let vaultRef = signer.borrow<&{FungibleToken.Provider}>(from: senderPath)
+        let vaultRef = signer.borrow<auth(FungibleToken.Withdrawable) &{FungibleToken.Provider}>(from: senderPath)
 			?? panic("Could not borrow reference to the owner's Vault!")
         
         self.senderReceiverRef = signer.borrow<&{FungibleToken.Receiver}>(from: senderPath)

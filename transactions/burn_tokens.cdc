@@ -23,7 +23,7 @@ transaction(amount: UFix64) {
         self.supplyBefore = ExampleToken.totalSupply
 
         // Withdraw 10 tokens from the admin vault in storage
-        self.vault <- signer.borrow<&ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)!
+        self.vault <- signer.borrow<auth(FungibleToken.Withdrawable) &ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)!
             .withdraw(amount: amount)
 
         // Create a reference to the admin admin resource in storage

@@ -3,6 +3,6 @@
 
 import ExampleToken from "ExampleToken"
 
-pub fun main(): UFix64 {
+access(all) fun main(): UFix64 {
     return ExampleToken.totalSupply
 }

@@ -4,11 +4,11 @@
 import FungibleToken from "FungibleToken"
 import ExampleToken from "ExampleToken"
 
-pub fun main(address: Address): UFix64 {
+access(all) fun main(address: Address): UFix64 {
     let account = getAccount(address)
-    let vaultRef = account.getCapability(ExampleToken.VaultPublicPath)
-        .borrow<&ExampleToken.Vault{FungibleToken.Balance}>()
+    let vaultRef = account.getCapability<&{FungibleToken.Balance}>(ExampleToken.VaultPublicPath)
+        .borrow()
         ?? panic("Could not borrow Balance reference to the Vault")
 
-    return vaultRef.balance
+    return vaultRef.getBalance()
 }

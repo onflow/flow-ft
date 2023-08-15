@@ -23,7 +23,7 @@ func TestPrivateForwarder(t *testing.T) {
 	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _, _, _ :=
+	fungibleAddr, _, exampleTokenAddr, _, _, _ :=
 		DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	forwardingCode := contracts.PrivateReceiverForwarder(fungibleAddr.String())

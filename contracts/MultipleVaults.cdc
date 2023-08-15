@@ -1,6 +1,6 @@
 
 
-import FungibleToken from "FungibleToken-v2"
+import FungibleToken from "FungibleToken"
 
 access(all) contract interface MultipleVaults {
 

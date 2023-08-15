@@ -31,7 +31,7 @@ transaction {
 
         // Create a public capability to the Vault that only exposes
         // the balance field through the Balance interface
-        signer.link<&ExampleToken.Vault{FungibleToken.Balance}>(
+        signer.link<&{FungibleToken.Balance}>(
             ExampleToken.VaultPublicPath,
             target: ExampleToken.VaultStoragePath
         )

@@ -18,7 +18,7 @@ const (
 func GenerateInspectVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName string) []byte {
 	code := assets.MustAssetString(scriptsPath + readBalanceFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
+	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
 }
 
 // GenerateInspectSupplyScript creates a script that reads
@@ -28,14 +28,14 @@ func GenerateInspectSupplyScript(fungibleAddr, tokenAddr flow.Address, tokenName
 
 	code := assets.MustAssetString(scriptsPath + readSupplyFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
+	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
 }
 
 // GenerateInspectSupplyViewScript creates a script that reads
 // the total supply of tokens in existence through a metadata view
-func GenerateInspectSupplyViewScript(fungibleAddr, tokenAddr, metadataViewsAddr, ftMetadataViewsAddr flow.Address, tokenName string) []byte {
+func GenerateInspectSupplyViewScript(fungibleAddr, tokenAddr, metadataViewsAddr, ftMetadataViewsAddr, viewResolverAddr flow.Address, tokenName string) []byte {
 
 	code := assets.MustAssetString(scriptsPath + readSupplyViewFilename)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, metadataViewsAddr, ftMetadataViewsAddr, tokenName)
+	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, metadataViewsAddr, ftMetadataViewsAddr, viewResolverAddr, tokenName)
 }

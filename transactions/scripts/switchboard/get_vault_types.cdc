@@ -3,7 +3,7 @@ import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
 
 // This script reads the stored vault capabilities from a switchboard on the
 // passed account
-pub fun main(account: Address): [Type] {
+access(all) fun main(account: Address): [Type] {
 
     let acct = getAccount(account)
 

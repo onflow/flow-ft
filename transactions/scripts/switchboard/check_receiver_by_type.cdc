@@ -1,7 +1,7 @@
 import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
 import ExampleToken from "ExampleToken"
 
-pub fun main(switchboard: Address): Bool {
+access(all) fun main(switchboard: Address): Bool {
 let switchboardRef = getAccount(switchboard)
     .getCapability<&{FungibleTokenSwitchboard.SwitchboardPublic}>(FungibleTokenSwitchboard.PublicPath)
     .borrow() 

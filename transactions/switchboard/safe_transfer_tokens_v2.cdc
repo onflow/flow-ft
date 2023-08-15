@@ -9,14 +9,14 @@ import ExampleToken from "ExampleToken"
 transaction(to: Address, amount: UFix64) {
 
     // The reference to the vault from the payer's account
-    let vaultRef: &ExampleToken.Vault
+    let vaultRef: auth(FungibleToken.Withdrawable) &ExampleToken.Vault
     // The Vault resource that holds the tokens that are being transferred
     let sentVault: @FungibleToken.Vault
 
     prepare(signer: AuthAccount) {
 
         // Get a reference to the signer's stored vault
-        self.vaultRef = signer.borrow<&ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)
+        self.vaultRef = signer.borrow<auth(FungibleToken.Withdrawable) &ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)
 			?? panic("Could not borrow reference to the owner's Vault!")
 
         // Withdraw tokens from the signer's stored vault

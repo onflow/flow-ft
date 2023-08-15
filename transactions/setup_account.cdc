@@ -4,7 +4,7 @@
 
 import FungibleToken from "FungibleToken"
 import ExampleToken from "ExampleToken"
-import MetadataViews from "MetadataViews"
+import ViewResolver from "ViewResolver"
 
 transaction () {
 
@@ -15,21 +15,16 @@ transaction () {
             return
         }
 
+        let vault <- ExampleToken.createEmptyVault()
+
         // Create a new ExampleToken Vault and put it in storage
         signer.save(
-            <-ExampleToken.createEmptyVault(),
+            <-vault,
             to: ExampleToken.VaultStoragePath
         )
 
-        // Create a public capability to the Vault that only exposes
-        // the deposit function through the Receiver interface
-        signer.link<&ExampleToken.Vault{FungibleToken.Receiver}>(
-            ExampleToken.ReceiverPublicPath,
-            target: ExampleToken.VaultStoragePath
-        )
-
-        // Create a public capability to the Vault that exposes the Balance and Resolver interfaces
-        signer.link<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(
+        // Create a public capability to the Vault that exposes the Receiver, Balance, and Resolver interfaces
+        signer.link<&{FungibleToken.Receiver, FungibleToken.Balance, ViewResolver.Resolver}>(
             ExampleToken.VaultPublicPath,
             target: ExampleToken.VaultStoragePath
         )

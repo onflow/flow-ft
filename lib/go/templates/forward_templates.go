@@ -40,7 +40,7 @@ func GenerateCreatePrivateForwarderScript(fungibleAddr, forwardingAddr, tokenAdd
 		"0x"+forwardingAddr.String(),
 	)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
+	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
 }
 
 func GenerateSetupAccountPrivateForwarderScript(fungibleAddr, forwardingAddr, tokenAddr flow.Address, tokenName string) []byte {
@@ -52,7 +52,7 @@ func GenerateSetupAccountPrivateForwarderScript(fungibleAddr, forwardingAddr, to
 		"0x"+forwardingAddr.String(),
 	)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
+	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
 }
 
 func GenerateTransferPrivateManyAccountsScript(fungibleAddr, forwardingAddr, tokenAddr flow.Address, tokenName string) []byte {
@@ -64,7 +64,7 @@ func GenerateTransferPrivateManyAccountsScript(fungibleAddr, forwardingAddr, tok
 		"0x"+forwardingAddr.String(),
 	)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
+	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
 }
 
 func GenerateCreateAccountPrivateForwarderScript(fungibleAddr, forwardingAddr, tokenAddr flow.Address, tokenName string) []byte {
@@ -76,5 +76,5 @@ func GenerateCreateAccountPrivateForwarderScript(fungibleAddr, forwardingAddr, t
 		"0x"+forwardingAddr.String(),
 	)
 
-	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
+	return replaceAddresses(code, fungibleAddr, tokenAddr, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, flow.EmptyAddress, tokenName)
 }

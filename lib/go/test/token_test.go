@@ -20,7 +20,7 @@ func TestTokenDeployment(t *testing.T) {
 	b, adapter, accountKeys := newTestSetup(t)
 
 	exampleTokenAccountKey, _ := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _, _, _ := DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
+	fungibleAddr, _, exampleTokenAddr, _, _, _ := DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	t.Run("Should have initialized Supply field correctly", func(t *testing.T) {
 		script := templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
@@ -35,13 +35,13 @@ func TestCreateToken(t *testing.T) {
 	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, _ := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _, metadataViewsAddr, fungibleMetadataViewsAddr := DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
+	fungibleAddr, resolverAddr, exampleTokenAddr, _, metadataViewsAddr, fungibleMetadataViewsAddr := DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
 	joshAddress, _ := adapter.CreateAccount(context.Background(), []*flow.AccountKey{joshAccountKey}, nil)
 
 	t.Run("Should be able to create empty Vault that doesn't affect supply", func(t *testing.T) {
-		script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, "ExampleToken")
+		script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, resolverAddr, "ExampleToken")
 		tx := createTxWithTemplateAndAuthorizer(b, script, joshAddress)
 
 		signAndSubmit(
@@ -71,7 +71,7 @@ func TestCreateToken(t *testing.T) {
 		supply := executeScriptAndCheck(t, b, script, nil)
 		assert.Equal(t, CadenceUFix64("1000.0"), supply)
 
-		script = templates.GenerateInspectSupplyViewScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, fungibleMetadataViewsAddr, "ExampleToken")
+		script = templates.GenerateInspectSupplyViewScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, fungibleMetadataViewsAddr, resolverAddr, "ExampleToken")
 		supply = executeScriptAndCheck(t, b, script, [][]byte{
 			jsoncdc.MustEncode(cadence.Address(joshAddress)),
 		})
@@ -85,14 +85,14 @@ func TestExternalTransfers(t *testing.T) {
 	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, forwardingAddr, metadataViewsAddr, _ :=
+	fungibleAddr, resolverAddr, exampleTokenAddr, forwardingAddr, metadataViewsAddr, _ :=
 		DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
 	joshAddress, _ := adapter.CreateAccount(context.Background(), []*flow.AccountKey{joshAccountKey}, nil)
 
 	// then deploy the tokens to an account
-	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, "ExampleToken")
+	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, resolverAddr, "ExampleToken")
 	tx := createTxWithTemplateAndAuthorizer(b, script, joshAddress)
 
 	signAndSubmit(
@@ -395,13 +395,13 @@ func TestVaultDestroy(t *testing.T) {
 	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _, metadataViewsAddr, _ := DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
+	fungibleAddr, resolverAddr, exampleTokenAddr, _, metadataViewsAddr, _ := DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
 	joshAddress, _ := adapter.CreateAccount(context.Background(), []*flow.AccountKey{joshAccountKey}, nil)
 
 	// then deploy the tokens to an account
-	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, "ExampleToken")
+	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, resolverAddr, "ExampleToken")
 	tx := flow.NewTransaction().
 		SetScript(script).
 		SetGasLimit(100).
@@ -524,13 +524,13 @@ func TestMintingAndBurning(t *testing.T) {
 	serviceSigner, _ := b.ServiceKey().Signer()
 
 	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
-	fungibleAddr, exampleTokenAddr, _, metadataViewsAddr, _ := DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
+	fungibleAddr, resolverAddr, exampleTokenAddr, _, metadataViewsAddr, _ := DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
 
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
 	joshAddress, _ := adapter.CreateAccount(context.Background(), []*flow.AccountKey{joshAccountKey}, nil)
 
 	// then deploy the tokens to an account
-	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, "ExampleToken")
+	script := templates.GenerateCreateTokenScript(fungibleAddr, exampleTokenAddr, metadataViewsAddr, resolverAddr, "ExampleToken")
 	tx := flow.NewTransaction().
 		SetScript(script).
 		SetGasLimit(100).

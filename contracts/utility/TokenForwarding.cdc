@@ -16,16 +16,16 @@ their tokens to.
 
 import FungibleToken from "FungibleToken"
 
-pub contract TokenForwarding {
+access(all) contract TokenForwarding {
 
     // Event that is emitted when tokens are deposited to the target receiver
-    pub event ForwardedDeposit(amount: UFix64, from: Address?)
+    access(all) event ForwardedDeposit(amount: UFix64, from: Address?)
 
-    pub resource interface ForwarderPublic {
+    access(all) resource interface ForwarderPublic {
 
         /// Helper function to check whether set `recipient` capability
         /// is not latent or the capability tied to a type is valid.
-        pub fun check(): Bool
+        access(all) fun check(): Bool
 
         /// Gets the receiver assigned to a recipient capability.
         /// This is necessary because without it, it is not possible to look under the hood and see if a capability
@@ -33,10 +33,10 @@ pub contract TokenForwarding {
         /// malicious kinds of updates that could prevent listings from being made that are valid on storefronts.
         ///
         /// @return an optional receiver capability for consumers of the TokenForwarding to check/validate on their own
-        pub fun safeBorrow(): &{FungibleToken.Receiver}?
+        access(all) fun safeBorrow(): &{FungibleToken.Receiver}?
     }
 
-    pub resource Forwarder: FungibleToken.Receiver, ForwarderPublic {
+    access(all) resource Forwarder: FungibleToken.Receiver, ForwarderPublic {
 
         // This is where the deposited tokens will be sent.
         // The type indicates that it is a reference to a receiver
@@ -48,10 +48,10 @@ pub contract TokenForwarding {
         // Function that takes a Vault object as an argument and forwards
         // it to the recipient's Vault using the stored reference
         //
-        pub fun deposit(from: @FungibleToken.Vault) {
+        access(all) fun deposit(from: @{FungibleToken.Vault}) {
             let receiverRef = self.recipient.borrow<&{FungibleToken.Receiver}>()!
 
-            let balance = from.balance
+            let balance = from.getBalance()
 
             receiverRef.deposit(from: <-from)
 
@@ -60,7 +60,7 @@ pub contract TokenForwarding {
 
         /// Helper function to check whether set `recipient` capability
         /// is not latent or the capability tied to a type is valid.
-        pub fun check(): Bool {
+        access(all) fun check(): Bool {
             return self.recipient.check<&{FungibleToken.Receiver}>()
         }
 
@@ -70,13 +70,13 @@ pub contract TokenForwarding {
         /// malicious kinds of updates that could prevent listings from being made that are valid on storefronts.
         ///
         /// @return an optional receiver capability for consumers of the TokenForwarding to check/validate on their own
-        pub fun safeBorrow(): &{FungibleToken.Receiver}? {
+        access(all) fun safeBorrow(): &{FungibleToken.Receiver}? {
             return self.recipient.borrow<&{FungibleToken.Receiver}>()
         }
 
         // changeRecipient changes the recipient of the forwarder to the provided recipient
         //
-        pub fun changeRecipient(_ newRecipient: Capability) {
+        access(all) fun changeRecipient(_ newRecipient: Capability) {
             pre {
                 newRecipient.borrow<&{FungibleToken.Receiver}>() != nil: "Could not borrow Receiver reference from the Capability"
             }
@@ -87,7 +87,7 @@ pub contract TokenForwarding {
         /// which can be deposited using the 'deposit' function.
         ///
         /// @return Array of FT types that can be deposited.
-        pub fun getSupportedVaultTypes(): {Type: Bool} {
+        access(all) view fun getSupportedVaultTypes(): {Type: Bool} {
             if !self.recipient.check<&{FungibleToken.Receiver}>() {
                 return {}
             }
@@ -95,6 +95,15 @@ pub contract TokenForwarding {
             let supportedVaults: {Type: Bool} = {}
             supportedVaults[vaultRef.getType()] = true
             return supportedVaults
+        }
+
+        /// Returns whether or not the given type is accepted by the Receiver
+        /// A vault that can accept any type should just return true by default
+        access(all) view fun isSupportedVaultType(type: Type): Bool {
+            let supportedVaults = self.getSupportedVaultTypes()
+            if let supported = supportedVaults[type] {
+                return supported
+            } else { return false }
         }
 
         init(recipient: Capability) {
@@ -107,7 +116,7 @@ pub contract TokenForwarding {
 
     // createNewForwarder creates a new Forwarder reference with the provided recipient
     //
-    pub fun createNewForwarder(recipient: Capability): @Forwarder {
+    access(all) fun createNewForwarder(recipient: Capability): @Forwarder {
         return <-create Forwarder(recipient: recipient)
     }
 }
