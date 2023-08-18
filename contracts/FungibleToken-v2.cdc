@@ -128,12 +128,16 @@ access(all) contract FungibleToken {
         ///
         access(all) fun deposit(from: @{Vault})
 
-        /// getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
-        access(all) view fun getSupportedVaultTypes(): {Type: Bool}
+        // /// getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
+        // access(all) view fun getSupportedVaultTypes(): {Type: Bool} {
+        //     pre { true: "dummy" }
+        // }
 
-        /// Returns whether or not the given type is accepted by the Receiver
-        /// A vault that can accept any type should just return true by default
-        access(all) view fun isSupportedVaultType(type: Type): Bool
+        // /// Returns whether or not the given type is accepted by the Receiver
+        // /// A vault that can accept any type should just return true by default
+        // access(all) view fun isSupportedVaultType(type: Type): Bool {
+        //     pre { true: "dummy" }
+        // }
     }
 
     access(all) resource interface Transferor {
@@ -146,33 +150,12 @@ access(all) contract FungibleToken {
         }
     }
 
-    /// Balance
-    ///
-    /// This interface is now a general purpose metadata interface because
-    /// a public interface is needed to get metadata, but adding a whole new interface
-    /// for every account to upgrade to is probably too much of a breaking change
-    access(all) resource interface Balance { //: ViewResolver.Resolver {
-
-        /// Method to get the balance
-        /// The balance could be a derived field,
-        /// so there is no need to require an explicit field
-        access(all) view fun getBalance(): UFix64
-
-        access(all) view fun getSupportedVaultTypes(): {Type: Bool}
-        access(all) view fun isSupportedVaultType(type: Type): Bool
-
-        /// ViewResolver Methods
-        ///
-        access(all) view fun getViews(): [Type]
-        access(all) fun resolveView(_ view: Type): AnyStruct?
-    }
-
     /// Vault
     ///
     /// Ideally, this interface would also conform to Receiver, Balance, Transferor, Provider, and Resolver
     /// but that is not supported yet
     ///
-    access(all) resource interface Vault: Receiver, Balance, Transferor, Provider, ViewResolver.Resolver {
+    access(all) resource interface Vault: Receiver, Transferor, Provider, ViewResolver.Resolver { //,Balance {
 
         /// Get the balance of the vault
         access(all) view fun getBalance(): UFix64
@@ -191,7 +174,7 @@ access(all) contract FungibleToken {
         }
 
         access(all) view fun isSupportedVaultType(type: Type): Bool {
-            return false
+            return self.getSupportedVaultTypes()[type] ?? false
         }
 
         /// Returns the storage path where the vault should typically be stored
@@ -204,8 +187,12 @@ access(all) contract FungibleToken {
             return nil
         }
 
-        access(all) view fun getViews(): [Type]
-        access(all) fun resolveView(_ view: Type): AnyStruct?
+        // access(all) view fun getViews(): [Type] {
+        //     pre { true: "dummy" }
+        // }
+        // access(all) fun resolveView(_ view: Type): AnyStruct? {
+        //     pre { true: "dummy" }
+        // }
 
         /// withdraw subtracts `amount` from the Vault's balance
         /// and returns a new Vault with the subtracted balance

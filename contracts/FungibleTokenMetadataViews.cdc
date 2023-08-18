@@ -130,7 +130,7 @@ access(all) contract FungibleTokenMetadataViews {
         access(all) let receiverLinkedType: Type
 
         /// Type that should be linked at the `receiverPath`. This is a restricted type requiring 
-        /// the `FungibleToken.Balance` and `ViewResolver.Resolver` interfaces.
+        /// the `ViewResolver.Resolver` interfaces.
         access(all) let metadataLinkedType: Type
 
         /// Type that should be linked at the aforementioned private path. This 
@@ -153,7 +153,7 @@ access(all) contract FungibleTokenMetadataViews {
         ) {
             pre {
                 receiverLinkedType.isSubtype(of: Type<&{FungibleToken.Receiver}>()): "Receiver public type must include FungibleToken.Receiver."
-                metadataLinkedType.isSubtype(of: Type<&{FungibleToken.Balance, ViewResolver.Resolver}>()): "Metadata public type must include FungibleToken.Balance and ViewResolver.Resolver interfaces."
+                metadataLinkedType.isSubtype(of: Type<&{ViewResolver.Resolver}>()): "Metadata public type must include ViewResolver.Resolver interfaces."
                 providerLinkedType.isSubtype(of: Type<&{FungibleToken.Provider}>()): "Provider type must include FungibleToken.Provider interface."
             }
             self.storagePath = storagePath
