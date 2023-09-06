@@ -250,7 +250,7 @@ access(all) contract ExampleToken: ViewResolver {
         // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
         // and the `getBalance()` method through the `Balance` interface
         //
-        self.account.link<&{FungibleToken.Receiver, FungibleToken.Balance, ViewResolver.Resolver}>(
+        self.account.link<&ExampleToken>(
             self.VaultPublicPath,
             target: self.VaultStoragePath
         )
