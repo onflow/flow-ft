@@ -29,31 +29,31 @@ import TokenForwarding from "TokenForwarding"
 
 transaction(receiver: Address) {
 
-    prepare(acct: AuthAccount) {
+    prepare(acct: auth(BorrowValue) &Account) {
 
         // Get the receiver capability for the account being forwarded to
         let recipient = getAccount(receiver)
-            .getCapability<&{FungibleToken.Receiver}>(ExampleToken.ReceiverPublicPath)
+            .capabilities.get<&{FungibleToken.Receiver}>(ExampleToken.ReceiverPublicPath)
 
         // Create the forwarder and save it to the account that is doing the forwarding
         let vault <- TokenForwarding.createNewForwarder(recipient: recipient)
-        acct.save(<-vault, to: /storage/exampleTokenForwarder)
+        acct.storage.save(<-vault, to: /storage/exampleTokenForwarder)
 
         // Unlink the existing receiver capability
-        if acct.getCapability(ExampleToken.ReceiverPublicPath).check<&{FungibleToken.Receiver}>() {
-            acct.unlink(ExampleToken.ReceiverPublicPath)
+        if acct.capabilities.get(ExampleToken.ReceiverPublicPath).check<&{FungibleToken.Receiver}>() {
+            acct.capabilities.unpublish(ExampleToken.ReceiverPublicPath)
         }
 
         // Link the new forwarding receiver capability
-        acct.link<&{FungibleToken.Receiver}>(
-            ExampleToken.ReceiverPublicPath,
-            target: /storage/exampleTokenForwarder
+        let tokenReceiverCap = acct.capabilities.storage.issue<&{FungibleToken.Receiver}>(
+            /storage/exampleTokenForwarder
         )
+        acct.capabilities.publish(tokenReceiverCap, at: ExampleToken.ReceiverPublicPath)
 
         // Link the new ForwarderPublic capability
-        acct.link<&{TokenForwarding.ForwarderPublic}>(
-            /public/exampleTokenForwarder,
-            target: /storage/exampleTokenForwarder
+        let tokenForwarderCap = acct.capabilities.storage.issue<&{TokenForwarding.ForwarderPublic}>(
+            /storage/exampleTokenForwarder
         )
+        acct.capabilities.publish(tokenForwarderCap, at: /public/exampleTokenForwarder)
     }
 }

@@ -11,21 +11,18 @@ transaction(amount: UFix64, to: Address, senderPath: StoragePath, receiverPath: 
     // The Vault resource that holds the tokens that are being transferred
     let tempVault: @FungibleToken.Vault
 
-    prepare(signer: AuthAccount) {
+    prepare(signer: auth(BorrowValue) &Account) {
 
         // Get a reference to the signer's stored vault
-        let vaultRef = signer.borrow<auth(FungibleToken.Withdrawable) &{FungibleToken.Provider}>(from: senderPath)
+        let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdrawable) &{FungibleToken.Provider}>(from: senderPath)
 			?? panic("Could not borrow reference to the owner's Vault!")
 
         self.tempVault <- vaultRef.withdraw(amount: amount)
-
     }
 
     execute {
-
         let recipient = getAccount(to)
-        let receiverRef = recipient.getCapability<&{FungibleToken.Receiver}>(receiverPath)
-            .borrow()!
+        let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(receiverPath)!
 
         // Transfer tokens from the signer's stored vault to the receiver capability
         receiverRef.deposit(from: <-self.tempVault)

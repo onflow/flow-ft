@@ -26,16 +26,14 @@ access(all) contract ExampleToken: ViewResolver {
     }
 
     access(all) view fun getViews(): [Type] {
-        let vaultRef = self.account.getCapability(/public/exampleTokenVault)
-            .borrow<&ExampleToken.Vault>()
+        let vaultRef = self.account.capabilities.borrow<&ExampleToken.Vault>(/public/exampleTokenVault)
             ?? panic("Could not borrow a reference to the vault resolver")
         
         return vaultRef.getViews()
     }
 
     access(all) fun resolveView(_ view: Type): AnyStruct? {
-        let vaultRef = self.account.getCapability(/public/exampleTokenVault)
-            .borrow<&ExampleToken.Vault>()
+        let vaultRef = self.account.capabilities.borrow<&ExampleToken.Vault>(/public/exampleTokenVault)
             ?? panic("Could not borrow a reference to the vault resolver")
         
         return vaultRef.resolveView(view)
@@ -104,7 +102,7 @@ access(all) contract ExampleToken: ViewResolver {
                         }
                     )
                 case Type<FungibleTokenMetadataViews.FTVaultData>():
-                    let vaultRef = ExampleToken.account.borrow<&ExampleToken.Vault>(from: self.storagePath)
+                    let vaultRef = ExampleToken.account.storage.borrow<&ExampleToken.Vault>(from: self.storagePath)
                         ?? panic("Could not borrow a reference to the stored vault")
                     return FungibleTokenMetadataViews.FTVaultData(
                         storagePath: self.storagePath,
@@ -244,19 +242,17 @@ access(all) contract ExampleToken: ViewResolver {
         let vault <- create Vault(balance: self.totalSupply)
         self.VaultStoragePath = vault.getDefaultStoragePath()!
         self.VaultPublicPath = vault.getDefaultPublicPath()!
-        self.account.save(<-vault, to: self.VaultStoragePath)
+        self.account.storage.save(<-vault, to: self.VaultStoragePath)
 
         // Create a public capability to the stored Vault that exposes
         // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
         // and the `getBalance()` method through the `Balance` interface
         //
-        self.account.link<&ExampleToken>(
-            self.VaultPublicPath,
-            target: self.VaultStoragePath
-        )
+        let exampleTokenCap = self.account.capabilities.storage.issue<&ExampleToken>(self.VaultStoragePath)
+        self.account.capabilities.publish(exampleTokenCap, at: self.VaultPublicPath)
 
         let admin <- create Minter()
-        self.account.save(<-admin, to: self.AdminStoragePath)
+        self.account.storage.save(<-admin, to: self.AdminStoragePath)
     }
 }
  

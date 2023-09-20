@@ -16,17 +16,16 @@ transaction(recipient: Address, amount: UFix64) {
     /// The total supply of tokens before the burn
     let supplyBefore: UFix64
 
-    prepare(signer: AuthAccount) {
+    prepare(signer: auth(BorrowValue) &Account) {
         self.supplyBefore = ExampleToken.totalSupply
 
         // Borrow a reference to the admin object
-        self.tokenAdmin = signer.borrow<&ExampleToken.Administrator>(from: ExampleToken.AdminStoragePath)
+        self.tokenAdmin = signer.storage.borrow<&ExampleToken.Administrator>(from: ExampleToken.AdminStoragePath)
             ?? panic("Signer is not the token admin")
 
         // Get the account of the recipient and borrow a reference to their receiver
         self.tokenReceiver = getAccount(recipient)
-            .getCapability(ExampleToken.ReceiverPublicPath)
-            .borrow<&{FungibleToken.Receiver}>()
+            .capabilities.borrow<&{FungibleToken.Receiver}>(ExampleToken.ReceiverPublicPath)
             ?? panic("Unable to borrow receiver reference")
     }
 
