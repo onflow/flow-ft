@@ -8,25 +8,28 @@ import ViewResolver from "ViewResolver"
 
 transaction () {
 
-    prepare(signer: AuthAccount) {
+    prepare(signer: auth(BorrowValue) &Account) {
 
         // Return early if the account already stores a ExampleToken Vault
-        if signer.borrow<&ExampleToken.Vault>(from: ExampleToken.VaultStoragePath) != nil {
+        if signer.storage.borrow<&ExampleToken.Vault>(from: ExampleToken.VaultStoragePath) != nil {
             return
         }
 
         let vault <- ExampleToken.createEmptyVault()
 
         // Create a new ExampleToken Vault and put it in storage
-        signer.save(
+        signer.storage.save(
             <-vault,
             to: ExampleToken.VaultStoragePath
         )
 
         // Create a public capability to the Vault that exposes the Receiver, Balance, and Resolver interfaces
-        signer.link<&{FungibleToken.Receiver, FungibleToken.Balance, ViewResolver.Resolver}>(
-            ExampleToken.VaultPublicPath,
-            target: ExampleToken.VaultStoragePath
+        let vaultCap = signer.link<&{FungibleToken.Receiver, FungibleToken.Balance, ViewResolver.Resolver}>(
+            ExampleToken.VaultStoragePath
+        )
+        signer.capabilities.publish<&{FungibleToken.Receiver, FungibleToken.Balance, ViewResolver.Resolver}>(
+            vaultCap,
+            at: ExampleToken.VaultPublicPath,
         )
     }
 }

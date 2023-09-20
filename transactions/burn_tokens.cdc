@@ -18,16 +18,16 @@ transaction(amount: UFix64) {
     /// The total supply of tokens before the burn
     let supplyBefore: UFix64
 
-    prepare(signer: AuthAccount) {
+    prepare(signer: auth(BorrowValue) &Account) {
 
         self.supplyBefore = ExampleToken.totalSupply
 
         // Withdraw 10 tokens from the admin vault in storage
-        self.vault <- signer.borrow<auth(FungibleToken.Withdrawable) &ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)!
+        self.vault <- signer.storage.borrow<auth(FungibleToken.Withdrawable) &ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)!
             .withdraw(amount: amount)
 
         // Create a reference to the admin admin resource in storage
-        self.admin = signer.borrow<&ExampleToken.Administrator>(from: ExampleToken.AdminStoragePath)
+        self.admin = signer.storage.borrow<&ExampleToken.Administrator>(from: ExampleToken.AdminStoragePath)
             ?? panic("Could not borrow a reference to the admin resource")
     }
 
