@@ -3,11 +3,11 @@ module github.com/onflow/flow-ft/lib/go/test
 go 1.18
 
 require (
-	github.com/onflow/cadence v0.41.0-stable-cadence.1.0.20230918153730-ec4d615b89d8
+	github.com/onflow/cadence v1.0.0-preview.1
 	github.com/onflow/flow-emulator v0.54.1-0.20230919150501-db4da71c768b
 	github.com/onflow/flow-ft/lib/go/contracts v0.7.1-0.20230913160646-09adc7d3b513
 	github.com/onflow/flow-ft/lib/go/templates v0.0.0-00010101000000-000000000000
-	github.com/onflow/flow-go-sdk v0.44.0-stable-cadence.1.0.20230915213126-68e7ffb5595f
+	github.com/onflow/flow-go-sdk v0.44.0-stable-cadence.2
 	github.com/onflow/flow-nft/lib/go/contracts v1.1.1-0.20230915224343-ca2663ed82cf
 	github.com/rs/zerolog v1.29.0
 	github.com/stretchr/testify v1.8.4
