@@ -244,20 +244,24 @@ access(all) contract ExampleToken: FungibleToken {
 
         // Create the Vault with the total supply of tokens and save it in storage.
         let vault <- create Vault(balance: self.totalSupply)
-        self.account.storage.save(<-vault, to: self.VaultStoragePath)
+        self.account.save(<-vault, to: self.VaultStoragePath)
 
         // Create a public capability to the stored Vault that exposes
         // the `deposit` method through the `Receiver` interface.
-        let receiverCap = self.account.capabilities.storage.issue<&{FungibleToken.Receiver}>(self.VaultStoragePath)
-        self.account.capabilities.publish(receiverCap, at: self.ReceiverPublicPath)
+        self.account.link<&{FungibleToken.Receiver}>(
+            self.ReceiverPublicPath,
+            target: self.VaultStoragePath
+        )
 
         // Create a public capability to the stored Vault that only exposes
         // the `balance` field and the `resolveView` method through the `Balance` interface
-        let vaultCap = self.account.capabilities.storage.issue<&ExampleToken.Vault>(self.VaultStoragePath)
-        self.account.capabilities.publish(vaultCap, at: self.VaultPublicPath)
+        self.account.link<&ExampleToken.Vault{FungibleToken.Balance}>(
+            self.VaultPublicPath,
+            target: self.VaultStoragePath
+        )
 
         let admin <- create Administrator()
-        self.account.storage.save(<-admin, to: self.AdminStoragePath)
+        self.account.save(<-admin, to: self.AdminStoragePath)
 
         // Emit an event that shows that the contract was initialized
         emit TokensInitialized(initialSupply: self.totalSupply)

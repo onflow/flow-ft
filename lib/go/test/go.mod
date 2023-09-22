@@ -8,7 +8,7 @@ require (
 	github.com/onflow/flow-ft/lib/go/contracts v0.7.1-0.20230913160646-09adc7d3b513
 	github.com/onflow/flow-ft/lib/go/templates v0.0.0-00010101000000-000000000000
 	github.com/onflow/flow-go-sdk v0.44.0-stable-cadence.2
-	github.com/onflow/flow-nft/lib/go/contracts v1.1.1-0.20230915224343-ca2663ed82cf
+	github.com/onflow/flow-nft/lib/go/contracts v1.1.1-0.20230921055127-6493dc1ba948
 	github.com/rs/zerolog v1.29.0
 	github.com/stretchr/testify v1.8.4
 )
