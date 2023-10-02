@@ -23,6 +23,20 @@ pub fun deploy(_ contractName: String, _ account: Test.Account, _ path: String) 
     }
 }
 
+pub fun deployWithArgs(_ contractName: String, _ account: Test.Account, _ path: String, args: [AnyStruct]) {
+    let err = blockchain.deployContract(
+        name: contractName,
+        code: Test.readFile(path),
+        account: account,
+        arguments: args,
+    )
+
+    Test.expect(err, Test.beNil())
+    if err != nil {
+        panic(err!.message)
+    }
+}
+
 pub fun scriptExecutor(_ scriptName: String, _ arguments: [AnyStruct]): AnyStruct? {
     let scriptCode = loadCode(scriptName, "transactions/scripts")
     let scriptResult = blockchain.executeScript(scriptCode, arguments)
