@@ -7,9 +7,7 @@ import ViewResolver from "ViewResolver"
 access(all) fun main(address: Address): UFix64 {
     let account = getAccount(address)
 
-    let vaultRef = account
-        .getCapability(ExampleToken.VaultPublicPath)
-        .borrow<&{ViewResolver.Resolver}>()
+    let vaultRef = account.capabilities.borrow<&{ViewResolver.Resolver}>(ExampleToken.VaultPublicPath)
         ?? panic("Could not borrow a reference to the vault resolver")
 
     let ftSupply = vaultRef.resolveView(Type<FungibleTokenMetadataViews.TotalSupply>())!

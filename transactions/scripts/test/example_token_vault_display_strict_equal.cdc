@@ -1,5 +1,6 @@
 import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 import MetadataViews from "MetadataViews"
+import ViewResolver from "ViewResolver"
 import ExampleToken from "ExampleToken"
 
 /// Test helper script to validate ExampleToken serves FTDisplay as expected
@@ -25,9 +26,7 @@ access(all) fun main(address: Address): Bool {
             }
         )
 
-    let vaultRef = account
-        .getCapability(ExampleToken.VaultPublicPath)
-        .borrow<&{MetadataViews.Resolver}>()
+    let vaultRef = account.capabilities.borrow<&{ViewResolver.Resolver}>(ExampleToken.VaultPublicPath)
         ?? panic("Could not borrow a reference to the vault resolver")
 
     let actual = FungibleTokenMetadataViews.getFTDisplay(vaultRef)
