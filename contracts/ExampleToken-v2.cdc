@@ -70,10 +70,12 @@ access(all) contract ExampleToken: ViewResolver {
         }
 
         access(all) view fun getViews(): [Type] {
-            return [Type<FungibleTokenMetadataViews.FTView>(),
-                    Type<FungibleTokenMetadataViews.FTDisplay>(),
-                    Type<FungibleTokenMetadataViews.FTVaultData>(),
-                    Type<FungibleTokenMetadataViews.TotalSupply>()]
+            return [
+                Type<FungibleTokenMetadataViews.FTView>(),
+                Type<FungibleTokenMetadataViews.FTDisplay>(),
+                Type<FungibleTokenMetadataViews.FTVaultData>(),
+                Type<FungibleTokenMetadataViews.TotalSupply>()
+            ]
         }
 
         access(all) fun resolveView(_ view: Type): AnyStruct? {
@@ -115,6 +117,10 @@ access(all) contract ExampleToken: ViewResolver {
                         createEmptyVaultFunction: (fun(): @{FungibleToken.Vault} {
                             return <-vaultRef.createEmptyVault()
                         })
+                    )
+                case Type<FungibleTokenMetadataViews.TotalSupply>():
+                    return FungibleTokenMetadataViews.TotalSupply(
+                        totalSupply: ExampleToken.totalSupply
                     )
             }
             return nil
