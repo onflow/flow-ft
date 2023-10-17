@@ -25,7 +25,7 @@ transaction(addressAmountMap: {Address: UFix64}) {
             let recipient = getAccount(address)
 
             // Get a reference to the recipient's Receiver
-            let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(ExampleToken.ReceiverPublicPath)
+            let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(ExampleToken.VaultPublicPath)
                 ?? panic("Could not borrow receiver reference to the recipient's Vault")
 
             // Deposit the withdrawn tokens in the recipient's receiver

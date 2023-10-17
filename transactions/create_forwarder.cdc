@@ -32,23 +32,20 @@ transaction(receiver: Address) {
     prepare(acct: auth(BorrowValue) &Account) {
 
         // Get the receiver capability for the account being forwarded to
-        let recipient = getAccount(receiver)
-            .capabilities.get<&{FungibleToken.Receiver}>(ExampleToken.ReceiverPublicPath)
+        let recipient = getAccount(receiver).capabilities.get<&{FungibleToken.Vault}>(ExampleToken.VaultPublicPath)
 
         // Create the forwarder and save it to the account that is doing the forwarding
         let vault <- TokenForwarding.createNewForwarder(recipient: recipient)
         acct.storage.save(<-vault, to: /storage/exampleTokenForwarder)
 
-        // Unlink the existing receiver capability
-        if acct.capabilities.get(ExampleToken.ReceiverPublicPath).check<&{FungibleToken.Receiver}>() {
-            acct.capabilities.unpublish(ExampleToken.ReceiverPublicPath)
-        }
+        // Unlink the existing capability
+        acct.capabilities.unpublish(ExampleToken.VaultPublicPath)
 
         // Link the new forwarding receiver capability
         let tokenReceiverCap = acct.capabilities.storage.issue<&{FungibleToken.Receiver}>(
             /storage/exampleTokenForwarder
         )
-        acct.capabilities.publish(tokenReceiverCap, at: ExampleToken.ReceiverPublicPath)
+        acct.capabilities.publish(tokenReceiverCap, at: ExampleToken.VaultPublicPath)
 
         // Link the new ForwarderPublic capability
         let tokenForwarderCap = acct.capabilities.storage.issue<&{TokenForwarding.ForwarderPublic}>(
