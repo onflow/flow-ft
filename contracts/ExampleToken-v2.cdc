@@ -221,6 +221,9 @@ access(all) contract ExampleToken: ViewResolver {
         /// and returns them to the calling context.
         ///
         access(all) fun mintTokens(amount: UFix64): @ExampleToken.Vault {
+            pre {
+                amount > 0.0: "Amount minted must be greater than zero"
+            }
             ExampleToken.totalSupply = ExampleToken.totalSupply + amount
             emit TokensMinted(amount: amount, type: self.getType().identifier)
             return <-create Vault(balance: amount)
@@ -254,7 +257,7 @@ access(all) contract ExampleToken: ViewResolver {
         // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
         // and the `getBalance()` method through the `Balance` interface
         //
-        let exampleTokenCap = self.account.capabilities.storage.issue<&ExampleToken>(self.VaultStoragePath)
+        let exampleTokenCap = self.account.capabilities.storage.issue<&{FungibleToken.Vault}>(self.VaultStoragePath)
         self.account.capabilities.publish(exampleTokenCap, at: self.VaultPublicPath)
 
         let admin <- create Minter()
