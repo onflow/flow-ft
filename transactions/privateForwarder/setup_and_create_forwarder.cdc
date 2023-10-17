@@ -8,41 +8,45 @@ import PrivateReceiverForwarder from "PrivateReceiverForwarder"
 
 transaction {
 
-    prepare(signer: AuthAccount) {
-        if signer.getCapability<&PrivateReceiverForwarder.Forwarder>(PrivateReceiverForwarder.PrivateReceiverPublicPath).check() {
+    prepare(signer: auth(IssueStorageCapabilityController, PublishCapability, SaveValue) &Account) {
+        if signer.capabilities.get<&PrivateReceiverForwarder.Forwarder>(PrivateReceiverForwarder.PrivateReceiverPublicPath) != nil {
             // private forwarder was already set up
             return
         }
 
-        if signer.borrow<&ExampleToken.Vault>(from: ExampleToken.VaultStoragePath) == nil {
+        if signer.storage.check<&ExampleToken.Vault>(from: ExampleToken.VaultStoragePath) == false {
             // Create a new ExampleToken Vault and put it in storage
-            signer.save(
+            signer.storage.save(
                 <-ExampleToken.createEmptyVault(),
                 to: ExampleToken.VaultStoragePath
             )
         }
 
-        signer.link<&{FungibleToken.Receiver}>(
-            /private/exampleTokenReceiver,
-            target: ExampleToken.VaultStoragePath
-        )
+        // Create a public Vault Capability if needed
+        if signer.capabilities.borrow<&{FungibleToken.Vault}>(ExampleToken.VaultPublicPath) == nil {
+            let vaultCap = signer.capabilities.storage.issue<&{FungibleToken.Vault}>(
+                    ExampleToken.VaultStoragePath
+                )
+            signer.capabilities.publish(vaultCap, at: ExampleToken.VaultPublicPath)
+        }
 
-        let receiverCapability = signer.getCapability<&{FungibleToken.Receiver}>(/private/exampleTokenReceiver)
-
-        // Create a public capability to the Vault that only exposes
-        // the balance field through the Balance interface
-        signer.link<&{FungibleToken.Balance}>(
-            ExampleToken.VaultPublicPath,
-            target: ExampleToken.VaultStoragePath
-        )
+        // Issue a Receiver Capability targetting the ExampleToken Vault
+        let receiverCapability = signer.capabilities.storage.issue<&{FungibleToken.Receiver}>(
+                ExampleToken.VaultStoragePath
+            )
 
         let forwarder <- PrivateReceiverForwarder.createNewForwarder(recipient: receiverCapability)
 
-        signer.save(<-forwarder, to: PrivateReceiverForwarder.PrivateReceiverStoragePath)
+        signer.storage.save(<-forwarder, to: PrivateReceiverForwarder.PrivateReceiverStoragePath)
 
-        signer.link<&PrivateReceiverForwarder.Forwarder>(
-            PrivateReceiverForwarder.PrivateReceiverPublicPath,
-            target: PrivateReceiverForwarder.PrivateReceiverStoragePath
+        // Issue a Capability to the Forwarder resource
+        let forwarderCap = signer.capabilities.storage.issue<&PrivateReceiverForwarder.Forwarder>(
+                PrivateReceiverForwarder.PrivateReceiverStoragePath
+            )
+        // Publish the Capability to the Forwarder resource
+        signer.capabilities.publish(
+            forwarderCap,
+            at: PrivateReceiverForwarder.PrivateReceiverPublicPath
         )
     }
 }
