@@ -3,13 +3,12 @@
 // in testing, since we cannot return on-chain types to
 // the test files yet.
 
+import FungibleToken from "FungibleToken"
 import ExampleToken from "ExampleToken"
-import MetadataViews from "MetadataViews"
 
 pub fun main(address: Address): Bool {
     let account = getAccount(address)
-    let vaultRef = account.getCapability(ExampleToken.VaultPublicPath)
-        .borrow<&ExampleToken.Vault{MetadataViews.Resolver}>()
+    let vaultRef = account.capabilities.borrow<&{FungibleToken.Vault}>(ExampleToken.VaultPublicPath)
         ?? panic("Could not borrow Balance reference to the Vault")
 
     assert(nil == vaultRef.resolveView(Type<String>()))

@@ -10,9 +10,7 @@ import MetadataViews from "MetadataViews"
 pub fun main(address: Address): Bool {
     let account = getAccount(address)
 
-    let vaultRef = account
-        .getCapability(ExampleToken.VaultPublicPath)
-        .borrow<&{MetadataViews.Resolver}>()
+    let vaultRef = account.capabilities.borrow<&{MetadataViews.Resolver}>(ExampleToken.VaultPublicPath)
         ?? panic("Could not borrow a reference to the vault resolver")
 
     let ftView = FungibleTokenMetadataViews.getFTView(viewResolver: vaultRef)

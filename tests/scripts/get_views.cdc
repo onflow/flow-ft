@@ -10,9 +10,8 @@ import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 pub fun main(address: Address): Bool {
     let account = getAccount(address)
 
-    let vaultRef = account.getCapability(ExampleToken.VaultPublicPath)
-        .borrow<&ExampleToken.Vault{MetadataViews.Resolver}>()
-        ?? panic("Could not borrow Balance reference to the Vault")
+    let vaultRef = account.capabilities.borrow<&{FungibleToken.Vault}>(ExampleToken.VaultPublicPath)
+        ?? panic("Could not borrow reference to the Vault")
 
     let views = vaultRef.getViews()
     let expected: [Type] = [
