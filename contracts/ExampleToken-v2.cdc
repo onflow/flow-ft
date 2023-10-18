@@ -1,8 +1,8 @@
 import FungibleToken from "FungibleToken"
 import MetadataViews from "MetadataViews"
 import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
-import MultipleVaults from "MultipleVaults"
 import ViewResolver from "ViewResolver"
+// import MultipleVaults from "MultipleVaults"
 
 access(all) contract ExampleToken: ViewResolver {
 
@@ -272,6 +272,7 @@ access(all) contract ExampleToken: ViewResolver {
         self.VaultStoragePath = vault.getDefaultStoragePath()!
         self.VaultPublicPath = vault.getDefaultPublicPath()!
         self.ReceiverPublicPath = vault.getDefaultReceiverPath()!
+
         self.account.storage.save(<-vault, to: self.VaultStoragePath)
 
         // Create a public capability to the stored Vault that exposes
@@ -287,4 +288,3 @@ access(all) contract ExampleToken: ViewResolver {
         self.account.storage.save(<-admin, to: self.AdminStoragePath)
     }
 }
- 
