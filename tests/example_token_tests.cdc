@@ -28,9 +28,7 @@ access(all) fun setup() {
 }
 
 access(all) fun testTokensInitializedEventEmitted() {
-    let addrString = admin.address.toString()
-    let identifier = "A.".concat(addrString.slice(from: 2, upTo: addrString.length)).concat(".").concat("ExampleToken").concat(".").concat("TokensInitialized")
-    let typ = CompositeType(identifier)
+    let typ = CompositeType(buildTypeIdentifier(admin, "ExampleToken", "TokensInitialized"))
         ?? panic("Problem constructing CompositeType")
     Test.assertEqual(1, blockchain.eventsOfType(typ).length)
 }
