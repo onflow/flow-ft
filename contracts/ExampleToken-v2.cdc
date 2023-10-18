@@ -18,6 +18,7 @@ access(all) contract ExampleToken: ViewResolver {
     /// User Paths
     access(all) let VaultStoragePath: StoragePath
     access(all) let VaultPublicPath: PublicPath
+    access(all) let ReceiverPublicPath: PublicPath
 
     /// Function to return the types that the contract implements
     access(all) view fun getVaultTypes(): [Type] {
@@ -58,6 +59,7 @@ access(all) contract ExampleToken: ViewResolver {
 
         access(self) var storagePath: StoragePath
         access(self) var publicPath: PublicPath
+        access(self) var receiverPath: PublicPath
 
         /// Returns the storage path where the vault should typically be stored
         access(all) view fun getDefaultStoragePath(): StoragePath? {
@@ -67,6 +69,11 @@ access(all) contract ExampleToken: ViewResolver {
         /// Returns the public path where this vault should have a public capability
         access(all) view fun getDefaultPublicPath(): PublicPath? {
             return self.publicPath
+        }
+
+        /// Returns the public path where this vault's Receiver should have a public capability
+        access(all) view fun getDefaultReceiverPath(): PublicPath? {
+            return self.receiverPath
         }
 
         access(all) view fun getViews(): [Type] {
@@ -108,7 +115,7 @@ access(all) contract ExampleToken: ViewResolver {
                         ?? panic("Could not borrow a reference to the stored vault")
                     return FungibleTokenMetadataViews.FTVaultData(
                         storagePath: self.storagePath,
-                        receiverPath: self.publicPath,
+                        receiverPath: self.receiverPath,
                         metadataPath: self.publicPath,
                         providerPath: /private/exampleTokenVault,
                         receiverLinkedType: Type<&ExampleToken.Vault>(),
@@ -143,6 +150,7 @@ access(all) contract ExampleToken: ViewResolver {
             let identifier = "exampleTokenVault"
             self.storagePath = StoragePath(identifier: identifier)!
             self.publicPath = PublicPath(identifier: identifier)!
+            self.receiverPath = PublicPath(identifier: "exampleTokenReceiver")!
         }
 
         /// Get the balance of the vault
@@ -263,6 +271,7 @@ access(all) contract ExampleToken: ViewResolver {
         let vault <- create Vault(balance: self.totalSupply)
         self.VaultStoragePath = vault.getDefaultStoragePath()!
         self.VaultPublicPath = vault.getDefaultPublicPath()!
+        self.ReceiverPublicPath = vault.getDefaultReceiverPath()!
         self.account.storage.save(<-vault, to: self.VaultStoragePath)
 
         // Create a public capability to the stored Vault that exposes
@@ -271,6 +280,8 @@ access(all) contract ExampleToken: ViewResolver {
         //
         let exampleTokenCap = self.account.capabilities.storage.issue<&{FungibleToken.Vault}>(self.VaultStoragePath)
         self.account.capabilities.publish(exampleTokenCap, at: self.VaultPublicPath)
+        let receiverCap = self.account.capabilities.storage.issue<&{FungibleToken.Receiver}>(self.VaultStoragePath)
+        self.account.capabilities.publish(receiverCap, at: self.ReceiverPublicPath)
 
         let admin <- create Minter()
         self.account.storage.save(<-admin, to: self.AdminStoragePath)

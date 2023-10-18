@@ -40,13 +40,13 @@ transaction(receiver: Address) {
         acct.storage.save(<-vault, to: /storage/exampleTokenForwarder)
 
         // Unlink the existing capability
-        acct.capabilities.unpublish(ExampleToken.VaultPublicPath)
+        acct.capabilities.unpublish(ExampleToken.ReceiverPublicPath)
 
         // Link the new forwarding receiver capability
         let tokenReceiverCap = acct.capabilities.storage.issue<&{FungibleToken.Receiver}>(
                 /storage/exampleTokenForwarder
             )
-        acct.capabilities.publish(tokenReceiverCap, at: ExampleToken.VaultPublicPath)
+        acct.capabilities.publish(tokenReceiverCap, at: ExampleToken.ReceiverPublicPath)
 
         // Link the new ForwarderPublic capability
         let tokenForwarderCap = acct.capabilities.storage.issue<&{TokenForwarding.ForwarderPublic}>(
