@@ -203,6 +203,8 @@ access(all) contract ExampleToken: ViewResolver {
             return <-create Vault(balance: 0.0)
         }
 
+        // TODO: Revisit if removal of custom destructors passes
+        // See https://github.com/onflow/flips/pull/131
         destroy() {
             if self.balance > 0.0 {
                 ExampleToken.totalSupply = ExampleToken.totalSupply - self.balance
@@ -239,6 +241,16 @@ access(all) contract ExampleToken: ViewResolver {
     ///
     access(all) fun createEmptyVault(): @ExampleToken.Vault {
         return <- create Vault(balance: 0.0)
+    }
+
+    /// Function that destroys a Vault instance, effectively burning the tokens.
+    ///
+    /// @param from: The Vault resource containing the tokens to burn
+    ///
+    // TODO: Revisit if removal of custom destructors passes
+    // See https://github.com/onflow/flips/pull/131
+    access(all) fun burnTokens(from: @ExampleToken.Vault) {
+        destroy from
     }
 
     init() {
