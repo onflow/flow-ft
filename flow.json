@@ -1,6 +1,11 @@
 {
 	"contracts": {
-		"ExampleToken": "./contracts/ExampleToken.cdc",
+		"ExampleToken": {
+			"source": "./contracts/ExampleToken-v2.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
 		"FiatToken": {
 			"source": "./contracts/utility/USDC/FiatToken.cdc",
 			"aliases": {
@@ -17,14 +22,6 @@
 			}
 		},
 		"FungibleToken": {
-			"source": "./contracts/FungibleToken.cdc",
-			"aliases": {
-				"emulator": "ee82856bf20e2aa6",
-				"mainnet": "f233dcee88fe0abe",
-				"testnet": "9a0766d93b6608b7"
-			}
-		},
-		"FungibleToken-v2": {
 			"source": "./contracts/FungibleToken-v2.cdc",
 			"aliases": {
 				"emulator": "ee82856bf20e2aa6"
@@ -44,13 +41,6 @@
 				"emulator": "f8d6e0586b0a20c7",
 				"mainnet": "f233dcee88fe0abe",
 				"testnet": "9a0766d93b6608b7"
-			}
-		},
-		"LostAndFound": {
-			"source": "./contracts/utility/L\u0026F/LostAndFound.cdc",
-			"aliases": {
-				"mainnet": "473d6a2c37eab5be",
-				"testnet": "be4635353f55bbd4"
 			}
 		},
 		"MetadataViews": {
@@ -94,13 +84,15 @@
 	"deployments": {
 		"emulator": {
 			"emulator-account": [
-				"FungibleToken-v2",
+				"ViewResolver",
+				"FungibleToken",
 				"NonFungibleToken",
 				"MetadataViews",
 				"FungibleTokenMetadataViews",
 				"FungibleTokenSwitchboard",
 				"TokenForwarding",
-				"PrivateReceiverForwarder"
+				"PrivateReceiverForwarder",
+				"ExampleToken"
 			]
 		}
 	}
