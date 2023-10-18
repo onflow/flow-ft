@@ -8,7 +8,7 @@ import FungibleToken from "FungibleToken"
 import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 import MetadataViews from "MetadataViews"
 
-pub fun main(address: Address): Bool {
+access(all) fun main(address: Address): Bool {
     let account = getAccount(address)
 
     let vaultRef = account.capabilities.borrow<&{FungibleToken.Vault}>(ExampleToken.VaultPublicPath)
@@ -18,14 +18,14 @@ pub fun main(address: Address): Bool {
         ?? panic("Token does not implement FTVaultData view")
 
     assert(ExampleToken.VaultStoragePath == vaultData.storagePath)
-    assert(ExampleToken.VaultPublicPath == vaultData.receiverPath)
+    assert(ExampleToken.ReceiverPublicPath == vaultData.receiverPath)
     assert(ExampleToken.VaultPublicPath == vaultData.metadataPath)
     assert(/private/exampleTokenVault == vaultData.providerPath)
     assert(Type<&ExampleToken.Vault>() == vaultData.receiverLinkedType)
     assert(Type<&ExampleToken.Vault>() == vaultData.providerLinkedType)
     assert(Type<&ExampleToken.Vault>() == vaultData.metadataLinkedType)
     let vault <- vaultData.createEmptyVault()
-    let vaultIsEmpty = vault.balance == 0.0
+    let vaultIsEmpty = vault.getBalance() == 0.0
     assert(vaultIsEmpty)
 
     destroy vault

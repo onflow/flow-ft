@@ -7,7 +7,7 @@ import ExampleToken from "ExampleToken"
 import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 import MetadataViews from "MetadataViews"
 
-pub fun main(address: Address): Bool {
+access(all) fun main(address: Address): Bool {
     let account = getAccount(address)
 
     let vaultRef = account.capabilities.borrow<&{MetadataViews.Resolver}>(ExampleToken.VaultPublicPath)

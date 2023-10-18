@@ -6,7 +6,7 @@
 import FungibleToken from "FungibleToken"
 import ExampleToken from "ExampleToken"
 
-pub fun main(address: Address): Bool {
+access(all) fun main(address: Address): Bool {
     let account = getAccount(address)
     let vaultRef = account.capabilities.borrow<&{FungibleToken.Vault}>(ExampleToken.VaultPublicPath)
         ?? panic("Could not borrow Balance reference to the Vault")

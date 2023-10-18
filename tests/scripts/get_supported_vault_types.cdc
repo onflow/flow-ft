@@ -4,7 +4,7 @@ import FungibleToken from "FungibleToken"
 /// `target` address should hold the capability which conforms with FungibleToken.Receiver restricted type
 /// while it doesn't matter whether capability refers to fungible token or a custom receiver like 
 /// `FungibleTokenSwitchboard` or `TokenReceiver`. However `targetPath` tells where the capability stores
-pub fun main(target: Address, targetPath: PublicPath): Int {
+access(all) fun main(target: Address, targetPath: PublicPath): Int {
 
     // Access the capability for the provided target address
     let capabilityRef = getAccount(target).capabilities.borrow<&{FungibleToken.Receiver}>(targetPath)
