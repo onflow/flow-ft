@@ -7,9 +7,9 @@
 
 import Test
 
-pub let blockchain = Test.newEmulatorBlockchain()
+access(all) let blockchain = Test.newEmulatorBlockchain()
 
-pub fun deploy(_ contractName: String, _ account: Test.Account, _ path: String) {
+access(all) fun deploy(_ contractName: String, _ account: Test.TestAccount, _ path: String) {
     let err = blockchain.deployContract(
         name: contractName,
         code: Test.readFile(path),
@@ -23,7 +23,7 @@ pub fun deploy(_ contractName: String, _ account: Test.Account, _ path: String) 
     }
 }
 
-pub fun deployWithArgs(_ contractName: String, _ account: Test.Account, _ path: String, args: [AnyStruct]) {
+access(all) fun deployWithArgs(_ contractName: String, _ account: Test.TestAccount, _ path: String, args: [AnyStruct]) {
     let err = blockchain.deployContract(
         name: contractName,
         code: Test.readFile(path),
@@ -37,7 +37,7 @@ pub fun deployWithArgs(_ contractName: String, _ account: Test.Account, _ path: 
     }
 }
 
-pub fun scriptExecutor(_ scriptName: String, _ arguments: [AnyStruct]): AnyStruct? {
+access(all) fun scriptExecutor(_ scriptName: String, _ arguments: [AnyStruct]): AnyStruct? {
     let scriptCode = loadCode(scriptName, "transactions/scripts")
     let scriptResult = blockchain.executeScript(scriptCode, arguments)
 
@@ -50,7 +50,7 @@ pub fun scriptExecutor(_ scriptName: String, _ arguments: [AnyStruct]): AnyStruc
     return scriptResult.returnValue
 }
 
-pub fun expectScriptFailure(_ scriptName: String, _ arguments: [AnyStruct]): String {
+access(all) fun expectScriptFailure(_ scriptName: String, _ arguments: [AnyStruct]): String {
     let scriptCode = loadCode(scriptName, "transactions/scripts")
     let scriptResult = blockchain.executeScript(scriptCode, arguments)
 
@@ -58,7 +58,7 @@ pub fun expectScriptFailure(_ scriptName: String, _ arguments: [AnyStruct]): Str
     return scriptResult.error!.message
 }
 
-pub fun txExecutor(_ txName: String, _ signers: [Test.Account], _ arguments: [AnyStruct], _ expectedError: String?, _ expectedErrorType: ErrorType?): Bool {
+access(all) fun txExecutor(_ txName: String, _ signers: [Test.TestAccount], _ arguments: [AnyStruct], _ expectedError: String?, _ expectedErrorType: ErrorType?): Bool {
     let txCode = loadCode(txName, "transactions")
 
     let authorizers: [Address] = []
@@ -97,35 +97,33 @@ pub fun txExecutor(_ txName: String, _ signers: [Test.Account], _ arguments: [An
     return txResult.status == Test.ResultStatus.succeeded
 }
 
-pub fun loadCode(_ fileName: String, _ baseDirectory: String): String {
+access(all) fun loadCode(_ fileName: String, _ baseDirectory: String): String {
     return Test.readFile("../".concat(baseDirectory).concat("/").concat(fileName))
 }
 
-pub enum ErrorType: UInt8 {
-    pub case TX_PANIC
-    pub case TX_ASSERT
-    pub case TX_PRE
+access(all) enum ErrorType: UInt8 {
+    access(all) case TX_PANIC
+    access(all) case TX_ASSERT
+    access(all) case TX_PRE
 }
 
-pub fun getErrorMessagePointer(errorType: ErrorType): Int {
+access(all) fun getErrorMessagePointer(errorType: ErrorType): Int {
     switch errorType {
         case ErrorType.TX_PANIC: return 159
         case ErrorType.TX_ASSERT: return 170
         case ErrorType.TX_PRE: return 174
         default: panic("Invalid error type")
     }
-
-    return 0
 }
 
-pub fun buildTypeIdentifier(_ acct: Test.Account, _ contractName: String, _ suffix: String): String {
+access(all) fun buildTypeIdentifier(_ acct: Test.TestAccount, _ contractName: String, _ suffix: String): String {
     let addrString = acct.address.toString()
     return "A.".concat(addrString.slice(from: 2, upTo: addrString.length)).concat(".").concat(contractName).concat(".").concat(suffix)
 }
 
 // Copied functions from flow-utils so we can assert on error conditions
 // https://github.com/green-goo-dao/flow-utils/blob/main/cadence/contracts/StringUtils.cdc
-pub fun contains(_ s: String, _ substr: String): Bool {
+access(all) fun contains(_ s: String, _ substr: String): Bool {
     if let index = index(s, substr, 0) {
         return true
     }
@@ -133,7 +131,7 @@ pub fun contains(_ s: String, _ substr: String): Bool {
 }
 
 // https://github.com/green-goo-dao/flow-utils/blob/main/cadence/contracts/StringUtils.cdc
-pub fun index(_ s: String, _ substr: String, _ startIndex: Int): Int? {
+access(all) fun index(_ s: String, _ substr: String, _ startIndex: Int): Int? {
     for i in range(startIndex, s.length - substr.length + 1) {
         if s[i] == substr[0] && s.slice(from: i, upTo: i + substr.length) == substr {
             return i
@@ -143,7 +141,7 @@ pub fun index(_ s: String, _ substr: String, _ startIndex: Int): Int? {
 }
 
 // https://github.com/green-goo-dao/flow-utils/blob/main/cadence/contracts/ArrayUtils.cdc
-pub fun rangeFunc(_ start: Int, _ end: Int, _ f: ((Int): Void)) {
+access(all) fun rangeFunc(_ start: Int, _ end: Int, _ f: (fun (Int): Void)) {
     var current = start
     while current < end {
         f(current)
@@ -151,7 +149,7 @@ pub fun rangeFunc(_ start: Int, _ end: Int, _ f: ((Int): Void)) {
     }
 }
 
-pub fun range(_ start: Int, _ end: Int): [Int] {
+access(all) fun range(_ start: Int, _ end: Int): [Int] {
     let res: [Int] = []
     rangeFunc(start, end, fun (i: Int) {
         res.append(i)
