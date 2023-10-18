@@ -29,10 +29,11 @@ import TokenForwarding from "TokenForwarding"
 
 transaction(receiver: Address) {
 
-    prepare(acct: auth(BorrowValue) &Account) {
+    prepare(acct: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue, UnpublishCapability) &Account) {
 
         // Get the receiver capability for the account being forwarded to
         let recipient = getAccount(receiver).capabilities.get<&{FungibleToken.Vault}>(ExampleToken.VaultPublicPath)
+            ?? panic("Could not borrow receiver capability from recipient account")
 
         // Create the forwarder and save it to the account that is doing the forwarding
         let vault <- TokenForwarding.createNewForwarder(recipient: recipient)
@@ -43,14 +44,14 @@ transaction(receiver: Address) {
 
         // Link the new forwarding receiver capability
         let tokenReceiverCap = acct.capabilities.storage.issue<&{FungibleToken.Receiver}>(
-            /storage/exampleTokenForwarder
-        )
+                /storage/exampleTokenForwarder
+            )
         acct.capabilities.publish(tokenReceiverCap, at: ExampleToken.VaultPublicPath)
 
         // Link the new ForwarderPublic capability
         let tokenForwarderCap = acct.capabilities.storage.issue<&{TokenForwarding.ForwarderPublic}>(
-            /storage/exampleTokenForwarder
-        )
+                /storage/exampleTokenForwarder
+            )
         acct.capabilities.publish(tokenForwarderCap, at: /public/exampleTokenForwarder)
     }
 }

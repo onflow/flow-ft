@@ -9,7 +9,7 @@ import FungibleToken from "FungibleToken"
 transaction(amount: UFix64, to: Address, senderPath: StoragePath, receiverPath: PublicPath) {
 
     // The Vault resource that holds the tokens that are being transferred
-    let tempVault: @FungibleToken.Vault
+    let tempVault: @{FungibleToken.Vault}
 
     prepare(signer: auth(BorrowValue) &Account) {
 
@@ -22,7 +22,8 @@ transaction(amount: UFix64, to: Address, senderPath: StoragePath, receiverPath: 
 
     execute {
         let recipient = getAccount(to)
-        let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(receiverPath)!
+        let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(receiverPath)
+            ?? panic("Could not borrow reference to the recipient's Receiver!")
 
         // Transfer tokens from the signer's stored vault to the receiver capability
         receiverRef.deposit(from: <-self.tempVault)
