@@ -7,10 +7,8 @@ import FungibleToken from "FungibleToken"
 access(all) fun main(target: Address, targetPath: PublicPath): {Type: Bool} {
 
     // Access the capability for the provided target address
-    let capabilityRef = getAccount(target)
-                    .getCapability<&{FungibleToken.Receiver}>(targetPath)
-                    .borrow() 
-                    ?? panic("Unable to borrow capability with restricted sub type {FungibleToken.Receiver} from path".concat(targetPath.toString()))
+    let capabilityRef = getAccount(target).capabilities.borrow<&{FungibleToken.Receiver}>(targetPath)
+        ?? panic("Unable to borrow capability with restricted sub type {FungibleToken.Receiver} from path".concat(targetPath.toString()))
     // Return the supported vault types.
     return capabilityRef.getSupportedVaultTypes()
 }

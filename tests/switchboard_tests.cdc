@@ -1,58 +1,38 @@
 import Test
+import "test_helpers.cdc"
 
-pub let blockchain = Test.newEmulatorBlockchain()
-pub let admin = blockchain.createAccount()
-pub let recipient = blockchain.createAccount()
+// access(all) let blockchain = Test.newEmulatorBlockchain()
+access(all) let admin = blockchain.createAccount()
+access(all) let recipient = blockchain.createAccount()
 
-pub fun setup() {
-    blockchain.useConfiguration(Test.Configuration({
-        "FungibleTokenMetadataViews": admin.address,
-        "ExampleToken": admin.address,
-        "FungibleTokenSwitchboard": admin.address,
-        "TokenForwarding": admin.address
-    }))
-
-    var code = Test.readFile("../contracts/FungibleTokenMetadataViews.cdc")
-    var err = blockchain.deployContract(
-        name: "FungibleTokenMetadataViews",
-        code: code,
-        account: admin,
-        arguments: []
-    )
-    Test.expect(err, Test.beNil())
-
-    code = Test.readFile("../contracts/ExampleToken.cdc")
-    err = blockchain.deployContract(
-        name: "ExampleToken",
-        code: code,
-        account: admin,
-        arguments: []
+access(all) fun setup() {
+    blockchain.useConfiguration(
+        Test.Configuration(
+            addresses: {
+                "ViewResolver": admin.address,
+                "FungibleToken": admin.address,
+                "NonFungibleToken": admin.address,
+                "MetadataViews": admin.address,
+                "FungibleTokenMetadataViews": admin.address,
+                "ExampleToken": admin.address,
+                "FungibleTokenSwitchboard": admin.address,
+                "TokenForwarding": admin.address
+            }
+        )
     )
 
-    Test.expect(err, Test.beNil())
+    deploy("ViewResolver", admin, "../contracts/utility/ViewResolver.cdc")
+    deploy("FungibleToken", admin, "../contracts/FungibleToken-v2.cdc")
+    deploy("NonFungibleToken", admin, "../contracts/utility/NonFungibleToken.cdc")
+    deploy("MetadataViews", admin, "../contracts/utility/MetadataViews.cdc")
+    deploy("FungibleTokenMetadataViews", admin, "../contracts/FungibleTokenMetadataViews.cdc")
+    deploy("ExampleToken", admin, "../contracts/ExampleToken-v2.cdc")
+    deploy("FungibleTokenSwitchboard", admin, "../contracts/FungibleTokenSwitchboard.cdc")
+    deploy("TokenForwarding", admin, "../contracts/utility/TokenForwarding.cdc")
 
-    code = Test.readFile("../contracts/FungibleTokenSwitchboard.cdc")
-    err = blockchain.deployContract(
-        name: "FungibleTokenSwitchboard",
-        code: code,
-        account: admin,
-        arguments: []
-    )
-
-    Test.expect(err, Test.beNil())
-
-    code = Test.readFile("../contracts/utility/TokenForwarding.cdc")
-    err = blockchain.deployContract(
-        name: "TokenForwarding",
-        code: code,
-        account: admin,
-        arguments: []
-    )
-
-    Test.expect(err, Test.beNil())
 }
 
-pub fun testSetupSwitchboard() {
+access(all) fun testSetupSwitchboard() {
     var code = Test.readFile("../transactions/setup_account.cdc")
     var tx = Test.Transaction(
         code: code,
@@ -112,7 +92,7 @@ pub fun testSetupSwitchboard() {
     Test.assertEqual(1, numTypes)
 }
 
-pub fun testUseSwitchboard() {
+access(all) fun testUseSwitchboard() {
     var code = Test.readFile("../transactions/switchboard/safe_transfer_tokens_v2.cdc")
     var tx = Test.Transaction(
         code: code,
@@ -149,7 +129,7 @@ pub fun testUseSwitchboard() {
 
 }
 
-pub fun testRemoveVaultTypeFromSwitchboard() {
+access(all) fun testRemoveVaultTypeFromSwitchboard() {
     var code = Test.readFile("../transactions/switchboard/remove_vault_capability.cdc")
     var tx = Test.Transaction(
         code: code,
@@ -187,7 +167,7 @@ pub fun testRemoveVaultTypeFromSwitchboard() {
 
 }
 
-pub fun testUseSwitchboardWithForwarder() {
+access(all) fun testUseSwitchboardWithForwarder() {
     var code = Test.readFile("../transactions/create_forwarder.cdc")
     var tx = Test.Transaction(
         code: code,
