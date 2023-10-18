@@ -1,42 +1,41 @@
 import Test
+import "test_helpers.cdc"
 
-pub let blockchain = Test.newEmulatorBlockchain()
-pub let admin = blockchain.createAccount()
-pub let recipient = blockchain.createAccount()
+// access(all) let blockchain = Test.newEmulatorBlockchain()
+access(all) let admin = blockchain.createAccount()
+access(all) let recipient = blockchain.createAccount()
 
-pub fun setup() {
-    blockchain.useConfiguration(Test.Configuration({
-        "FungibleTokenMetadataViews": admin.address,
-        "ExampleToken": admin.address
-    }))
-
-    var code = Test.readFile("../contracts/FungibleTokenMetadataViews.cdc")
-    var err = blockchain.deployContract(
-        name: "FungibleTokenMetadataViews",
-        code: code,
-        account: admin,
-        arguments: []
-    )
-    Test.expect(err, Test.beNil())
-
-    code = Test.readFile("../contracts/ExampleToken.cdc")
-    err = blockchain.deployContract(
-        name: "ExampleToken",
-        code: code,
-        account: admin,
-        arguments: []
+access(all) fun setup() {
+    blockchain.useConfiguration(
+        Test.Configuration(
+            addresses: {
+                "ViewResolver": admin.address,
+                "FungibleToken": admin.address,
+                "NonFungibleToken": admin.address,
+                "MetadataViews": admin.address,
+                "FungibleTokenMetadataViews": admin.address,
+                "ExampleToken": admin.address
+            }
+        )
     )
 
-    Test.expect(err, Test.beNil())
+    deploy("ViewResolver", admin, "../contracts/utility/ViewResolver.cdc")
+    deploy("FungibleToken", admin, "../contracts/FungibleToken-v2.cdc")
+    deploy("NonFungibleToken", admin, "../contracts/utility/NonFungibleToken.cdc")
+    deploy("MetadataViews", admin, "../contracts/utility/MetadataViews.cdc")
+    deploy("FungibleTokenMetadataViews", admin, "../contracts/FungibleTokenMetadataViews.cdc")
+    deploy("ExampleToken", admin, "../contracts/ExampleToken-v2.cdc")
 }
 
-pub fun testTokensInitializedEventEmitted() {
-    let typ = CompositeType("A.01cf0e2f2f715450.ExampleToken.TokensInitialized")!
-
+access(all) fun testTokensInitializedEventEmitted() {
+    let addrString = admin.address.toString()
+    let identifier = "A.".concat(addrString.slice(from: 2, upTo: addrString.length)).concat(".").concat("ExampleToken").concat(".").concat("TokensInitialized")
+    let typ = CompositeType(identifier)
+        ?? panic("Problem constructing CompositeType")
     Test.assertEqual(1, blockchain.eventsOfType(typ).length)
 }
 
-pub fun testGetTotalSupply() {
+access(all) fun testGetTotalSupply() {
     let code = Test.readFile("../transactions/scripts/get_supply.cdc")
     let scriptResult = blockchain.executeScript(code, [])
 
@@ -46,7 +45,7 @@ pub fun testGetTotalSupply() {
     Test.assertEqual(1000.0, totalSupply)
 }
 
-pub fun testGetAdminBalance() {
+access(all) fun testGetAdminBalance() {
     let code = Test.readFile("../transactions/scripts/get_balance.cdc")
     let scriptResult = blockchain.executeScript(
         code,
@@ -59,7 +58,7 @@ pub fun testGetAdminBalance() {
     Test.assertEqual(1000.0, balance)
 }
 
-pub fun testSetupAccount() {
+access(all) fun testSetupAccount() {
     var code = Test.readFile("../transactions/setup_account.cdc")
     let tx = Test.Transaction(
         code: code,
@@ -84,7 +83,7 @@ pub fun testSetupAccount() {
     Test.assertEqual(0.0, balance)
 }
 
-pub fun testMintTokens() {
+access(all) fun testMintTokens() {
     var code = Test.readFile("../transactions/mint_tokens.cdc")
     let tx = Test.Transaction(
         code: code,
@@ -97,13 +96,13 @@ pub fun testMintTokens() {
     Test.expect(txResult, Test.beSucceeded())
 
     // Test that the proper events were emitted
-    var typ = CompositeType("A.01cf0e2f2f715450.ExampleToken.TokensMinted")!
+    var typ = CompositeType(buildTypeIdentifier(admin, "ExampleToken", "TokensMinted"))!
     Test.assertEqual(1, blockchain.eventsOfType(typ).length)
 
-    typ = CompositeType("A.01cf0e2f2f715450.ExampleToken.MinterCreated")!
+    typ = CompositeType(buildTypeIdentifier(admin, "ExampleToken", "MinterCreated"))!
     Test.assertEqual(1, blockchain.eventsOfType(typ).length)
 
-    typ = CompositeType("A.01cf0e2f2f715450.ExampleToken.TokensDeposited")!
+    typ = CompositeType(buildTypeIdentifier(admin, "ExampleToken", "TokensDeposited"))!
     Test.assertEqual(1, blockchain.eventsOfType(typ).length)
 
     // Test that the totalSupply increased by the amount of minted tokens
@@ -116,7 +115,7 @@ pub fun testMintTokens() {
     Test.assertEqual(1250.0, totalSupply)
 }
 
-pub fun testTransferTokens() {
+access(all) fun testTransferTokens() {
     var code = Test.readFile("../transactions/transfer_tokens.cdc")
     let tx = Test.Transaction(
         code: code,
@@ -128,10 +127,10 @@ pub fun testTransferTokens() {
 
     Test.expect(txResult, Test.beSucceeded())
 
-    var typ = CompositeType("A.01cf0e2f2f715450.ExampleToken.TokensDeposited")!
+    var typ = CompositeType(buildTypeIdentifier(admin, "ExampleToken", "TokensDeposited"))!
     Test.assertEqual(2, blockchain.eventsOfType(typ).length)
 
-    typ = CompositeType("A.01cf0e2f2f715450.ExampleToken.TokensWithdrawn")!
+    typ = CompositeType(buildTypeIdentifier(admin, "ExampleToken", "TokensWithdrawn"))!
     Test.assertEqual(1, blockchain.eventsOfType(typ).length)
 
     code = Test.readFile("../transactions/scripts/get_balance.cdc")
@@ -159,7 +158,7 @@ pub fun testTransferTokens() {
     Test.assertEqual(1050.0, balance)
 }
 
-pub fun testTransferTokenAmountGreaterThanBalance() {
+access(all) fun testTransferTokenAmountGreaterThanBalance() {
     var code = Test.readFile("../transactions/transfer_tokens.cdc")
     let tx = Test.Transaction(
         code: code,
@@ -176,7 +175,7 @@ pub fun testTransferTokenAmountGreaterThanBalance() {
     )
 }
 
-pub fun testBurnTokens() {
+access(all) fun testBurnTokens() {
     var code = Test.readFile("../transactions/burn_tokens.cdc")
     let tx = Test.Transaction(
         code: code,
@@ -188,10 +187,10 @@ pub fun testBurnTokens() {
 
     Test.expect(txResult, Test.beSucceeded())
 
-    var typ = CompositeType("A.01cf0e2f2f715450.ExampleToken.BurnerCreated")!
-    Test.assertEqual(1, blockchain.eventsOfType(typ).length)
+    // var typ = CompositeType(buildTypeIdentifier(admin, "ExampleToken", "BurnerCreated"))!
+    // Test.assertEqual(1, blockchain.eventsOfType(typ).length)
 
-    typ = CompositeType("A.01cf0e2f2f715450.ExampleToken.TokensBurned")!
+    var typ = CompositeType(buildTypeIdentifier(admin, "FungibleToken", "Burrn"))!
     Test.assertEqual(1, blockchain.eventsOfType(typ).length)
 
     code = Test.readFile("../transactions/scripts/get_balance.cdc")
@@ -207,7 +206,7 @@ pub fun testBurnTokens() {
     Test.assertEqual(1000.0, balance)
 }
 
-pub fun testVaultTypes() {
+access(all) fun testVaultTypes() {
     let code = Test.readFile("./scripts/get_views.cdc")
     let scriptResult = blockchain.executeScript(code, [recipient.address])
 
@@ -216,28 +215,28 @@ pub fun testVaultTypes() {
     Test.expect(scriptResult, Test.beSucceeded())
 }
 
-pub fun testGetVaultDisplay() {
+access(all) fun testGetVaultDisplay() {
     let code = Test.readFile("./scripts/get_vault_display.cdc")
     let scriptResult = blockchain.executeScript(code, [recipient.address])
 
     Test.expect(scriptResult, Test.beSucceeded())
 }
 
-pub fun testGetVaultData() {
+access(all) fun testGetVaultData() {
     let code = Test.readFile("./scripts/get_vault_data.cdc")
     let scriptResult = blockchain.executeScript(code, [recipient.address])
 
     Test.expect(scriptResult, Test.beSucceeded())
 }
 
-pub fun testGetTokenMetadata() {
+access(all) fun testGetTokenMetadata() {
     let code = Test.readFile("./scripts/get_token_metadata.cdc")
     let scriptResult = blockchain.executeScript(code, [recipient.address])
 
     Test.expect(scriptResult, Test.beSucceeded())
 }
 
-pub fun testGetUnsupportedViewType() {
+access(all) fun testGetUnsupportedViewType() {
     let code = Test.readFile("./scripts/get_unsupported_view.cdc")
     let scriptResult = blockchain.executeScript(code, [recipient.address])
 
