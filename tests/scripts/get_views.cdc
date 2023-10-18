@@ -3,6 +3,7 @@
 // since we cannot return on-chain types to the test
 // files yet.
 
+import FungibleToken from "FungibleToken"
 import MetadataViews from "MetadataViews"
 import ExampleToken from "ExampleToken"
 import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
