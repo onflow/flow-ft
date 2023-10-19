@@ -1,12 +1,10 @@
 // This script checks the FTVaultData view from ExampleToken
-// is the expected one. This is merely used in testing,
-// since we cannot return on-chain types to the test
-// files yet.
+// is the expected one. This is merely used in testing.
 
-import ExampleToken from "ExampleToken"
-import FungibleToken from "FungibleToken"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
-import MetadataViews from "MetadataViews"
+import "ExampleToken"
+import "FungibleToken"
+import "FungibleTokenMetadataViews"
+import "MetadataViews"
 
 pub fun main(address: Address): Bool {
     let account = getAccount(address)
@@ -19,6 +17,9 @@ pub fun main(address: Address): Bool {
     let vaultData = FungibleTokenMetadataViews.getFTVaultData(vaultRef)
         ?? panic("Token does not implement FTVaultData view")
 
+    // FungibleTokenMetadataViews.FTVaultData cannot be returned as
+    // a script result, because of the createEmptyVault() function.
+    // So we perform the assertions here.
     assert(ExampleToken.VaultStoragePath == vaultData.storagePath)
     assert(ExampleToken.ReceiverPublicPath == vaultData.receiverPath)
     assert(ExampleToken.VaultPublicPath == vaultData.metadataPath)
