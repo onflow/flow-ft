@@ -231,9 +231,6 @@ access(all) contract ExampleToken: ViewResolver {
         /// and returns them to the calling context.
         ///
         access(all) fun mintTokens(amount: UFix64): @ExampleToken.Vault {
-            pre {
-                amount > 0.0: "Amount minted must be greater than zero"
-            }
             ExampleToken.totalSupply = ExampleToken.totalSupply + amount
             emit TokensMinted(amount: amount, type: self.getType().identifier)
             return <-create Vault(balance: amount)
