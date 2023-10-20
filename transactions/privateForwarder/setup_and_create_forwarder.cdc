@@ -24,7 +24,7 @@ transaction {
 
         // Create a public Vault Capability if needed
         if signer.capabilities.borrow<&{FungibleToken.Vault}>(ExampleToken.VaultPublicPath) == nil {
-            let vaultCap = signer.capabilities.storage.issue<&{FungibleToken.Vault}>(
+            let vaultCap = signer.capabilities.storage.issue<&ExampleToken.Vault>(
                     ExampleToken.VaultStoragePath
                 )
             signer.capabilities.publish(vaultCap, at: ExampleToken.VaultPublicPath)

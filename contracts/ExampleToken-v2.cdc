@@ -276,7 +276,7 @@ access(all) contract ExampleToken: ViewResolver {
         // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
         // and the `getBalance()` method through the `Balance` interface
         //
-        let exampleTokenCap = self.account.capabilities.storage.issue<&{FungibleToken.Vault}>(self.VaultStoragePath)
+        let exampleTokenCap = self.account.capabilities.storage.issue<&Vault>(self.VaultStoragePath)
         self.account.capabilities.publish(exampleTokenCap, at: self.VaultPublicPath)
         let receiverCap = self.account.capabilities.storage.issue<&{FungibleToken.Receiver}>(self.VaultStoragePath)
         self.account.capabilities.publish(receiverCap, at: self.ReceiverPublicPath)
