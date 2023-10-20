@@ -187,6 +187,13 @@ access(all) contract FungibleToken {
             return nil
         }
 
+        /// Returns the public path where this vault's Receiver should have a public capability
+        /// Publishing a Receiver Capability at a different path enables alternate Receiver implementations to be used
+        /// in the same canonical namespace as the underlying Vault.
+        access(all) view fun getDefaultReceiverPath(): PublicPath? {
+            return nil
+        }
+
         // access(all) view fun getViews(): [Type] {
         //     pre { true: "dummy" }
         // }
