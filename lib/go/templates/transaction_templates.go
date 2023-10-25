@@ -116,7 +116,7 @@ func GenerateTransferInvalidVaultScript(fungibleAddr, tokenAddr, otherTokenAddr,
 		import %s from 0x%s
 
 		transaction {
-			prepare(acct: &Account) {
+			prepare(acct: auth(BorrowValue) &Account) {
 				let recipient = getAccount(0x%s)
 
 				let providerRef = acct.storage.borrow<&{FungibleToken.Provider}>(from: /storage/%sVault)
