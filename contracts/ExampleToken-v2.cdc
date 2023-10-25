@@ -2,7 +2,6 @@ import FungibleToken from "FungibleToken"
 import MetadataViews from "MetadataViews"
 import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 import ViewResolver from "ViewResolver"
-// import MultipleVaults from "MultipleVaults"
 
 access(all) contract ExampleToken: ViewResolver {
 
