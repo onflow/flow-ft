@@ -185,10 +185,7 @@ access(all) fun testBurnTokens() {
 
     Test.expect(txResult, Test.beSucceeded())
 
-    // var typ = CompositeType(buildTypeIdentifier(admin, "ExampleToken", "BurnerCreated"))!
-    // Test.assertEqual(1, blockchain.eventsOfType(typ).length)
-
-    var typ = CompositeType(buildTypeIdentifier(admin, "FungibleToken", "Burrn"))!
+    var typ = CompositeType(buildTypeIdentifier(admin, "FungibleToken", "Burn"))!
     Test.assertEqual(1, blockchain.eventsOfType(typ).length)
 
     code = Test.readFile("../transactions/scripts/get_balance.cdc")
