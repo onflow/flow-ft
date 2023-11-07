@@ -1,16 +1,16 @@
 import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
 import ExampleToken from "ExampleToken"
 
-// This transaction is a template for a transaction that could be used by anyone
-// to add several capabilities that point to fungible token vaults of a different   
-// `Type` and belong to a certain `Address`, to their switchboard resource.
+/// This transaction is a template for a transaction that could be used by anyone to add several capabilities that point
+/// to fungible token vaults of a different `Type` and belong to a certain `Address`, to their switchboard resource.
+///
 transaction (address: Address) {
 
     let vaultPaths: [PublicPath]
     let vaultTypes: [Type]
     let switchboardRef:  &FungibleTokenSwitchboard.Switchboard
 
-    prepare(signer: AuthAccount) {
+    prepare(signer: auth(BorrowValue) &Account) {
 
         // Store the Example Token receiver's public path in the array of public 
         // paths that will be passed to the switchboard method
@@ -23,17 +23,20 @@ transaction (address: Address) {
         self.vaultTypes.append(Type<@ExampleToken.Vault>())
       
         // Get a reference to the signers switchboard
-        self.switchboardRef = signer.borrow<&FungibleTokenSwitchboard.Switchboard>
-                                         (from: FungibleTokenSwitchboard.StoragePath) 
-                                ?? panic("Could not borrow reference to switchboard")
+        self.switchboardRef = signer.storage.borrow<&FungibleTokenSwitchboard.Switchboard>(
+                from: FungibleTokenSwitchboard.StoragePath
+            ) ?? panic("Could not borrow reference to switchboard")
     
     }
 
     execute {
 
-      // Add the capability(ies) to the switchboard using addNewVaultWrappersByPath
-      self.switchboardRef.addNewVaultWrappersByPath(paths: self.vaultPaths, 
-                                            types: self.vaultTypes, address: address)
+        // Add the capability(ies) to the switchboard using addNewVaultWrappersByPath
+        self.switchboardRef.addNewVaultWrappersByPath(
+            paths: self.vaultPaths, 
+            types: self.vaultTypes,
+            address: address
+        )
 
     }
 

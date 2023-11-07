@@ -1,6 +1,6 @@
 module github.com/onflow/flow-ft/lib/go/templates
 
-go 1.18
+go 1.19
 
 require (
 	github.com/kevinburke/go-bindata v3.22.0+incompatible

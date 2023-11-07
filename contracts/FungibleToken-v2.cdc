@@ -128,16 +128,16 @@ access(all) contract FungibleToken {
         ///
         access(all) fun deposit(from: @{Vault})
 
-        // /// getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
-        // access(all) view fun getSupportedVaultTypes(): {Type: Bool} {
-        //     pre { true: "dummy" }
-        // }
+        /// getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
+        access(all) view fun getSupportedVaultTypes(): {Type: Bool} {
+            pre { true: "dummy" }
+        }
 
-        // /// Returns whether or not the given type is accepted by the Receiver
-        // /// A vault that can accept any type should just return true by default
-        // access(all) view fun isSupportedVaultType(type: Type): Bool {
-        //     pre { true: "dummy" }
-        // }
+        /// Returns whether or not the given type is accepted by the Receiver
+        /// A vault that can accept any type should just return true by default
+        access(all) view fun isSupportedVaultType(type: Type): Bool {
+            pre { true: "dummy" }
+        }
     }
 
     access(all) resource interface Transferor {
@@ -184,6 +184,13 @@ access(all) contract FungibleToken {
 
         /// Returns the public path where this vault should have a public capability
         access(all) view fun getDefaultPublicPath(): PublicPath? {
+            return nil
+        }
+
+        /// Returns the public path where this vault's Receiver should have a public capability
+        /// Publishing a Receiver Capability at a different path enables alternate Receiver implementations to be used
+        /// in the same canonical namespace as the underlying Vault.
+        access(all) view fun getDefaultReceiverPath(): PublicPath? {
             return nil
         }
 

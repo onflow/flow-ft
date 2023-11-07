@@ -1,28 +1,23 @@
 import FungibleToken from "FungibleToken"
 import ExampleToken from "ExampleToken"
 
-// This transaction is a template for a transaction that
-// could be used by anyone to send tokens to another account
-// through a switchboard, as long as they have set up their
-// switchboard and have add the proper capability to it
-//
-// The address of the receiver account, the amount to transfer
-// and the PublicPath for the generic FT receiver will be the
-// parameters
+/// This transaction is a template for a transaction that could be used by anyone to send tokens to another account
+/// through a switchboard, as long as they have set up their switchboard and have add the proper capability to it
+///
+/// The address of the receiver account, the amount to transfer and the PublicPath for the generic FT receiver will be
+/// the parameters
+///
 transaction(to: Address, amount: UFix64, receiverPath: PublicPath) {
 
-    // The vault resource that holds the tokens that are being transferred
-    let sentVault: @FungibleToken.Vault
+    // The signer's vault to withdraw from
+    let sourceVault: auth(FungibleToken.Withdrawable) &ExampleToken.Vault
 
-    prepare(signer: AuthAccount) {
+    prepare(signer: auth(BorrowValue) &Account) {
 
         // Get a reference to the signer's stored vault
-        let vaultRef = signer.borrow<auth(FungibleToken.Withdrawable) &ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)
+        self.sourceVault = signer.storage.borrow<auth(FungibleToken.Withdrawable) &ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)
 			?? panic("Could not borrow reference to the owner's Vault!")
 
-        // Withdraw tokens from the signer's stored vault
-        self.sentVault <- vaultRef.withdraw(amount: amount)
-    
     }
 
     execute {
@@ -31,14 +26,12 @@ transaction(to: Address, amount: UFix64, receiverPath: PublicPath) {
         let recipient = getAccount(to)
 
         // Get a reference to the recipient's Receiver
-        let receiverRef = recipient
-            .getCapability(receiverPath)
-            .borrow<&{FungibleToken.Receiver}>()
+        let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(receiverPath)
 			?? panic("Could not borrow receiver reference to switchboard!")
 
         // Deposit the withdrawn tokens in the recipient's receiver
-        receiverRef.deposit(from: <-self.sentVault)
-    
+        receiverRef.deposit(from: <-self.sourceVault.withdraw(amount: amount))
+
     }
 
 }

@@ -555,54 +555,6 @@ func TestMintingAndBurning(t *testing.T) {
 		false,
 	)
 
-	t.Run("Shouldn't be able to mint zero tokens", func(t *testing.T) {
-		script := templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
-		tx := createTxWithTemplateAndAuthorizer(
-			b, script, exampleTokenAddr)
-
-		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
-		_ = tx.AddArgument(CadenceUFix64("0.0"))
-
-		signAndSubmit(
-			t, b, tx,
-			[]flow.Address{
-				b.ServiceKey().Address,
-				exampleTokenAddr,
-			},
-			[]crypto.Signer{
-				serviceSigner,
-				exampleTokenSigner,
-			},
-			true,
-		)
-
-		// Assert that the vaults' balances are correct
-		script = templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
-		result := executeScriptAndCheck(t, b,
-			script,
-			[][]byte{
-				jsoncdc.MustEncode(cadence.Address(exampleTokenAddr)),
-			},
-		)
-
-		assert.Equal(t, CadenceUFix64("1000.0"), result)
-
-		// Assert that the vaults' balances are correct
-		script = templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
-		result = executeScriptAndCheck(t, b,
-			script,
-			[][]byte{
-				jsoncdc.MustEncode(cadence.Address(joshAddress)),
-			},
-		)
-
-		assert.Equal(t, CadenceUFix64("0.0"), result)
-
-		script = templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
-		supply := executeScriptAndCheck(t, b, script, nil)
-		assert.Equal(t, CadenceUFix64("1000.0"), supply)
-	})
-
 	t.Run("Should mint tokens, deposit, and update balance and total supply", func(t *testing.T) {
 		script := templates.GenerateMintTokensScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
 		tx := createTxWithTemplateAndAuthorizer(

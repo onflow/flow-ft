@@ -7,11 +7,11 @@ import ExampleToken from "ExampleToken"
 
 transaction(recipient: Address, amount: UFix64) {
 
-    /// Reference to the Example Token Admin Resource object
-    let tokenAdmin: &ExampleToken.Administrator
+    /// Reference to the Example Token Minter Resource object
+    let tokenMinter: &ExampleToken.Minter
 
     /// Reference to the Fungible Token Receiver of the recipient
-    let tokenReceiver: &{FungibleToken.Receiver}
+    let tokenReceiver: &{FungibleToken.Vault}
 
     /// The total supply of tokens before the burn
     let supplyBefore: UFix64
@@ -20,25 +20,22 @@ transaction(recipient: Address, amount: UFix64) {
         self.supplyBefore = ExampleToken.totalSupply
 
         // Borrow a reference to the admin object
-        self.tokenAdmin = signer.storage.borrow<&ExampleToken.Administrator>(from: ExampleToken.AdminStoragePath)
+        self.tokenMinter = signer.storage.borrow<&ExampleToken.Minter>(from: ExampleToken.AdminStoragePath)
             ?? panic("Signer is not the token admin")
 
         // Get the account of the recipient and borrow a reference to their receiver
-        self.tokenReceiver = getAccount(recipient)
-            .capabilities.borrow<&{FungibleToken.Receiver}>(ExampleToken.ReceiverPublicPath)
-            ?? panic("Unable to borrow receiver reference")
+        self.tokenReceiver = getAccount(recipient).capabilities.borrow<&{FungibleToken.Vault}>(
+                ExampleToken.VaultPublicPath
+            ) ?? panic("Unable to borrow receiver reference")
     }
 
     execute {
 
-        // Create a minter and mint tokens
-        let minter <- self.tokenAdmin.createNewMinter(allowedAmount: amount)
-        let mintedVault <- minter.mintTokens(amount: amount)
+        // Create mint tokens
+        let mintedVault <- self.tokenMinter.mintTokens(amount: amount)
 
         // Deposit them to the receiever
         self.tokenReceiver.deposit(from: <-mintedVault)
-
-        destroy minter
     }
 
     post {

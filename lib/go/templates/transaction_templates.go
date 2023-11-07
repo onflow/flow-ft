@@ -43,13 +43,13 @@ func GenerateDestroyVaultScript(fungibleAddr, tokenAddr flow.Address, tokenName 
 		import %[3]s from 0x%[2]s
 
 		transaction {
-		  prepare(acct: AuthAccount) {
-			let vault <- acct.load<@%[3]s.Vault>(from: /storage/%[4]sVault)
+		  prepare(acct: auth(SaveValue, LoadValue) &Account) {
+			let vault <- acct.storage.load<@%[3]s.Vault>(from: /storage/%[4]sVault)
 				?? panic("Couldn't load Vault from storage")
 			
 			let withdrawVault <- vault.withdraw(amount: %[5]d.0)
 
-			acct.save(<-vault, to: /storage/%[4]sVault) 
+			acct.storage.save(<-vault, to: /storage/%[4]sVault) 
 
 			destroy withdrawVault
 		  }
@@ -116,13 +116,13 @@ func GenerateTransferInvalidVaultScript(fungibleAddr, tokenAddr, otherTokenAddr,
 		import %s from 0x%s
 
 		transaction {
-			prepare(acct: AuthAccount) {
+			prepare(acct: auth(BorrowValue) &Account) {
 				let recipient = getAccount(0x%s)
 
-				let providerRef = acct.borrow<&{FungibleToken.Provider}>(from: /storage/%sVault)
+				let providerRef = acct.storage.borrow<&{FungibleToken.Provider}>(from: /storage/%sVault)
 					?? panic("Could not borrow Provider reference to the Vault!")
 
-				let receiverRef = recipient.getCapability(/public/%sReceiver)!.borrow<&{FungibleToken.Receiver}>()
+				let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(/public/%sReceiver)
 					?? panic("Could not borrow receiver reference to the recipient's Vault")
 
 				let tokens <- providerRef.withdraw(amount: %d.0)

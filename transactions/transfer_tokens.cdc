@@ -11,7 +11,7 @@ import ExampleToken from "ExampleToken"
 transaction(amount: UFix64, to: Address) {
 
     // The Vault resource that holds the tokens that are being transferred
-    let sentVault: @FungibleToken.Vault
+    let sentVault: @{FungibleToken.Vault}
 
     prepare(signer: auth(BorrowValue) &Account) {
 

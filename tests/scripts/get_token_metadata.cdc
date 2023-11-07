@@ -1,21 +1,20 @@
 // This script checks the FTView view from ExampleToken
-// is the expected one. This is merely used in testing,
-// since we cannot return on-chain types to the test
-// files yet.
+// is the expected one. This is merely used in testing.
 
-import ExampleToken from "ExampleToken"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
-import MetadataViews from "MetadataViews"
+import "ExampleToken"
+import "FungibleTokenMetadataViews"
+import "MetadataViews"
 
-pub fun main(address: Address): Bool {
+access(all) fun main(address: Address): Bool {
     let account = getAccount(address)
 
-    let vaultRef = account
-        .getCapability(ExampleToken.VaultPublicPath)
-        .borrow<&{MetadataViews.Resolver}>()
+    let vaultRef = account.capabilities.borrow<&{ViewResolver.Resolver}>(ExampleToken.VaultPublicPath)
         ?? panic("Could not borrow a reference to the vault resolver")
 
     let ftView = FungibleTokenMetadataViews.getFTView(viewResolver: vaultRef)
 
+    // FungibleTokenMetadataViews.FTVaultData cannot be returned as
+    // a script result, because of the createEmptyVault() function.
+    // So we perform the assertions here.
     return ftView.ftDisplay != nil && ftView.ftVaultData != nil
 }

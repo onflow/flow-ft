@@ -1,7 +1,6 @@
 import FungibleToken from "FungibleToken"
 import MetadataViews from "MetadataViews"
 import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
-import MultipleVaults from "MultipleVaults"
 import ViewResolver from "ViewResolver"
 
 access(all) contract ExampleToken: ViewResolver {
@@ -18,6 +17,7 @@ access(all) contract ExampleToken: ViewResolver {
     /// User Paths
     access(all) let VaultStoragePath: StoragePath
     access(all) let VaultPublicPath: PublicPath
+    access(all) let ReceiverPublicPath: PublicPath
 
     /// Function to return the types that the contract implements
     access(all) view fun getVaultTypes(): [Type] {
@@ -58,6 +58,7 @@ access(all) contract ExampleToken: ViewResolver {
 
         access(self) var storagePath: StoragePath
         access(self) var publicPath: PublicPath
+        access(self) var receiverPath: PublicPath
 
         /// Returns the storage path where the vault should typically be stored
         access(all) view fun getDefaultStoragePath(): StoragePath? {
@@ -69,11 +70,18 @@ access(all) contract ExampleToken: ViewResolver {
             return self.publicPath
         }
 
+        /// Returns the public path where this vault's Receiver should have a public capability
+        access(all) view fun getDefaultReceiverPath(): PublicPath? {
+            return self.receiverPath
+        }
+
         access(all) view fun getViews(): [Type] {
-            return [Type<FungibleTokenMetadataViews.FTView>(),
-                    Type<FungibleTokenMetadataViews.FTDisplay>(),
-                    Type<FungibleTokenMetadataViews.FTVaultData>(),
-                    Type<FungibleTokenMetadataViews.TotalSupply>()]
+            return [
+                Type<FungibleTokenMetadataViews.FTView>(),
+                Type<FungibleTokenMetadataViews.FTDisplay>(),
+                Type<FungibleTokenMetadataViews.FTVaultData>(),
+                Type<FungibleTokenMetadataViews.TotalSupply>()
+            ]
         }
 
         access(all) fun resolveView(_ view: Type): AnyStruct? {
@@ -106,15 +114,19 @@ access(all) contract ExampleToken: ViewResolver {
                         ?? panic("Could not borrow a reference to the stored vault")
                     return FungibleTokenMetadataViews.FTVaultData(
                         storagePath: self.storagePath,
-                        receiverPath: self.publicPath,
+                        receiverPath: self.receiverPath,
                         metadataPath: self.publicPath,
                         providerPath: /private/exampleTokenVault,
-                        receiverLinkedType: Type<&ExampleToken.Vault>(),
+                        receiverLinkedType: Type<&{FungibleToken.Receiver}>(),
                         metadataLinkedType: Type<&ExampleToken.Vault>(),
                         providerLinkedType: Type<&ExampleToken.Vault>(),
                         createEmptyVaultFunction: (fun(): @{FungibleToken.Vault} {
                             return <-vaultRef.createEmptyVault()
                         })
+                    )
+                case Type<FungibleTokenMetadataViews.TotalSupply>():
+                    return FungibleTokenMetadataViews.TotalSupply(
+                        totalSupply: ExampleToken.totalSupply
                     )
             }
             return nil
@@ -137,6 +149,7 @@ access(all) contract ExampleToken: ViewResolver {
             let identifier = "exampleTokenVault"
             self.storagePath = StoragePath(identifier: identifier)!
             self.publicPath = PublicPath(identifier: identifier)!
+            self.receiverPath = PublicPath(identifier: "exampleTokenReceiver")!
         }
 
         /// Get the balance of the vault
@@ -197,6 +210,8 @@ access(all) contract ExampleToken: ViewResolver {
             return <-create Vault(balance: 0.0)
         }
 
+        // TODO: Revisit if removal of custom destructors passes
+        // See https://github.com/onflow/flips/pull/131
         destroy() {
             if self.balance > 0.0 {
                 ExampleToken.totalSupply = ExampleToken.totalSupply - self.balance
@@ -232,6 +247,17 @@ access(all) contract ExampleToken: ViewResolver {
         return <- create Vault(balance: 0.0)
     }
 
+    /// Function that destroys a Vault instance, effectively burning the tokens.
+    ///
+    /// @param from: The Vault resource containing the tokens to burn
+    ///
+    // TODO: Revisit if removal of custom destructors passes
+    // Will need to add an update to total supply
+    // See https://github.com/onflow/flips/pull/131
+    access(all) fun burnTokens(from: @ExampleToken.Vault) {
+        destroy from
+    }
+
     init() {
         self.totalSupply = 1000.0
 
@@ -242,17 +268,20 @@ access(all) contract ExampleToken: ViewResolver {
         let vault <- create Vault(balance: self.totalSupply)
         self.VaultStoragePath = vault.getDefaultStoragePath()!
         self.VaultPublicPath = vault.getDefaultPublicPath()!
+        self.ReceiverPublicPath = vault.getDefaultReceiverPath()!
+
         self.account.storage.save(<-vault, to: self.VaultStoragePath)
 
         // Create a public capability to the stored Vault that exposes
         // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
         // and the `getBalance()` method through the `Balance` interface
         //
-        let exampleTokenCap = self.account.capabilities.storage.issue<&ExampleToken>(self.VaultStoragePath)
+        let exampleTokenCap = self.account.capabilities.storage.issue<&Vault>(self.VaultStoragePath)
         self.account.capabilities.publish(exampleTokenCap, at: self.VaultPublicPath)
+        let receiverCap = self.account.capabilities.storage.issue<&{FungibleToken.Receiver}>(self.VaultStoragePath)
+        self.account.capabilities.publish(receiverCap, at: self.ReceiverPublicPath)
 
         let admin <- create Minter()
         self.account.storage.save(<-admin, to: self.AdminStoragePath)
     }
 }
- 
