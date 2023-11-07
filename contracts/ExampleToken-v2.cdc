@@ -252,6 +252,7 @@ access(all) contract ExampleToken: ViewResolver {
     /// @param from: The Vault resource containing the tokens to burn
     ///
     // TODO: Revisit if removal of custom destructors passes
+    // Will need to add an update to total supply
     // See https://github.com/onflow/flips/pull/131
     access(all) fun burnTokens(from: @ExampleToken.Vault) {
         destroy from
