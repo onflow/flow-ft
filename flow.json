@@ -27,7 +27,7 @@
       }
     },
     "ExampleToken": {
-      "source": "./contracts/ExampleToken.cdc",
+      "source": "./contracts/ExampleToken-v2.cdc",
       "aliases": {
         "emulator": "0xf8d6e0586b0a20c7",
         "testing": "0x0000000000000007"

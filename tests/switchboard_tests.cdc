@@ -18,7 +18,7 @@ fun setup() {
 
     err = Test.deployContract(
         name: "ExampleToken",
-        path: "../contracts/ExampleToken.cdc",
+        path: "../contracts/ExampleToken-v2.cdc",
         arguments: []
     )
     Test.expect(err, Test.beNil())
