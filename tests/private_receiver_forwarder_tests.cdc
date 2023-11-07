@@ -1,8 +1,6 @@
 import Test
 import "test_helpers.cdc"
 
-// access(all) let blockchain = Test.newEmulatorBlockchain()
-
 access(all) let sourceAccount = blockchain.createAccount()
 access(all) let accounts: {String: Test.TestAccount} = {}
 

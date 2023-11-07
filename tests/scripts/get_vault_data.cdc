@@ -21,7 +21,7 @@ access(all) fun main(address: Address): Bool {
     assert(ExampleToken.ReceiverPublicPath == vaultData.receiverPath)
     assert(ExampleToken.VaultPublicPath == vaultData.metadataPath)
     assert(/private/exampleTokenVault == vaultData.providerPath)
-    assert(Type<&ExampleToken.Vault>() == vaultData.receiverLinkedType)
+    assert(Type<&{FungibleToken.Receiver}>() == vaultData.receiverLinkedType)
     assert(Type<&ExampleToken.Vault>() == vaultData.providerLinkedType)
     assert(Type<&ExampleToken.Vault>() == vaultData.metadataLinkedType)
     let vault <- vaultData.createEmptyVault()

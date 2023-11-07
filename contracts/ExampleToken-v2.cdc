@@ -117,7 +117,7 @@ access(all) contract ExampleToken: ViewResolver {
                         receiverPath: self.receiverPath,
                         metadataPath: self.publicPath,
                         providerPath: /private/exampleTokenVault,
-                        receiverLinkedType: Type<&ExampleToken.Vault>(),
+                        receiverLinkedType: Type<&{FungibleToken.Receiver}>(),
                         metadataLinkedType: Type<&ExampleToken.Vault>(),
                         providerLinkedType: Type<&ExampleToken.Vault>(),
                         createEmptyVaultFunction: (fun(): @{FungibleToken.Vault} {
