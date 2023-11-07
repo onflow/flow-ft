@@ -1,6 +1,10 @@
 {
   "coverage": {
+<<<<<<< HEAD
     "A.0000000000000001.MetadataViews": {
+=======
+    "A.0000000000000007.ExampleToken": {
+>>>>>>> master
       "line_hits": {
         "111": 0,
         "112": 0,
@@ -384,6 +388,7 @@
       "statements": 60,
       "percentage": "76.7%"
     },
+<<<<<<< HEAD
     "A.0000000000000005.FungibleToken": {
       "line_hits": {
         "108": 6,
@@ -438,6 +443,9 @@
       "percentage": "26.9%"
     },
     "A.0000000000000005.FungibleTokenMetadataViews": {
+=======
+    "A.0000000000000007.FungibleTokenMetadataViews": {
+>>>>>>> master
       "line_hits": {
         "102": 1,
         "103": 1,
@@ -481,7 +489,11 @@
       "statements": 32,
       "percentage": "87.5%"
     },
+<<<<<<< HEAD
     "A.0000000000000005.FungibleTokenSwitchboard": {
+=======
+    "A.0000000000000007.FungibleTokenSwitchboard": {
+>>>>>>> master
       "line_hits": {
         "102": 0,
         "104": 0,
@@ -589,7 +601,11 @@
       "statements": 65,
       "percentage": "46.2%"
     },
+<<<<<<< HEAD
     "A.0000000000000005.MetadataViews": {
+=======
+    "A.0000000000000007.TokenForwarding": {
+>>>>>>> master
       "line_hits": {
         "111": 0,
         "112": 0,
@@ -877,6 +893,7 @@
         105,
         106
       ],
+<<<<<<< HEAD
       "statements": 21,
       "percentage": "33.3%"
     },
@@ -2646,5 +2663,35 @@
     "A.0000000000000001.FlowStorageFees",
     "A.0000000000000003.FlowToken",
     "A.0000000000000002.FungibleToken"
+=======
+      "statements": 17,
+      "percentage": "41.2%"
+    }
+  },
+  "excluded_locations": [
+    "A.0000000000000002.FungibleToken",
+    "A.0000000000000002.FungibleTokenMetadataViews",
+    "A.0000000000000001.FlowClusterQC",
+    "A.0000000000000001.FlowIDTableStaking",
+    "A.0000000000000001.NFTStorefront",
+    "I.Crypto",
+    "A.0000000000000001.NodeVersionBeacon",
+    "A.0000000000000001.FlowServiceAccount",
+    "A.0000000000000001.FlowDKG",
+    "A.0000000000000001.LockedTokens",
+    "A.0000000000000001.FlowStakingCollection",
+    "A.0000000000000001.ExampleNFT",
+    "I.Test",
+    "A.0000000000000001.StakingProxy",
+    "A.0000000000000004.FlowFees",
+    "A.0000000000000001.FlowStorageFees",
+    "A.0000000000000001.FlowEpoch",
+    "A.0000000000000001.NFTStorefrontV2",
+    "s.7465737400000000000000000000000000000000000000000000000000000000",
+    "A.0000000000000003.FlowToken",
+    "A.0000000000000001.ViewResolver",
+    "A.0000000000000001.MetadataViews",
+    "A.0000000000000001.NonFungibleToken"
+>>>>>>> master
   ]
 }

@@ -1,28 +1,15 @@
 // This script checks the supported views from ExampleToken
-// are the expected ones. This is merely used in testing,
-// since we cannot return on-chain types to the test
-// files yet.
+// are the expected ones. This is merely used in testing.
 
-import FungibleToken from "FungibleToken"
-import MetadataViews from "MetadataViews"
-import ExampleToken from "ExampleToken"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import "MetadataViews"
+import "ExampleToken"
+import "FungibleTokenMetadataViews"
 
-access(all) fun main(address: Address): Bool {
+pub fun main(address: Address): [Type] {
     let account = getAccount(address)
 
     let vaultRef = account.capabilities.borrow<&{FungibleToken.Vault}>(ExampleToken.VaultPublicPath)
         ?? panic("Could not borrow reference to the Vault")
 
-    let views = vaultRef.getViews()
-    let expected: [Type] = [
-        Type<FungibleTokenMetadataViews.FTView>(),
-        Type<FungibleTokenMetadataViews.FTDisplay>(),
-        Type<FungibleTokenMetadataViews.FTVaultData>(),
-        Type<FungibleTokenMetadataViews.TotalSupply>()
-    ]
-
-    assert(expected == views)
-
-    return true
+    return vaultRef.getViews()
 }

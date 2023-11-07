@@ -1,227 +1,183 @@
 import Test
-import "test_helpers.cdc"
+import BlockchainHelpers
+import "FungibleTokenMetadataViews"
+import "ExampleToken"
+import "FungibleTokenSwitchboard"
 
-// access(all) let blockchain = Test.newEmulatorBlockchain()
-access(all) let admin = blockchain.createAccount()
-access(all) let recipient = blockchain.createAccount()
+access(all) let admin = Test.getAccount(0x0000000000000007)
+access(all) let recipient = Test.createAccount()
 
-access(all) fun setup() {
-    blockchain.useConfiguration(
-        Test.Configuration(
-            addresses: {
-                "ViewResolver": admin.address,
-                "FungibleToken": admin.address,
-                "NonFungibleToken": admin.address,
-                "MetadataViews": admin.address,
-                "FungibleTokenMetadataViews": admin.address,
-                "ExampleToken": admin.address,
-                "FungibleTokenSwitchboard": admin.address,
-                "TokenForwarding": admin.address
-            }
-        )
+access(all)
+fun setup() {
+    var err = Test.deployContract(
+        name: "FungibleTokenMetadataViews",
+        path: "../contracts/FungibleTokenMetadataViews.cdc",
+        arguments: []
     )
+    Test.expect(err, Test.beNil())
 
-    deploy("ViewResolver", admin, "../contracts/utility/ViewResolver.cdc")
-    deploy("FungibleToken", admin, "../contracts/FungibleToken-v2.cdc")
-    deploy("NonFungibleToken", admin, "../contracts/utility/NonFungibleToken.cdc")
-    deploy("MetadataViews", admin, "../contracts/utility/MetadataViews.cdc")
-    deploy("FungibleTokenMetadataViews", admin, "../contracts/FungibleTokenMetadataViews.cdc")
-    deploy("ExampleToken", admin, "../contracts/ExampleToken-v2.cdc")
-    deploy("FungibleTokenSwitchboard", admin, "../contracts/FungibleTokenSwitchboard.cdc")
-    deploy("TokenForwarding", admin, "../contracts/utility/TokenForwarding.cdc")
+    err = Test.deployContract(
+        name: "ExampleToken",
+        path: "../contracts/ExampleToken.cdc",
+        arguments: []
+    )
+    Test.expect(err, Test.beNil())
 
+    err = Test.deployContract(
+        name: "FungibleTokenSwitchboard",
+        path: "../contracts/FungibleTokenSwitchboard.cdc",
+        arguments: []
+    )
+    Test.expect(err, Test.beNil())
+
+    err = Test.deployContract(
+        name: "TokenForwarding",
+        path: "../contracts/utility/TokenForwarding.cdc",
+        arguments: []
+    )
+    Test.expect(err, Test.beNil())
 }
 
-access(all) fun testSetupSwitchboard() {
-    var code = Test.readFile("../transactions/setup_account.cdc")
-    var tx = Test.Transaction(
-        code: code,
-        authorizers: [recipient.address],
-        signers: [recipient],
-        arguments: []
+access(all)
+fun testSetupSwitchboard() {
+    var txResult = executeTransaction(
+        "../transactions/setup_account.cdc",
+        [],
+        recipient
     )
-    var txResult = blockchain.executeTransaction(tx)
-
     Test.expect(txResult, Test.beSucceeded())
 
-
-    code = Test.readFile("../transactions/switchboard/setup_account.cdc")
-    tx = Test.Transaction(
-        code: code,
-        authorizers: [recipient.address],
-        signers: [recipient],
-        arguments: []
+    txResult = executeTransaction(
+        "../transactions/switchboard/setup_account.cdc",
+        [],
+        recipient
     )
-    txResult = blockchain.executeTransaction(tx)
-
     Test.expect(txResult, Test.beSucceeded())
 
     // Test that the newly-setup switchboard cannot accept any types
-    let getSupportedVaultsCode = Test.readFile("scripts/get_supported_vault_types.cdc")
-
-    var scriptResult = blockchain.executeScript(
-        getSupportedVaultsCode,
+    var scriptResult = executeScript(
+        "scripts/get_supported_vault_types.cdc",
         [recipient.address, /public/GenericFTReceiver]
     )
-
     Test.expect(scriptResult, Test.beSucceeded())
 
-    var numTypes = (scriptResult.returnValue as! Int?)!
-    Test.assertEqual(0, numTypes)
+    var supportedTypes = scriptResult.returnValue! as! {Type: Bool}
+    Test.expect(supportedTypes, Test.beEmpty())
 
-    code = Test.readFile("../transactions/switchboard/add_vault_capability.cdc")
-    tx = Test.Transaction(
-        code: code,
-        authorizers: [recipient.address],
-        signers: [recipient],
-        arguments: []
+    txResult = executeTransaction(
+        "../transactions/switchboard/add_vault_capability.cdc",
+        [],
+        recipient
     )
-    txResult = blockchain.executeTransaction(tx)
-
     Test.expect(txResult, Test.beSucceeded())
 
     // Test that the switchboard can now accept one vault type
-    scriptResult = blockchain.executeScript(
-        getSupportedVaultsCode,
+    scriptResult = executeScript(
+        "scripts/get_supported_vault_types.cdc",
         [recipient.address, /public/GenericFTReceiver]
     )
-
     Test.expect(scriptResult, Test.beSucceeded())
 
-    numTypes = (scriptResult.returnValue as! Int?)!
-    Test.assertEqual(1, numTypes)
+    supportedTypes = scriptResult.returnValue! as! {Type: Bool}
+    let expectedTypes = {Type<@ExampleToken.Vault>(): true}
+    Test.assertEqual(expectedTypes, supportedTypes)
 }
 
-access(all) fun testUseSwitchboard() {
-    var code = Test.readFile("../transactions/switchboard/safe_transfer_tokens_v2.cdc")
-    var tx = Test.Transaction(
-        code: code,
-        authorizers: [admin.address],
-        signers: [admin],
-        arguments: [recipient.address, 10.0]
+access(all)
+fun testUseSwitchboard() {
+    var txResult = executeTransaction(
+        "../transactions/switchboard/safe_transfer_tokens_v2.cdc",
+        [recipient.address, 10.0],
+        admin
     )
-    var txResult = blockchain.executeTransaction(tx)
-
     Test.expect(txResult, Test.beSucceeded())
 
-    code = Test.readFile("../transactions/switchboard/transfer_tokens.cdc")
-    tx = Test.Transaction(
-        code: code,
-        authorizers: [admin.address],
-        signers: [admin],
-        arguments: [recipient.address, 10.0, /public/fungibleTokenSwitchboardPublic]
+    txResult = executeTransaction(
+        "../transactions/switchboard/transfer_tokens.cdc",
+        [recipient.address, 10.0, /public/fungibleTokenSwitchboardPublic],
+        admin
     )
-    txResult = blockchain.executeTransaction(tx)
-
     Test.expect(txResult, Test.beSucceeded())
 
     // Test that the switchboard account has a balance of 20.0
-    code = Test.readFile("../transactions/scripts/get_balance.cdc")
-    let scriptResult = blockchain.executeScript(
-        code,
+    let scriptResult = executeScript(
+        "../transactions/scripts/get_balance.cdc",
         [recipient.address]
     )
-
     Test.expect(scriptResult, Test.beSucceeded())
 
-    let balance = (scriptResult.returnValue as! UFix64?)!
+    let balance = scriptResult.returnValue! as! UFix64
     Test.assertEqual(20.0, balance)
-
 }
 
-access(all) fun testRemoveVaultTypeFromSwitchboard() {
-    var code = Test.readFile("../transactions/switchboard/remove_vault_capability.cdc")
-    var tx = Test.Transaction(
-        code: code,
-        authorizers: [recipient.address],
-        signers: [recipient],
-        arguments: [/public/exampleTokenReceiver]
+access(all)
+fun testRemoveVaultTypeFromSwitchboard() {
+    var txResult = executeTransaction(
+        "../transactions/switchboard/remove_vault_capability.cdc",
+        [/public/exampleTokenReceiver],
+        recipient
     )
-    var txResult = blockchain.executeTransaction(tx)
-
     Test.expect(txResult, Test.beSucceeded())
 
-    code = Test.readFile("../transactions/switchboard/transfer_tokens.cdc")
-    tx = Test.Transaction(
-        code: code,
-        authorizers: [admin.address],
-        signers: [admin],
-        arguments: [recipient.address, 10.0, /public/fungibleTokenSwitchboardPublic]
+    txResult = executeTransaction(
+        "../transactions/switchboard/transfer_tokens.cdc",
+        [recipient.address, 10.0, /public/fungibleTokenSwitchboardPublic],
+        admin
     )
-    txResult = blockchain.executeTransaction(tx)
-
     Test.expect(txResult, Test.beFailed())
 
-    let getSupportedVaultsCode = Test.readFile("scripts/get_supported_vault_types.cdc")
-
     // Test that the switchboard can now accept zero vault types
-    let scriptResult = blockchain.executeScript(
-        getSupportedVaultsCode,
+    let scriptResult = executeScript(
+        "scripts/get_supported_vault_types.cdc",
         [recipient.address, /public/GenericFTReceiver]
     )
-
     Test.expect(scriptResult, Test.beSucceeded())
 
-    let numTypes = (scriptResult.returnValue as! Int?)!
-    Test.assertEqual(0, numTypes)
-
+    let supportedTypes = scriptResult.returnValue! as! {Type: Bool}
+    Test.expect(supportedTypes, Test.beEmpty())
 }
 
-access(all) fun testUseSwitchboardWithForwarder() {
-    var code = Test.readFile("../transactions/create_forwarder.cdc")
-    var tx = Test.Transaction(
-        code: code,
-        authorizers: [recipient.address],
-        signers: [recipient],
-        arguments: [admin.address]
+access(all)
+fun testUseSwitchboardWithForwarder() {
+    var txResult = executeTransaction(
+        "../transactions/create_forwarder.cdc",
+        [admin.address],
+        recipient
     )
-    var txResult = blockchain.executeTransaction(tx)
-
     Test.expect(txResult, Test.beSucceeded())
 
-    code = Test.readFile("../transactions/switchboard/batch_add_vault_wrapper_capabilities.cdc")
-    tx = Test.Transaction(
-        code: code,
-        authorizers: [recipient.address],
-        signers: [recipient],
-        arguments: [recipient.address]
+    txResult = executeTransaction(
+        "../transactions/switchboard/batch_add_vault_wrapper_capabilities.cdc",
+        [recipient.address],
+        recipient
     )
-    txResult = blockchain.executeTransaction(tx)
-
     Test.expect(txResult, Test.beSucceeded())
 
     // Test that the switchboard can now accept one vault types
-    let getSupportedVaultsCode = Test.readFile("scripts/get_supported_vault_types.cdc")
-    var scriptResult = blockchain.executeScript(
-        getSupportedVaultsCode,
+    var scriptResult = executeScript(
+        "scripts/get_supported_vault_types.cdc",
         [recipient.address, /public/GenericFTReceiver]
     )
-
     Test.expect(scriptResult, Test.beSucceeded())
 
-    let numTypes = (scriptResult.returnValue as! Int?)!
-    Test.assertEqual(1, numTypes)
+    let supportedTypes = scriptResult.returnValue! as! {Type: Bool}
+    let expectedTypes = {Type<@ExampleToken.Vault>(): true}
+    Test.assertEqual(expectedTypes, supportedTypes)
 
-    code = Test.readFile("../transactions/switchboard/transfer_tokens.cdc")
-    tx = Test.Transaction(
-        code: code,
-        authorizers: [admin.address],
-        signers: [admin],
-        arguments: [recipient.address, 10.0, /public/fungibleTokenSwitchboardPublic]
+    txResult = executeTransaction(
+        "../transactions/switchboard/transfer_tokens.cdc",
+        [recipient.address, 10.0, /public/fungibleTokenSwitchboardPublic],
+        admin
     )
-    txResult = blockchain.executeTransaction(tx)
-
     Test.expect(txResult, Test.beSucceeded())
 
     // Test that the switchboard account has a balance of 20.0
-    code = Test.readFile("../transactions/scripts/get_balance.cdc")
-    scriptResult = blockchain.executeScript(
-        code,
+    scriptResult = executeScript(
+        "../transactions/scripts/get_balance.cdc",
         [recipient.address]
     )
-
     Test.expect(scriptResult, Test.beSucceeded())
 
-    let balance = (scriptResult.returnValue as! UFix64?)!
+    let balance = scriptResult.returnValue! as! UFix64
     Test.assertEqual(20.0, balance)
 }
