@@ -198,14 +198,6 @@ access(all) contract ExampleToken: ViewResolver {
         access(all) fun createEmptyVault(): @ExampleToken.Vault {
             return <-create Vault(balance: 0.0)
         }
-
-        // TODO: Revisit if removal of custom destructors passes
-        // See https://github.com/onflow/flips/pull/131
-        destroy() {
-            if self.balance > 0.0 {
-                ExampleToken.totalSupply = ExampleToken.totalSupply - self.balance
-            }
-        }
     }
 
     /// Minter
@@ -244,6 +236,9 @@ access(all) contract ExampleToken: ViewResolver {
     // Will need to add an update to total supply
     // See https://github.com/onflow/flips/pull/131
     access(all) fun burnTokens(from: @ExampleToken.Vault) {
+        if from.balance > 0.0 {
+                ExampleToken.totalSupply = ExampleToken.totalSupply - from.getBalance()
+        }
         destroy from
     }
 

@@ -454,7 +454,7 @@ func TestVaultDestroy(t *testing.T) {
 		false,
 	)
 
-	t.Run("Should subtract tokens from supply when they are destroyed", func(t *testing.T) {
+	t.Run("Should not subtract tokens from supply when they are destroyed with `destroy`", func(t *testing.T) {
 		script := templates.GenerateDestroyVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 100)
 		tx := createTxWithTemplateAndAuthorizer(
 			b, script, exampleTokenAddr)
@@ -479,43 +479,8 @@ func TestVaultDestroy(t *testing.T) {
 
 		script = templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
 		supply := executeScriptAndCheck(t, b, script, nil)
-		assert.Equal(t, CadenceUFix64("900.0"), supply)
+		assert.Equal(t, CadenceUFix64("1000.0"), supply)
 	})
-
-	t.Run("Should subtract tokens from supply when they are destroyed by a different account", func(t *testing.T) {
-		script := templates.GenerateDestroyVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken", 100)
-		tx := createTxWithTemplateAndAuthorizer(
-			b, script, joshAddress)
-
-		signAndSubmit(
-			t, b, tx,
-			[]flow.Address{
-				b.ServiceKey().Address,
-				joshAddress,
-			},
-			[]crypto.Signer{
-				serviceSigner,
-				joshSigner,
-			},
-			false,
-		)
-
-		// Assert that the vaults' balances are correct
-		script = templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
-		result := executeScriptAndCheck(t, b,
-			script,
-			[][]byte{
-				jsoncdc.MustEncode(cadence.Address(joshAddress)),
-			},
-		)
-
-		assert.Equal(t, CadenceUFix64("200.0"), result)
-
-		script = templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
-		supply := executeScriptAndCheck(t, b, script, nil)
-		assert.Equal(t, CadenceUFix64("800.0"), supply)
-	})
-
 }
 
 func TestMintingAndBurning(t *testing.T) {

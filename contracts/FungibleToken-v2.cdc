@@ -168,14 +168,10 @@ access(all) contract FungibleToken {
         }
 
         /// Returns the storage path where the vault should typically be stored
-        access(all) view fun getDefaultStoragePath(): StoragePath? {
-            return nil
-        }
+        access(all) view fun getDefaultStoragePath(): StoragePath?
 
         /// Returns the public path where this vault should have a public capability
-        access(all) view fun getDefaultPublicPath(): PublicPath? {
-            return nil
-        }
+        access(all) view fun getDefaultPublicPath(): PublicPath?
 
         /// Returns the public path where this vault's Receiver should have a public capability
         /// Publishing a Receiver Capability at a different path enables alternate Receiver implementations to be used
