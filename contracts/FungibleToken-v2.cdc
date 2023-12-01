@@ -47,24 +47,9 @@ access(all) contract FungibleToken {
 
     /// The event that is emitted when tokens are withdrawn from a Vault
     access(all) event Withdraw(amount: UFix64, from: Address?, type: String)
-    access(self) fun emitWithdrawEvent(amount: UFix64, from: Address?, type: String): Bool {
-        emit Withdraw(amount: amount, from: from, type: type)
-        return true
-    }
 
     /// The event that is emitted when tokens are deposited to a Vault
     access(all) event Deposit(amount: UFix64, to: Address?, type: String)
-    access(self) fun emitDepositEvent(amount: UFix64, to: Address?, type: String): Bool {
-        emit Deposit(amount: amount, to: to, type: type)
-        return true
-    }
-
-    /// The event that is emitted when tokens are transferred from one account to another
-    access(all) event Transfer(amount: UFix64, from: Address?, to: Address?, type: String)
-    access(self) fun emitTransferEvent(amount: UFix64, from: Address?, to: Address?, type: String): Bool {
-        emit Transfer(amount: amount, from: from, to: to, type: type)
-        return true
-    }
 
     /// Event emitted when tokens are destroyed
     access(all) event Burn(amount: UFix64, type: String)
@@ -107,7 +92,7 @@ access(all) contract FungibleToken {
                 // `result` refers to the return value
                 result.getBalance() == amount:
                     "Withdrawal amount must be the same as the balance of the withdrawn Vault"
-                //FungibleToken.emitWithdrawEvent(amount: amount, from: self.owner?.address, type: self.getType().identifier)
+                emit Withdraw(amount: amount, from: self.owner?.address, type: self.getType().identifier)
             }
         }
     }
@@ -205,7 +190,7 @@ access(all) contract FungibleToken {
             pre {
                 from.isInstance(self.getType()): 
                     "Cannot deposit an incompatible token type"
-                //FungibleToken.emitDepositEvent(amount: from.getBalance(), to: self.owner?.address, type: from.getType().identifier)
+                emit Deposit(amount: from.getBalance(), to: self.owner?.address, type: from.getType().identifier)
             }
             post {
                 self.getBalance() == before(self.getBalance()) + before(from.getBalance()):
@@ -222,9 +207,9 @@ access(all) contract FungibleToken {
         }
 
         destroy() {
-            pre {
-                //FungibleToken.emitBurnEvent(amount: self.getBalance(), type: self.getType().identifier)
-            }
+            // pre {
+            //     FungibleToken.emitBurnEvent(amount: self.getBalance(), type: self.getType().identifier)
+            // }
         }
     }
 }
