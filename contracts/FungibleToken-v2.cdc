@@ -51,16 +51,6 @@ access(all) contract FungibleToken {
     /// The event that is emitted when tokens are deposited to a Vault
     access(all) event Deposit(amount: UFix64, to: Address?, type: String)
 
-    /// Event emitted when tokens are destroyed
-    access(all) event Burn(amount: UFix64, type: String)
-
-    access(self) fun emitBurnEvent(amount: UFix64, type: String): Bool {
-        if amount >= 0.0 {
-            emit Burn(amount: amount, type: type)
-        }
-        return true
-    }
-
     /// Provider
     ///
     /// The interface that enforces the requirements for withdrawing
@@ -131,6 +121,8 @@ access(all) contract FungibleToken {
     /// but that is not supported yet
     ///
     access(all) resource interface Vault: Receiver, Provider, ViewResolver.Resolver {
+
+        //access(all) event ResourceDestroyed(balance: UFix64 = self.getBalance(), type: Type = self.getType().identifier)
 
         /// Get the balance of the vault
         access(all) view fun getBalance(): UFix64
@@ -204,12 +196,6 @@ access(all) contract FungibleToken {
             post {
                 result.getBalance() == 0.0: "The newly created Vault must have zero balance"
             }
-        }
-
-        destroy() {
-            // pre {
-            //     FungibleToken.emitBurnEvent(amount: self.getBalance(), type: self.getType().identifier)
-            // }
         }
     }
 }
