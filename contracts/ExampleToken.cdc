@@ -1,39 +1,46 @@
-import "FungibleToken"
-import "MetadataViews"
-import "FungibleTokenMetadataViews"
+import FungibleToken from "FungibleToken"
+import MetadataViews from "MetadataViews"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import ViewResolver from "ViewResolver"
 
-access(all) contract ExampleToken: FungibleToken {
+access(all) contract ExampleToken: ViewResolver {
+
+    /// The event that is emitted when new tokens are minted
+    access(all) event TokensMinted(amount: UFix64, type: String)
 
     /// Total supply of ExampleTokens in existence
     access(all) var totalSupply: UFix64
-    
-    /// Storage and Public Paths
+
+    /// Admin Path
+    access(all) let AdminStoragePath: StoragePath
+
+    /// User Paths
     access(all) let VaultStoragePath: StoragePath
     access(all) let VaultPublicPath: PublicPath
     access(all) let ReceiverPublicPath: PublicPath
-    access(all) let AdminStoragePath: StoragePath
 
-    /// The event that is emitted when the contract is created
-    access(all) event TokensInitialized(initialSupply: UFix64)
+    /// Function to return the types that the contract implements
+    access(all) view fun getVaultTypes(): [Type] {
+        let typeArray: [Type] = [Type<@ExampleToken.Vault>()]
+        return typeArray
+    }
 
-    /// The event that is emitted when tokens are withdrawn from a Vault
-    access(all) event TokensWithdrawn(amount: UFix64, from: Address?)
+    access(all) view fun getViews(): [Type] {
+        let vaultRef = self.account.capabilities.borrow<&ExampleToken.Vault>(/public/exampleTokenVault)
+            ?? panic("Could not borrow a reference to the vault resolver")
+        
+        return vaultRef.getViews()
+    }
 
-    /// The event that is emitted when tokens are deposited to a Vault
-    access(all) event TokensDeposited(amount: UFix64, to: Address?)
+    access(all) fun resolveView(_ view: Type): AnyStruct? {
+        let vaultRef = self.account.capabilities.borrow<&ExampleToken.Vault>(/public/exampleTokenVault)
+            ?? panic("Could not borrow a reference to the vault resolver")
+        
+        return vaultRef.resolveView(view)
+    }
 
-    /// The event that is emitted when new tokens are minted
-    access(all) event TokensMinted(amount: UFix64)
-
-    /// The event that is emitted when tokens are destroyed
-    access(all) event TokensBurned(amount: UFix64)
-
-    /// The event that is emitted when a new minter resource is created
-    access(all) event MinterCreated(allowedAmount: UFix64)
-
-    /// The event that is emitted when a new burner resource is created
-    access(all) event BurnerCreated()
-
+    /// Vault
+    ///
     /// Each user stores an instance of only the Vault in their storage
     /// The functions in the Vault and governed by the pre and post conditions
     /// in FungibleToken when they are called.
@@ -44,71 +51,39 @@ access(all) contract ExampleToken: FungibleToken {
     /// out of thin air. A special Minter resource needs to be defined to mint
     /// new tokens.
     ///
-    access(all) resource Vault: FungibleToken.Provider, FungibleToken.Receiver, FungibleToken.Balance, MetadataViews.Resolver {
+    access(all) resource Vault: FungibleToken.Vault {
 
         /// The total balance of this vault
         access(all) var balance: UFix64
 
-        /// Initialize the balance at resource creation time
-        init(balance: UFix64) {
-            self.balance = balance
+        access(self) var storagePath: StoragePath
+        access(self) var publicPath: PublicPath
+        access(self) var receiverPath: PublicPath
+
+        /// Returns the storage path where the vault should typically be stored
+        access(all) view fun getDefaultStoragePath(): StoragePath? {
+            return self.storagePath
         }
 
-        /// Function that takes an amount as an argument
-        /// and withdraws that amount from the Vault.
-        /// It creates a new temporary Vault that is used to hold
-        /// the money that is being transferred. It returns the newly
-        /// created Vault to the context that called so it can be deposited
-        /// elsewhere.
-        ///
-        /// @param amount: The amount of tokens to be withdrawn from the vault
-        /// @return The Vault resource containing the withdrawn funds
-        ///
-        access(FungibleToken.Withdrawable) fun withdraw(amount: UFix64): @FungibleToken.Vault {
-            self.balance = self.balance - amount
-            emit TokensWithdrawn(amount: amount, from: self.owner?.address)
-            return <-create Vault(balance: amount)
+        /// Returns the public path where this vault should have a public capability
+        access(all) view fun getDefaultPublicPath(): PublicPath? {
+            return self.publicPath
         }
 
-        /// Function that takes a Vault object as an argument and adds
-        /// its balance to the balance of the owners Vault.
-        /// It is allowed to destroy the sent Vault because the Vault
-        /// was a temporary holder of the tokens. The Vault's balance has
-        /// been consumed and therefore can be destroyed.
-        ///
-        /// @param from: The Vault resource containing the funds that will be deposited
-        ///
-        access(all) fun deposit(from: @FungibleToken.Vault) {
-            let vault <- from as! @ExampleToken.Vault
-            self.balance = self.balance + vault.balance
-            emit TokensDeposited(amount: vault.balance, to: self.owner?.address)
-            vault.balance = 0.0
-            destroy vault
+        /// Returns the public path where this vault's Receiver should have a public capability
+        access(all) view fun getDefaultReceiverPath(): PublicPath? {
+            return self.receiverPath
         }
 
-        destroy() {
-            if self.balance > 0.0 {
-                ExampleToken.totalSupply = ExampleToken.totalSupply - self.balance
-            }
+        access(all) view fun getViews(): [Type] {
+            return [
+                Type<FungibleTokenMetadataViews.FTView>(),
+                Type<FungibleTokenMetadataViews.FTDisplay>(),
+                Type<FungibleTokenMetadataViews.FTVaultData>(),
+                Type<FungibleTokenMetadataViews.TotalSupply>()
+            ]
         }
 
-        /// The way of getting all the Metadata Views implemented by ExampleToken
-        ///
-        /// @return An array of Types defining the implemented views. This value will be used by
-        ///         developers to know which parameter to pass to the resolveView() method.
-        ///
-        access(all) view fun getViews(): [Type]{
-            return [Type<FungibleTokenMetadataViews.FTView>(),
-                    Type<FungibleTokenMetadataViews.FTDisplay>(),
-                    Type<FungibleTokenMetadataViews.FTVaultData>(),
-                    Type<FungibleTokenMetadataViews.TotalSupply>()]
-        }
-
-        /// The way of getting a Metadata View out of the ExampleToken
-        ///
-        /// @param view: The Type of the desired view.
-        /// @return A structure representing the requested view.
-        ///
         access(all) fun resolveView(_ view: Type): AnyStruct? {
             switch view {
                 case Type<FungibleTokenMetadataViews.FTView>():
@@ -118,7 +93,7 @@ access(all) contract ExampleToken: FungibleToken {
                     )
                 case Type<FungibleTokenMetadataViews.FTDisplay>():
                     let media = MetadataViews.Media(
-                        file: MetadataViews.HTTPFile(
+                            file: MetadataViews.HTTPFile(
                             url: "https://assets.website-files.com/5f6294c0c7a8cdd643b1c820/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.svg"
                         ),
                         mediaType: "image/svg+xml"
@@ -135,135 +110,161 @@ access(all) contract ExampleToken: FungibleToken {
                         }
                     )
                 case Type<FungibleTokenMetadataViews.FTVaultData>():
+                    let vaultRef = ExampleToken.account.storage.borrow<&ExampleToken.Vault>(from: self.storagePath)
+                        ?? panic("Could not borrow a reference to the stored vault")
                     return FungibleTokenMetadataViews.FTVaultData(
-                        storagePath: ExampleToken.VaultStoragePath,
-                        receiverPath: ExampleToken.ReceiverPublicPath,
-                        metadataPath: ExampleToken.VaultPublicPath,
+                        storagePath: self.storagePath,
+                        receiverPath: self.receiverPath,
+                        metadataPath: self.publicPath,
                         providerPath: /private/exampleTokenVault,
-                        receiverLinkedType: Type<&ExampleToken.Vault{FungibleToken.Receiver}>(),
-                        metadataLinkedType: Type<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(),
-                        providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider}>(),
-                        createEmptyVaultFunction: (fun(): @ExampleToken.Vault {
-                            return <-ExampleToken.createEmptyVault()
+                        receiverLinkedType: Type<&{FungibleToken.Receiver}>(),
+                        metadataLinkedType: Type<&ExampleToken.Vault>(),
+                        providerLinkedType: Type<&ExampleToken.Vault>(),
+                        createEmptyVaultFunction: (fun(): @{FungibleToken.Vault} {
+                            return <-vaultRef.createEmptyVault()
                         })
                     )
                 case Type<FungibleTokenMetadataViews.TotalSupply>():
-                    return FungibleTokenMetadataViews.TotalSupply(totalSupply: ExampleToken.totalSupply)
+                    return FungibleTokenMetadataViews.TotalSupply(
+                        totalSupply: ExampleToken.totalSupply
+                    )
             }
             return nil
         }
+
+        /// getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
+        access(all) view fun getSupportedVaultTypes(): {Type: Bool} {
+            let supportedTypes: {Type: Bool} = {}
+            supportedTypes[self.getType()] = true
+            return supportedTypes
+        }
+
+        access(all) view fun isSupportedVaultType(type: Type): Bool {
+            return self.getSupportedVaultTypes()[type] ?? false
+        }
+
+        // initialize the balance at resource creation time
+        init(balance: UFix64) {
+            self.balance = balance
+            let identifier = "exampleTokenVault"
+            self.storagePath = StoragePath(identifier: identifier)!
+            self.publicPath = PublicPath(identifier: identifier)!
+            self.receiverPath = PublicPath(identifier: "exampleTokenReceiver")!
+        }
+
+        /// Get the balance of the vault
+        access(all) view fun getBalance(): UFix64 {
+            return self.balance
+        }
+
+        /// withdraw
+        ///
+        /// Function that takes an amount as an argument
+        /// and withdraws that amount from the Vault.
+        ///
+        /// It creates a new temporary Vault that is used to hold
+        /// the tokens that are being transferred. It returns the newly
+        /// created Vault to the context that called so it can be deposited
+        /// elsewhere.
+        ///
+        access(FungibleToken.Withdrawable) fun withdraw(amount: UFix64): @ExampleToken.Vault {
+            self.balance = self.balance - amount
+            return <-create Vault(balance: amount)
+        }
+
+        /// deposit
+        ///
+        /// Function that takes a Vault object as an argument and adds
+        /// its balance to the balance of the owners Vault.
+        ///
+        /// It is allowed to destroy the sent Vault because the Vault
+        /// was a temporary holder of the tokens. The Vault's balance has
+        /// been consumed and therefore can be destroyed.
+        ///
+        access(all) fun deposit(from: @{FungibleToken.Vault}) {
+            let vault <- from as! @ExampleToken.Vault
+            self.balance = self.balance + vault.balance
+            vault.balance = 0.0
+            destroy vault
+        }
+
+        /// createEmptyVault
+        ///
+        /// Function that creates a new Vault with a balance of zero
+        /// and returns it to the calling context. A user must call this function
+        /// and store the returned Vault in their storage in order to allow their
+        /// account to be able to receive deposits of this token type.
+        ///
+        access(all) fun createEmptyVault(): @ExampleToken.Vault {
+            return <-create Vault(balance: 0.0)
+        }
     }
 
+    /// Minter
+    ///
+    /// Resource object that token admin accounts can hold to mint new tokens.
+    ///
+    access(all) resource Minter {
+        /// mintTokens
+        ///
+        /// Function that mints new tokens, adds them to the total supply,
+        /// and returns them to the calling context.
+        ///
+        access(all) fun mintTokens(amount: UFix64): @ExampleToken.Vault {
+            ExampleToken.totalSupply = ExampleToken.totalSupply + amount
+            emit TokensMinted(amount: amount, type: self.getType().identifier)
+            return <-create Vault(balance: amount)
+        }
+    }
+
+    /// createEmptyVault
+    ///
     /// Function that creates a new Vault with a balance of zero
     /// and returns it to the calling context. A user must call this function
     /// and store the returned Vault in their storage in order to allow their
     /// account to be able to receive deposits of this token type.
     ///
-    /// @return The new Vault resource
-    ///
-    access(all) fun createEmptyVault(): @Vault {
-        return <-create Vault(balance: 0.0)
+    access(all) fun createEmptyVault(): @ExampleToken.Vault {
+        return <- create Vault(balance: 0.0)
     }
 
-    access(all) resource Administrator {
-
-        /// Function that creates and returns a new minter resource
-        ///
-        /// @param allowedAmount: The maximum quantity of tokens that the minter could create
-        /// @return The Minter resource that would allow to mint tokens
-        ///
-        access(all) fun createNewMinter(allowedAmount: UFix64): @Minter {
-            emit MinterCreated(allowedAmount: allowedAmount)
-            return <-create Minter(allowedAmount: allowedAmount)
-        }
-
-        /// Function that creates and returns a new burner resource
-        ///
-        /// @return The Burner resource
-        ///
-        access(all) fun createNewBurner(): @Burner {
-            emit BurnerCreated()
-            return <-create Burner()
-        }
-    }
-
-    /// Resource object that token admin accounts can hold to mint new tokens.
+    /// Function that destroys a Vault instance, effectively burning the tokens.
     ///
-    access(all) resource Minter {
-
-        /// The amount of tokens that the minter is allowed to mint
-        access(all) var allowedAmount: UFix64
-
-        /// Function that mints new tokens, adds them to the total supply,
-        /// and returns them to the calling context.
-        ///
-        /// @param amount: The quantity of tokens to mint
-        /// @return The Vault resource containing the minted tokens
-        ///
-        access(all) fun mintTokens(amount: UFix64): @ExampleToken.Vault {
-            pre {
-                amount > 0.0: "Amount minted must be greater than zero"
-                amount <= self.allowedAmount: "Amount minted must be less than the allowed amount"
-            }
-            ExampleToken.totalSupply = ExampleToken.totalSupply + amount
-            self.allowedAmount = self.allowedAmount - amount
-            emit TokensMinted(amount: amount)
-            return <-create Vault(balance: amount)
-        }
-
-        init(allowedAmount: UFix64) {
-            self.allowedAmount = allowedAmount
-        }
-    }
-
-    /// Resource object that token admin accounts can hold to burn tokens.
+    /// @param from: The Vault resource containing the tokens to burn
     ///
-    access(all) resource Burner {
-
-        /// Function that destroys a Vault instance, effectively burning the tokens.
-        ///
-        /// Note: the burned tokens are automatically subtracted from the
-        /// total supply in the Vault destructor.
-        ///
-        /// @param from: The Vault resource containing the tokens to burn
-        ///
-        access(all) fun burnTokens(from: @FungibleToken.Vault) {
-            let vault <- from as! @ExampleToken.Vault
-            let amount = vault.balance
-            destroy vault
-            emit TokensBurned(amount: amount)
+    /// Will need to add an update to total supply
+    /// See https://github.com/onflow/flips/pull/131
+    access(all) fun burnTokens(from: @ExampleToken.Vault) {
+        if from.balance > 0.0 {
+            ExampleToken.totalSupply = ExampleToken.totalSupply - from.getBalance()
         }
+        FungibleToken.burn(<-from)
     }
 
     init() {
         self.totalSupply = 1000.0
-        self.VaultStoragePath = /storage/exampleTokenVault
-        self.VaultPublicPath = /public/exampleTokenMetadata
-        self.ReceiverPublicPath = /public/exampleTokenReceiver
-        self.AdminStoragePath = /storage/exampleTokenAdmin
 
-        // Create the Vault with the total supply of tokens and save it in storage.
+        self.AdminStoragePath = /storage/exampleTokenAdmin 
+
+        // Create the Vault with the total supply of tokens and save it in storage
+        //
         let vault <- create Vault(balance: self.totalSupply)
-        self.account.save(<-vault, to: self.VaultStoragePath)
+        self.VaultStoragePath = vault.getDefaultStoragePath()!
+        self.VaultPublicPath = vault.getDefaultPublicPath()!
+        self.ReceiverPublicPath = vault.getDefaultReceiverPath()!
+
+        self.account.storage.save(<-vault, to: self.VaultStoragePath)
 
         // Create a public capability to the stored Vault that exposes
-        // the `deposit` method through the `Receiver` interface.
-        self.account.link<&{FungibleToken.Receiver}>(
-            self.ReceiverPublicPath,
-            target: self.VaultStoragePath
-        )
+        // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
+        // and the `getBalance()` method through the `Balance` interface
+        //
+        let exampleTokenCap = self.account.capabilities.storage.issue<&Vault>(self.VaultStoragePath)
+        self.account.capabilities.publish(exampleTokenCap, at: self.VaultPublicPath)
+        let receiverCap = self.account.capabilities.storage.issue<&{FungibleToken.Receiver}>(self.VaultStoragePath)
+        self.account.capabilities.publish(receiverCap, at: self.ReceiverPublicPath)
 
-        // Create a public capability to the stored Vault that only exposes
-        // the `balance` field and the `resolveView` method through the `Balance` interface
-        self.account.link<&ExampleToken.Vault{FungibleToken.Balance}>(
-            self.VaultPublicPath,
-            target: self.VaultStoragePath
-        )
-
-        let admin <- create Administrator()
-        self.account.save(<-admin, to: self.AdminStoragePath)
-
-        // Emit an event that shows that the contract was initialized
-        emit TokensInitialized(initialSupply: self.totalSupply)
+        let admin <- create Minter()
+        self.account.storage.save(<-admin, to: self.AdminStoragePath)
     }
 }

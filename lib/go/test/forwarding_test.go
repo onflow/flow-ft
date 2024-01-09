@@ -22,11 +22,12 @@ func TestPrivateForwarder(t *testing.T) {
 
 	serviceSigner, _ := b.ServiceKey().Signer()
 
-	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
-	fungibleAddr, _, exampleTokenAddr, _, _, _ :=
-		DeployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey})
+	env := templates.Environment{}
 
-	forwardingCode := contracts.PrivateReceiverForwarder(fungibleAddr.String())
+	exampleTokenAccountKey, exampleTokenSigner := accountKeys.NewWithSigner()
+	exampleTokenAddr := deployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey}, &env)
+
+	forwardingCode := contracts.PrivateReceiverForwarder(env.FungibleTokenAddress)
 	cadenceCode := bytesToCadenceArray(forwardingCode)
 
 	name, _ := cadence.NewString("PrivateReceiverForwarder")
@@ -51,17 +52,14 @@ func TestPrivateForwarder(t *testing.T) {
 		false,
 	)
 
+	env.PrivateForwardingAddress = env.ExampleTokenAddress
+
 	joshAccountKey, joshSigner := accountKeys.NewWithSigner()
 	joshAddress, _ := adapter.CreateAccount(context.Background(), []*flow.AccountKey{joshAccountKey}, nil)
 
 	t.Run("Should be able to set up an account to accept private deposits", func(t *testing.T) {
 
-		script := templates.GenerateSetupAccountPrivateForwarderScript(
-			fungibleAddr,
-			exampleTokenAddr,
-			exampleTokenAddr,
-			"ExampleToken",
-		)
+		script := templates.GenerateSetupAccountPrivateForwarderScript(env)
 
 		tx := flow.NewTransaction().
 			SetScript(script).
@@ -97,7 +95,7 @@ func TestPrivateForwarder(t *testing.T) {
 		recipientPairs := make([]cadence.KeyValuePair, 1)
 		recipientPairs[0] = pair
 
-		script := templates.GenerateTransferPrivateManyAccountsScript(fungibleAddr, exampleTokenAddr, exampleTokenAddr, "ExampleToken")
+		script := templates.GenerateTransferPrivateManyAccountsScript(env)
 		tx = flow.NewTransaction().
 			SetScript(script).
 			SetGasLimit(100).
@@ -125,7 +123,7 @@ func TestPrivateForwarder(t *testing.T) {
 		)
 
 		// Assert that the vaults' balances are correct
-		script = templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+		script = templates.GenerateInspectVaultScript(env)
 		result, err := b.ExecuteScript(
 			script,
 			[][]byte{
@@ -139,7 +137,7 @@ func TestPrivateForwarder(t *testing.T) {
 		balance := result.Value
 		assertEqual(t, CadenceUFix64("700.0"), balance)
 
-		script = templates.GenerateInspectVaultScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+		script = templates.GenerateInspectVaultScript(env)
 		result, err = b.ExecuteScript(
 			script,
 			[][]byte{
@@ -153,19 +151,14 @@ func TestPrivateForwarder(t *testing.T) {
 		balance = result.Value
 		assertEqual(t, CadenceUFix64("300.0"), balance)
 
-		script = templates.GenerateInspectSupplyScript(fungibleAddr, exampleTokenAddr, "ExampleToken")
+		script = templates.GenerateInspectSupplyScript(env)
 		supply := executeScriptAndCheck(t, b, script, nil)
 		assertEqual(t, CadenceUFix64("1000.0"), supply)
 	})
 
 	t.Run("Should be able to create a new account with private forwarder", func(t *testing.T) {
 
-		script := templates.GenerateCreateAccountPrivateForwarderScript(
-			fungibleAddr,
-			exampleTokenAddr,
-			exampleTokenAddr,
-			"ExampleToken",
-		)
+		script := templates.GenerateCreateAccountPrivateForwarderScript(env)
 		tx = flow.NewTransaction().
 			SetScript(script).
 			SetGasLimit(100).
@@ -194,12 +187,7 @@ func TestPrivateForwarder(t *testing.T) {
 
 	t.Run("Should be able to do account setup a second time without change", func(t *testing.T) {
 
-		script := templates.GenerateSetupAccountPrivateForwarderScript(
-			fungibleAddr,
-			exampleTokenAddr,
-			exampleTokenAddr,
-			"ExampleToken",
-		)
+		script := templates.GenerateSetupAccountPrivateForwarderScript(env)
 
 		// send the same transaction one more time for the same address that's already set up
 		tx := flow.NewTransaction().

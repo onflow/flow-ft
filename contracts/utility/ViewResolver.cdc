@@ -39,10 +39,8 @@ access(all) contract interface ViewResolver {
     ///
     access(all) resource interface ResolverCollection {
         access(all) view fun borrowViewResolver(id: UInt64): &{Resolver}? {
-            pre { true: "dummy" }
+            return nil
         }
-        access(all) view fun getIDs(): [UInt64] {
-            pre { true: "dummy" }
-        }
+        access(all) view fun getIDs(): [UInt64]
     }
 }

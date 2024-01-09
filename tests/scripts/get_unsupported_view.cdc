@@ -4,8 +4,9 @@
 
 import "ExampleToken"
 import "MetadataViews"
+import "FungibleToken"
 
-pub fun main(address: Address, type: Type): AnyStruct? {
+access(all) fun main(address: Address, type: Type): AnyStruct? {
     let account = getAccount(address)
     let vaultRef = account.capabilities.borrow<&{FungibleToken.Vault}>(ExampleToken.VaultPublicPath)
         ?? panic("Could not borrow Balance reference to the Vault")

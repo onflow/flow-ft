@@ -4,8 +4,9 @@
 import "MetadataViews"
 import "ExampleToken"
 import "FungibleTokenMetadataViews"
+import "FungibleToken"
 
-pub fun main(address: Address): [Type] {
+access(all) fun main(address: Address): [Type] {
     let account = getAccount(address)
 
     let vaultRef = account.capabilities.borrow<&{FungibleToken.Vault}>(ExampleToken.VaultPublicPath)

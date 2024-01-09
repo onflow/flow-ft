@@ -4,6 +4,7 @@
 import "ExampleToken"
 import "FungibleTokenMetadataViews"
 import "MetadataViews"
+import "ViewResolver"
 
 access(all) fun main(address: Address): Bool {
     let account = getAccount(address)

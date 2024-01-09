@@ -90,7 +90,7 @@ access(all) contract NonFungibleToken {
         /// The unique ID that each NFT has
         access(all) view fun getID(): UInt64
 
-        // access(all) event ResourceDestroyed(uuid: UInt64 = self.uuid, type: Type = self.getType().identifier)
+        // access(all) event ResourceDestroyed(uuid: UInt64 = self.uuid, type: self.getType().identifier)
 
         /// Get a reference to an NFT that this NFT owns
         /// Both arguments are optional to allow the NFT to choose

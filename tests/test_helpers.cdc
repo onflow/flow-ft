@@ -1,5 +1,4 @@
 // Helper functions. All of the following were taken from
-// https://github.com/onflow/Offers/blob/fd380659f0836e5ce401aa99a2975166b2da5cb0/lib/cadence/test/Offers.cdc
 // - deploy
 // - scriptExecutor
 // - txExecutor
@@ -7,39 +6,29 @@
 
 import Test
 
-access(all) let blockchain = Test.newEmulatorBlockchain()
-
-access(all) fun deploy(_ contractName: String, _ account: Test.TestAccount, _ path: String) {
-    let err = blockchain.deployContract(
+access(all) fun deploy(_ contractName: String, _ path: String) {
+    let err = Test.deployContract(
         name: contractName,
-        code: Test.readFile(path),
-        account: account,
+        path: path,
         arguments: [],
     )
 
     Test.expect(err, Test.beNil())
-    if err != nil {
-        panic(err!.message)
-    }
 }
 
-access(all) fun deployWithArgs(_ contractName: String, _ account: Test.TestAccount, _ path: String, args: [AnyStruct]) {
-    let err = blockchain.deployContract(
+access(all) fun deployWithArgs(_ contractName: String, _ path: String, args: [AnyStruct]) {
+    let err = Test.deployContract(
         name: contractName,
-        code: Test.readFile(path),
-        account: account,
+        path: path,
         arguments: args,
     )
 
     Test.expect(err, Test.beNil())
-    if err != nil {
-        panic(err!.message)
-    }
 }
 
 access(all) fun scriptExecutor(_ scriptName: String, _ arguments: [AnyStruct]): AnyStruct? {
     let scriptCode = loadCode(scriptName, "transactions/scripts")
-    let scriptResult = blockchain.executeScript(scriptCode, arguments)
+    let scriptResult = Test.executeScript(scriptCode, arguments)
 
     if let failureError = scriptResult.error {
         panic(
@@ -52,7 +41,7 @@ access(all) fun scriptExecutor(_ scriptName: String, _ arguments: [AnyStruct]): 
 
 access(all) fun expectScriptFailure(_ scriptName: String, _ arguments: [AnyStruct]): String {
     let scriptCode = loadCode(scriptName, "transactions/scripts")
-    let scriptResult = blockchain.executeScript(scriptCode, arguments)
+    let scriptResult = Test.executeScript(scriptCode, arguments)
 
     assert(scriptResult.error != nil, message: "script error was expected but there is no error message")
     return scriptResult.error!.message
@@ -73,7 +62,7 @@ access(all) fun txExecutor(_ txName: String, _ signers: [Test.TestAccount], _ ar
         arguments: arguments,
     )
 
-    let txResult = blockchain.executeTransaction(tx)
+    let txResult = Test.executeTransaction(tx)
     if let err = txResult.error {
         if let expectedErrorMessage = expectedError {
             let ptr = getErrorMessagePointer(errorType: expectedErrorType!)

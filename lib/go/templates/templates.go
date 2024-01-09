@@ -4,10 +4,9 @@ package templates
 
 import (
 	"bytes"
+	"fmt"
 	"regexp"
 	"strings"
-
-	"github.com/onflow/flow-go-sdk"
 )
 
 var (
@@ -16,27 +15,95 @@ var (
 )
 
 var (
-	placeholderFungibleToken   = regexp.MustCompile(`"FungibleToken"`)
-	placeholderExampleToken    = regexp.MustCompile(`"ExampleToken"`)
-	placeholderForwarding      = regexp.MustCompile(`"TokenForwarding"`)
-	placeholderMetadataViews   = regexp.MustCompile(`"MetadataViews"`)
-	placeholderFTMetadataViews = regexp.MustCompile(`"FungibleTokenMetadataViews"`)
-	placeholderViewResolver    = regexp.MustCompile(`"ViewResolver"`)
+	placeholderFungibleToken      = "\"FungibleToken\""
+	placeholderExampleToken       = "\"ExampleToken\""
+	placeholderForwarding         = "\"TokenForwarding\""
+	placeholderPrivateForwardAddr = "\"PrivateReceiverForwarder\""
+	placeholderSwitchboard        = "\"FungibleTokenSwitchboard\""
+	placeholderMetadataViews      = "\"MetadataViews\""
+	placeholderFTMetadataViews    = "\"FungibleTokenMetadataViews\""
+	placeholderViewResolver       = "\"ViewResolver\""
 )
 
-func replaceAddresses(code string, ftAddress, tokenAddress, forwardingAddress, metadataViewsAddress, ftMetadataViewsAddr, viewResolverAddr flow.Address, tokenName string) []byte {
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+ftAddress.String())
-	code = placeholderExampleToken.ReplaceAllString(code, "0x"+tokenAddress.String())
-	code = placeholderForwarding.ReplaceAllString(code, "0x"+forwardingAddress.String())
-	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddress.String())
-	code = placeholderFTMetadataViews.ReplaceAllString(code, "0x"+ftMetadataViewsAddr.String())
-	code = placeholderViewResolver.ReplaceAllString(code, "0x"+viewResolverAddr.String())
+type Environment struct {
+	Network                           string
+	FungibleTokenAddress              string
+	ExampleTokenAddress               string
+	TokenForwardingAddress            string
+	PrivateForwardingAddress          string
+	MetadataViewsAddress              string
+	FungibleTokenMetadataViewsAddress string
+	ViewResolverAddress               string
+	SwitchboardAddress                string
+}
 
-	storageName := MakeFirstLowerCase(tokenName)
-	code = defaultTokenName.ReplaceAllString(code, tokenName)
-	code = defaultTokenStorage.ReplaceAllString(code, storageName)
+func withHexPrefix(address string) string {
+	if address == "" {
+		return ""
+	}
 
-	return []byte(code)
+	if address[0:2] == "0x" {
+		return address
+	}
+
+	return fmt.Sprintf("0x%s", address)
+}
+
+func ReplaceAddresses(code string, env Environment) string {
+
+	code = strings.ReplaceAll(
+		code,
+		placeholderFungibleToken,
+		withHexPrefix(env.FungibleTokenAddress),
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		placeholderExampleToken,
+		withHexPrefix(env.ExampleTokenAddress),
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		placeholderForwarding,
+		withHexPrefix(env.TokenForwardingAddress),
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		placeholderPrivateForwardAddr,
+		withHexPrefix(env.PrivateForwardingAddress),
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		placeholderMetadataViews,
+		withHexPrefix(env.MetadataViewsAddress),
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		placeholderFTMetadataViews,
+		withHexPrefix(env.FungibleTokenMetadataViewsAddress),
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		placeholderViewResolver,
+		withHexPrefix(env.ViewResolverAddress),
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		placeholderSwitchboard,
+		withHexPrefix(env.SwitchboardAddress),
+	)
+
+	// storageName := MakeFirstLowerCase(tokenName)
+	// code = defaultTokenName.ReplaceAllString(code, tokenName)
+	// code = defaultTokenStorage.ReplaceAllString(code, storageName)
+
+	return code
 }
 
 // MakeFirstLowerCase makes the first letter in a string lowercase

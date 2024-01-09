@@ -22,9 +22,7 @@ var (
 
 const (
 	filenameFungibleToken    = "FungibleToken.cdc"
-	filenameFungibleTokenV2  = "FungibleToken-v2.cdc"
 	filenameExampleToken     = "ExampleToken.cdc"
-	filenameExampleTokenV2   = "ExampleToken-v2.cdc"
 	filenameTokenForwarding  = "utility/TokenForwarding.cdc"
 	filenamePrivateForwarder = "utility/PrivateReceiverForwarder.cdc"
 	filenameFTSwitchboard    = "FungibleTokenSwitchboard.cdc"
@@ -33,16 +31,18 @@ const (
 	filenameMultipleVaults   = "MultipleVaults.cdc"
 )
 
-// FungibleToken returns the FungibleToken contract interface.
-func FungibleToken() []byte {
+// FungibleTokenV2 returns the FungibleToken-v2 contract.
+func FungibleToken(resolverAddr string) []byte {
 	code := assets.MustAssetString(filenameFungibleToken)
+
+	code = placeholderViewResolver.ReplaceAllString(code, "0x"+resolverAddr)
 
 	return []byte(code)
 }
 
 // FungibleTokenV2 returns the FungibleToken-v2 contract.
 func FungibleTokenV2(resolverAddr string) []byte {
-	code := assets.MustAssetString(filenameFungibleTokenV2)
+	code := assets.MustAssetString(filenameFungibleToken)
 
 	code = placeholderViewResolver.ReplaceAllString(code, "0x"+resolverAddr)
 
@@ -78,24 +78,11 @@ func MultipleVaults(fungibleTokenAddr string) []byte {
 	return []byte(code)
 }
 
-// ExampleToken returns the ExampleToken contract.
+// ExampleToken returns the second version of the ExampleToken contract.
 //
 // The returned contract will import the FungibleToken interface from the specified address.
-func ExampleToken(fungibleTokenAddr, metadataViewsAddr, ftMetadataViewsAddr string) []byte {
+func ExampleToken(fungibleTokenAddr, metadataViewsAddr, ftMetadataViewsAddr, viewResolverAddr, multipleVaultsAddr string) []byte {
 	code := assets.MustAssetString(filenameExampleToken)
-
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
-	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)
-	code = placeholderFTMetadataViews.ReplaceAllString(code, "0x"+ftMetadataViewsAddr)
-
-	return []byte(code)
-}
-
-// ExampleTokenV2 returns the second version of the ExampleToken contract.
-//
-// The returned contract will import the FungibleToken interface from the specified address.
-func ExampleTokenV2(fungibleTokenAddr, metadataViewsAddr, ftMetadataViewsAddr, viewResolverAddr, multipleVaultsAddr string) []byte {
-	code := assets.MustAssetString(filenameExampleTokenV2)
 
 	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
 	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)

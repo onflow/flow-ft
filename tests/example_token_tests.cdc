@@ -1,36 +1,21 @@
 import Test
 import BlockchainHelpers
+import "test_helpers.cdc"
 import "FungibleTokenMetadataViews"
 import "ExampleToken"
+import "FungibleToken"
 
 access(all) let admin = Test.getAccount(0x0000000000000007)
 access(all) let recipient = Test.createAccount()
 
 access(all)
 fun setup() {
-    var err = Test.deployContract(
-        name: "FungibleTokenMetadataViews",
-        path: "../contracts/FungibleTokenMetadataViews.cdc",
-        arguments: []
-    )
-    Test.expect(err, Test.beNil())
-
-    err = Test.deployContract(
-        name: "ExampleToken",
-        path: "../contracts/ExampleToken-v2.cdc",
-        arguments: []
-    )
-    Test.expect(err, Test.beNil())
-}
-
-access(all)
-fun testTokensInitializedEventEmitted() {
-    let typ = Type<ExampleToken.TokensInitialized>()
-    let events = Test.eventsOfType(typ)
-    Test.assertEqual(1, events.length)
-
-    let tokensInitializedEvent = events[0] as! ExampleToken.TokensInitialized
-    Test.assertEqual(1000.0, tokensInitializedEvent.initialSupply)
+    deploy("ViewResolver", "../contracts/utility/ViewResolver.cdc")
+    deploy("FungibleToken", "../contracts/FungibleToken.cdc")
+    deploy("NonFungibleToken", "../contracts/utility/NonFungibleToken.cdc")
+    deploy("MetadataViews", "../contracts/utility/MetadataViews.cdc")
+    deploy("FungibleTokenMetadataViews", "../contracts/FungibleTokenMetadataViews.cdc")
+    deploy("ExampleToken", "../contracts/ExampleToken.cdc")
 }
 
 access(all)
@@ -94,20 +79,14 @@ fun testMintTokens() {
     let tokensMintedEvent = events[0] as! ExampleToken.TokensMinted
     Test.assertEqual(250.0, tokensMintedEvent.amount)
 
-    typ = Type<ExampleToken.MinterCreated>()
+    typ = Type<FungibleToken.Deposit>()
     events = Test.eventsOfType(typ)
     Test.assertEqual(1, events.length)
 
-    let minterCreatedEvent = events[0] as! ExampleToken.MinterCreated
-    Test.assertEqual(250.0, minterCreatedEvent.allowedAmount)
-
-    typ = Type<ExampleToken.TokensDeposited>()
-    events = Test.eventsOfType(typ)
-    Test.assertEqual(1, events.length)
-
-    let tokensDepositedEvent = events[0] as! ExampleToken.TokensDeposited
+    let tokensDepositedEvent = events[0] as! FungibleToken.Deposit
     Test.assertEqual(250.0, tokensDepositedEvent.amount)
     Test.assertEqual(recipient.address, tokensDepositedEvent.to!)
+    Test.assertEqual("A.0000000000000007.ExampleToken.Vault", tokensDepositedEvent.type)
 
     // Test that the totalSupply increased by the amount of minted tokens
     let scriptResult = executeScript(
@@ -129,14 +108,14 @@ fun testTransferTokens() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    var typ = Type<ExampleToken.TokensDeposited>()
+    var typ = Type<FungibleToken.Deposit>()
     Test.assertEqual(2, Test.eventsOfType(typ).length)
 
-    typ = Type<ExampleToken.TokensWithdrawn>()
+    typ = Type<FungibleToken.Withdraw>()
     let events = Test.eventsOfType(typ)
     Test.assertEqual(1, events.length)
 
-    let tokensWithdrawnEvent = events[0] as! ExampleToken.TokensWithdrawn
+    let tokensWithdrawnEvent = events[0] as! FungibleToken.Withdraw
     Test.assertEqual(50.0, tokensWithdrawnEvent.amount)
     Test.assertEqual(recipient.address, tokensWithdrawnEvent.from!)
 
@@ -184,16 +163,13 @@ fun testBurnTokens() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    var typ = Type<ExampleToken.BurnerCreated>()
-    var events = Test.eventsOfType(typ)
+    let type = Type<FungibleToken.Burn>()
+    let events = Test.eventsOfType(type)
     Test.assertEqual(1, events.length)
 
-    typ = Type<ExampleToken.TokensBurned>()
-    events = Test.eventsOfType(typ)
-    Test.assertEqual(1, events.length)
-
-    let tokensBurnedEvent = events[0] as! ExampleToken.TokensBurned
+    let tokensBurnedEvent = events[0] as! FungibleToken.Burn
     Test.assertEqual(50.0, tokensBurnedEvent.amount)
+    Test.assertEqual("A.0000000000000007.ExampleToken.Vault", tokensBurnedEvent.type)
 
     let scriptResult = executeScript(
         "../transactions/scripts/get_balance.cdc",

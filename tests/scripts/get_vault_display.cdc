@@ -4,8 +4,9 @@
 import "ExampleToken"
 import "FungibleTokenMetadataViews"
 import "MetadataViews"
+import "ViewResolver"
 
-pub fun main(address: Address): FungibleTokenMetadataViews.FTDisplay {
+access(all) fun main(address: Address): FungibleTokenMetadataViews.FTDisplay {
     let account = getAccount(address)
 
     let vaultRef = account.capabilities.borrow<&{ViewResolver.Resolver}>(ExampleToken.VaultPublicPath)

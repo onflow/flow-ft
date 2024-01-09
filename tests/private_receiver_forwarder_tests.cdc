@@ -1,39 +1,63 @@
 import Test
+import BlockchainHelpers
 import "test_helpers.cdc"
+import "ExampleToken"
 
-access(all) let sourceAccount = blockchain.createAccount()
-access(all) let accounts: {String: Test.TestAccount} = {}
+/* Test Setup */
 
-access(all) let exampleToken = "ExampleToken"
-
+access(all) let admin = Test.getAccount(0x0000000000000007)
 access(all) let senderStoragePath = /storage/Sender
 access(all) let privateReceiverStoragePath = /storage/PrivateReceiver
 access(all) let privateReceiverPublicPath = /public/PrivateReceiver
 
+access(all) fun setup() {
+
+    // helper nft contract so we can actually talk to nfts with tests
+    deploy("ViewResolver", "../contracts/utility/ViewResolver.cdc")
+    deploy("FungibleToken", "../contracts/FungibleToken.cdc")
+    deploy("NonFungibleToken", "../contracts/utility/NonFungibleToken.cdc")
+    deploy("MetadataViews", "../contracts/utility/MetadataViews.cdc")
+    deploy("FungibleTokenMetadataViews", "../contracts/FungibleTokenMetadataViews.cdc")
+    deploy("ExampleToken", "../contracts/ExampleToken.cdc")
+    deployWithArgs(
+        "PrivateReceiverForwarder",
+        "../contracts/utility/PrivateReceiverForwarder.cdc",
+        args: [
+            senderStoragePath,
+            privateReceiverStoragePath,
+            privateReceiverPublicPath
+        ]
+    )
+}
+
 /* Test Cases */
 
 access(all) fun testSetupForwader() {
-    let alice = blockchain.createAccount()
-    txExecutor("privateForwarder/setup_and_create_forwarder.cdc", [sourceAccount], [], nil, nil)
+    let alice = Test.createAccount()
+    let txResult = executeTransaction(
+        "../transactions/privateForwarder/setup_and_create_forwarder.cdc",
+        [],
+        alice
+    )
+    Test.expect(txResult, Test.beSucceeded())
 }
 
 access(all) fun testTransferPrivateTokens() {
-    let sender = getTestAccount(exampleToken)
-    let senderBalanceBefore = getExampleTokenBalance(sender)
+    let senderBalanceBefore = getExampleTokenBalance(admin)
     assert(senderBalanceBefore == 1000.0, message: "ExampleToken balance should be 1000.0")
 
-    let recipient = blockchain.createAccount()
+    let recipient = Test.createAccount()
     let recipientAmount = 300.0
 
     let pair = {recipient.address: recipientAmount}
 
-    txExecutor("privateForwarder/setup_and_create_forwarder.cdc", [recipient], [], nil, nil)
-    txExecutor("privateForwarder/transfer_private_many_accounts.cdc", [sender], [pair], nil, nil)
+    txExecutor("../transactions/privateForwarder/setup_and_create_forwarder.cdc", [recipient], [], nil, nil)
+    txExecutor("../transactions/privateForwarder/transfer_private_many_accounts.cdc", [admin], [pair], nil, nil)
 
     let recipientBalance = getExampleTokenBalance(recipient)
     Test.assertEqual(recipientAmount, recipientBalance)
 
-    let senderBalanceAfter = getExampleTokenBalance(sender)
+    let senderBalanceAfter = getExampleTokenBalance(admin)
     Test.assertEqual(senderBalanceBefore - recipientAmount, senderBalanceAfter)
 }
 
@@ -49,7 +73,7 @@ access(all) fun mintExampleToken(_ acct: Test.TestAccount, recipient: Address, a
 }
 
 access(all) fun setupTokenForwarder(_ acct: Test.TestAccount) {
-    txExecutor("privateForwarder/setup_and_create_forwarder.cdc", [acct], [], nil, nil)
+    txExecutor("../transactions/privateForwarder/setup_and_create_forwarder.cdc", [acct], [], nil, nil)
 }
 
 /* Script Helpers */
@@ -57,61 +81,4 @@ access(all) fun setupTokenForwarder(_ acct: Test.TestAccount) {
 access(all) fun getExampleTokenBalance(_ acct: Test.TestAccount): UFix64 {
     let balance: UFix64? = (scriptExecutor("get_balance.cdc", [acct.address])! as! UFix64)
     return balance!
-}
-
-/* Test Helper */
-
-access(all) fun getTestAccount(_ name: String): Test.TestAccount {
-    if accounts[name] == nil {
-        accounts[name] = blockchain.createAccount()
-    }
-
-    return accounts[name]!
-}
-
-/* Test Setup */
-
-access(all) fun setup() {
-
-    let sourceAccount = blockchain.createAccount()
-
-    accounts["FungibleToken"] = sourceAccount
-    accounts["NonFungibleToken"] = sourceAccount
-    accounts["ViewResolver"] = sourceAccount
-    accounts["MetadataViews"] = sourceAccount
-    accounts["FungibleTokenMetadataViews"] = sourceAccount
-    accounts["ExampleToken"] = sourceAccount
-    accounts["PrivateReceiverForwarder"] = sourceAccount
-
-    blockchain.useConfiguration(
-        Test.Configuration(
-            addresses: {
-                "FungibleToken": sourceAccount.address,
-                "NonFungibleToken": sourceAccount.address,
-                "ViewResolver": sourceAccount.address,
-                "MetadataViews": sourceAccount.address,
-                "FungibleTokenMetadataViews": sourceAccount.address,
-                "ExampleToken": sourceAccount.address,
-                "PrivateReceiverForwarder": sourceAccount.address
-            }
-        )
-    )
-
-    // helper nft contract so we can actually talk to nfts with tests
-    deploy("ViewResolver", sourceAccount, "../contracts/utility/ViewResolver.cdc")
-    deploy("FungibleToken", sourceAccount, "../contracts/FungibleToken-v2.cdc")
-    deploy("NonFungibleToken", sourceAccount, "../contracts/utility/NonFungibleToken.cdc")
-    deploy("MetadataViews", sourceAccount, "../contracts/utility/MetadataViews.cdc")
-    deploy("FungibleTokenMetadataViews", sourceAccount, "../contracts/FungibleTokenMetadataViews.cdc")
-    deploy("ExampleToken", sourceAccount, "../contracts/ExampleToken-v2.cdc")
-    deployWithArgs(
-        "PrivateReceiverForwarder",
-        sourceAccount,
-        "../contracts/utility/PrivateReceiverForwarder.cdc",
-        args: [
-            senderStoragePath,
-            privateReceiverStoragePath,
-            privateReceiverPublicPath
-        ]
-    )
 }
