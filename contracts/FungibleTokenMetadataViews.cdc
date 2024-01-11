@@ -121,10 +121,6 @@ access(all) contract FungibleTokenMetadataViews {
         /// Public path which must be linked to expose the balance and resolver public capabilities.
         access(all) let metadataPath: PublicPath
 
-        /// Private path which should be linked to expose the provider capability to withdraw funds 
-        /// from the vault.
-        access(all) let providerPath: PrivatePath
-
         /// Type that should be linked at the `receiverPath`. This is a restricted type requiring 
         /// the `FungibleToken.Receiver` interface.
         access(all) let receiverLinkedType: Type
@@ -132,10 +128,6 @@ access(all) contract FungibleTokenMetadataViews {
         /// Type that should be linked at the `receiverPath`. This is a restricted type requiring 
         /// the `ViewResolver.Resolver` interfaces.
         access(all) let metadataLinkedType: Type
-
-        /// Type that should be linked at the aforementioned private path. This 
-        /// is normally a restricted type with at a minimum the `FungibleToken.Provider` interface.
-        access(all) let providerLinkedType: Type
 
         /// Function that allows creation of an empty FT vault that is intended
         /// to store the funds.
@@ -145,24 +137,19 @@ access(all) contract FungibleTokenMetadataViews {
             storagePath: StoragePath,
             receiverPath: PublicPath,
             metadataPath: PublicPath,
-            providerPath: PrivatePath,
             receiverLinkedType: Type,
             metadataLinkedType: Type,
-            providerLinkedType: Type,
             createEmptyVaultFunction: fun(): @{FungibleToken.Vault}
         ) {
             pre {
                 receiverLinkedType.isSubtype(of: Type<&{FungibleToken.Receiver}>()): "Receiver public type must include FungibleToken.Receiver."
                 metadataLinkedType.isSubtype(of: Type<&{ViewResolver.Resolver}>()): "Metadata public type must include ViewResolver.Resolver interfaces."
-                providerLinkedType.isSubtype(of: Type<&{FungibleToken.Provider}>()): "Provider type must include FungibleToken.Provider interface."
             }
             self.storagePath = storagePath
             self.receiverPath = receiverPath
             self.metadataPath = metadataPath
-            self.providerPath = providerPath
             self.receiverLinkedType = receiverLinkedType
             self.metadataLinkedType = metadataLinkedType
-            self.providerLinkedType = providerLinkedType
             self.createEmptyVault = createEmptyVaultFunction
         }
     }

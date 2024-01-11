@@ -19,20 +19,14 @@ access(all) contract ExampleToken: ViewResolver {
     access(all) let VaultPublicPath: PublicPath
     access(all) let ReceiverPublicPath: PublicPath
 
-    /// Function to return the types that the contract implements
-    access(all) view fun getVaultTypes(): [Type] {
-        let typeArray: [Type] = [Type<@ExampleToken.Vault>()]
-        return typeArray
-    }
-
-    access(all) view fun getViews(): [Type] {
+    access(all) view fun getContractViews(): [Type] {
         let vaultRef = self.account.capabilities.borrow<&ExampleToken.Vault>(/public/exampleTokenVault)
             ?? panic("Could not borrow a reference to the vault resolver")
         
         return vaultRef.getViews()
     }
 
-    access(all) fun resolveView(_ view: Type): AnyStruct? {
+    access(all) fun resolveContractView(_ view: Type): AnyStruct? {
         let vaultRef = self.account.capabilities.borrow<&ExampleToken.Vault>(/public/exampleTokenVault)
             ?? panic("Could not borrow a reference to the vault resolver")
         
@@ -60,21 +54,6 @@ access(all) contract ExampleToken: ViewResolver {
         access(self) var publicPath: PublicPath
         access(self) var receiverPath: PublicPath
 
-        /// Returns the storage path where the vault should typically be stored
-        access(all) view fun getDefaultStoragePath(): StoragePath? {
-            return self.storagePath
-        }
-
-        /// Returns the public path where this vault should have a public capability
-        access(all) view fun getDefaultPublicPath(): PublicPath? {
-            return self.publicPath
-        }
-
-        /// Returns the public path where this vault's Receiver should have a public capability
-        access(all) view fun getDefaultReceiverPath(): PublicPath? {
-            return self.receiverPath
-        }
-
         access(all) view fun getViews(): [Type] {
             return [
                 Type<FungibleTokenMetadataViews.FTView>(),
@@ -82,6 +61,12 @@ access(all) contract ExampleToken: ViewResolver {
                 Type<FungibleTokenMetadataViews.FTVaultData>(),
                 Type<FungibleTokenMetadataViews.TotalSupply>()
             ]
+        }
+
+        /// Returns the FTVaultData view for this Vault, which contains
+        /// all relevant paths, types, and create vault function
+        access(all) view fun getFTVaultDataView(): AnyStruct {
+            return self.resolveView(Type<FungibleTokenMetadataViews.FTVaultData>())
         }
 
         access(all) fun resolveView(_ view: Type): AnyStruct? {
@@ -116,10 +101,8 @@ access(all) contract ExampleToken: ViewResolver {
                         storagePath: self.storagePath,
                         receiverPath: self.receiverPath,
                         metadataPath: self.publicPath,
-                        providerPath: /private/exampleTokenVault,
                         receiverLinkedType: Type<&{FungibleToken.Receiver}>(),
                         metadataLinkedType: Type<&ExampleToken.Vault>(),
-                        providerLinkedType: Type<&ExampleToken.Vault>(),
                         createEmptyVaultFunction: (fun(): @{FungibleToken.Vault} {
                             return <-vaultRef.createEmptyVault()
                         })
