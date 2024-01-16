@@ -65,7 +65,7 @@ access(all) contract ExampleToken: ViewResolver {
 
         /// Returns the FTVaultData view for this Vault, which contains
         /// all relevant paths, types, and create vault function
-        access(all) view fun getFTVaultDataView(): AnyStruct {
+        access(all) fun getFTVaultDataView(): AnyStruct {
             return self.resolveView(Type<FungibleTokenMetadataViews.FTVaultData>())
         }
 

@@ -12,7 +12,7 @@ import FungibleToken from "FungibleToken"
 access(all) contract PrivateReceiverForwarder {
 
     // Event that is emitted when tokens are deposited to the target receiver
-    access(all) event PrivateDeposit(amount: UFix64, to: Address?)
+    access(all) event PrivateDeposit(amount: UFix64, depositedUUID: UInt64, from: Address?, to: Address?, toUUID: UInt64)
 
     access(all) let SenderStoragePath: StoragePath
 
@@ -36,9 +36,11 @@ access(all) contract PrivateReceiverForwarder {
 
             let balance = from.getBalance()
 
+            let uuid = from.uuid
+
             receiverRef.deposit(from: <-from)
 
-            emit PrivateDeposit(amount: balance, to: self.owner?.address)
+            emit PrivateDeposit(amount: balance, depositedUUID: uuid, from: self.owner?.address, to: receiverRef.owner?.address, toUUID: receiverRef.uuid)
         }
 
         init(recipient: Capability<&{FungibleToken.Receiver}>) {

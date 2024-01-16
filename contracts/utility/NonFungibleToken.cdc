@@ -158,7 +158,7 @@ access(all) contract NonFungibleToken {
 
         /// Return the NFT CollectionData View
         /// has to be AnyStruct and cast to the view later to avoid circular dependency issues
-        access(all) view fun getNFTCollectionDataView(): AnyStruct
+        access(all) fun getNFTCollectionDataView(): AnyStruct
 
         /// Normally we would require that the collection specify
         /// a specific dictionary to store the NFTs, but this isn't necessary any more
@@ -177,6 +177,9 @@ access(all) contract NonFungibleToken {
 
         /// Gets the amount of NFTs stored in the collection
         access(all) view fun getLength(): Int
+
+        /// Gets a list of all the IDs in the collection
+        access(all) view fun getIDs(): [UInt64] 
 
         /// Borrows a reference to an NFT stored in the collection
         /// If the NFT with the specified ID is not in the collection,
