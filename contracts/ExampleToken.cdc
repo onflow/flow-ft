@@ -189,11 +189,6 @@ access(all) contract ExampleToken: FungibleToken {
         }
     }
 
-    /// Function to return the types that the contract implements
-    access(all) view fun getVaultTypes(): [Type] {
-        return [Type<@ExampleToken.Vault>()]
-    }
-
     /// createEmptyVault
     ///
     /// Function that creates a new Vault with a balance of zero
