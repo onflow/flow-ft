@@ -3,7 +3,7 @@ import MetadataViews from "MetadataViews"
 import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 import ViewResolver from "ViewResolver"
 
-access(all) contract ExampleToken: ViewResolver {
+access(all) contract ExampleToken: FungibleToken {
 
     /// The event that is emitted when new tokens are minted
     access(all) event TokensMinted(amount: UFix64, type: String)
@@ -14,19 +14,14 @@ access(all) contract ExampleToken: ViewResolver {
     /// Admin Path
     access(all) let AdminStoragePath: StoragePath
 
-    /// User Paths
-    access(all) let VaultStoragePath: StoragePath
-    access(all) let VaultPublicPath: PublicPath
-    access(all) let ReceiverPublicPath: PublicPath
-
-    access(all) view fun getContractViews(): [Type] {
+    access(all) view fun getContractViews(resourceType: Type?): [Type] {
         let vaultRef = self.account.capabilities.borrow<&ExampleToken.Vault>(/public/exampleTokenVault)
             ?? panic("Could not borrow a reference to the vault resolver")
         
         return vaultRef.getViews()
     }
 
-    access(all) fun resolveContractView(_ view: Type): AnyStruct? {
+    access(all) fun resolveContractView(resourceType: Type?, viewType: Type): AnyStruct? {
         let vaultRef = self.account.capabilities.borrow<&ExampleToken.Vault>(/public/exampleTokenVault)
             ?? panic("Could not borrow a reference to the vault resolver")
         
@@ -50,9 +45,9 @@ access(all) contract ExampleToken: ViewResolver {
         /// The total balance of this vault
         access(all) var balance: UFix64
 
-        access(self) var storagePath: StoragePath
-        access(self) var publicPath: PublicPath
-        access(self) var receiverPath: PublicPath
+        access(all) var storagePath: StoragePath
+        access(all) var publicPath: PublicPath
+        access(all) var receiverPath: PublicPath
 
         access(all) view fun getViews(): [Type] {
             return [
@@ -61,12 +56,6 @@ access(all) contract ExampleToken: ViewResolver {
                 Type<FungibleTokenMetadataViews.FTVaultData>(),
                 Type<FungibleTokenMetadataViews.TotalSupply>()
             ]
-        }
-
-        /// Returns the FTVaultData view for this Vault, which contains
-        /// all relevant paths, types, and create vault function
-        access(all) fun getFTVaultDataView(): AnyStruct {
-            return self.resolveView(Type<FungibleTokenMetadataViews.FTVaultData>())
         }
 
         access(all) fun resolveView(_ view: Type): AnyStruct? {
@@ -150,7 +139,7 @@ access(all) contract ExampleToken: ViewResolver {
         /// created Vault to the context that called so it can be deposited
         /// elsewhere.
         ///
-        access(FungibleToken.Withdrawable) fun withdraw(amount: UFix64): @ExampleToken.Vault {
+        access(FungibleToken.Withdraw) fun withdraw(amount: UFix64): @ExampleToken.Vault {
             self.balance = self.balance - amount
             return <-create Vault(balance: amount)
         }
@@ -200,6 +189,11 @@ access(all) contract ExampleToken: ViewResolver {
         }
     }
 
+    /// Function to return the types that the contract implements
+    access(all) view fun getVaultTypes(): [Type] {
+        return [Type<@ExampleToken.Vault>()]
+    }
+
     /// createEmptyVault
     ///
     /// Function that creates a new Vault with a balance of zero
@@ -207,7 +201,7 @@ access(all) contract ExampleToken: ViewResolver {
     /// and store the returned Vault in their storage in order to allow their
     /// account to be able to receive deposits of this token type.
     ///
-    access(all) fun createEmptyVault(): @ExampleToken.Vault {
+    access(all) fun createEmptyVault(vaultType: Type): @ExampleToken.Vault {
         return <- create Vault(balance: 0.0)
     }
 
@@ -217,11 +211,11 @@ access(all) contract ExampleToken: ViewResolver {
     ///
     /// Will need to add an update to total supply
     /// See https://github.com/onflow/flips/pull/131
-    access(all) fun burnTokens(from: @ExampleToken.Vault) {
-        if from.balance > 0.0 {
-            ExampleToken.totalSupply = ExampleToken.totalSupply - from.getBalance()
+    access(all) fun burn(_ vault: @{FungibleToken.Vault}) {
+        if vault.balance > 0.0 {
+            ExampleToken.totalSupply = ExampleToken.totalSupply - vault.getBalance()
         }
-        FungibleToken.burn(<-from)
+        destroy vault
     }
 
     init() {
@@ -232,20 +226,17 @@ access(all) contract ExampleToken: ViewResolver {
         // Create the Vault with the total supply of tokens and save it in storage
         //
         let vault <- create Vault(balance: self.totalSupply)
-        self.VaultStoragePath = vault.getDefaultStoragePath()!
-        self.VaultPublicPath = vault.getDefaultPublicPath()!
-        self.ReceiverPublicPath = vault.getDefaultReceiverPath()!
-
-        self.account.storage.save(<-vault, to: self.VaultStoragePath)
 
         // Create a public capability to the stored Vault that exposes
         // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
         // and the `getBalance()` method through the `Balance` interface
         //
-        let exampleTokenCap = self.account.capabilities.storage.issue<&Vault>(self.VaultStoragePath)
-        self.account.capabilities.publish(exampleTokenCap, at: self.VaultPublicPath)
-        let receiverCap = self.account.capabilities.storage.issue<&{FungibleToken.Receiver}>(self.VaultStoragePath)
-        self.account.capabilities.publish(receiverCap, at: self.ReceiverPublicPath)
+        let exampleTokenCap = self.account.capabilities.storage.issue<&Vault>(vault.storagePath)
+        self.account.capabilities.publish(exampleTokenCap, at: vault.publicPath)
+        let receiverCap = self.account.capabilities.storage.issue<&{FungibleToken.Receiver}>(vault.storagePath)
+        self.account.capabilities.publish(receiverCap, at: vault.receiverPath)
+
+        self.account.storage.save(<-vault, to: /storage/exampleTokenVault)
 
         let admin <- create Minter()
         self.account.storage.save(<-admin, to: self.AdminStoragePath)
