@@ -46,12 +46,17 @@ access(all) contract interface FungibleToken: ViewResolver {
     access(all) entitlement Withdraw
 
     /// The event that is emitted when tokens are withdrawn from a Vault
+    /// ****TODO**** Add view helper functions so that this event can be emitted
+    /// only when the amount is non-zero and the from address is non-nil
     access(all) event Withdrawn(amount: UFix64, type: String, from: Address?, fromUUID: UInt64, withdrawnUUID: UInt64)
 
     /// The event that is emitted when tokens are deposited to a Vault
+    /// ****TODO**** Add view helper functions so that this event can be emitted
+    /// only when the amount is non-zero and the to address is non-nil
     access(all) event Deposited(amount: UFix64, type: String, to: Address?, toUUID: UInt64, depositedUUID: UInt64)
 
     /// Event that is emitted when the global burn method is called with a non-zero balance
+    /// ****TODO**** Add Burner contract so that this event can be emitted
     access(all) event Burned(amount: UFix64, type: String, fromUUID: UInt64)
 
     /// Balance
@@ -198,17 +203,6 @@ access(all) contract interface FungibleToken: ViewResolver {
         post {
             result.getType() == vaultType: "The returned vault does not match the desired type"
             result.getBalance() == 0.0: "The newly created Vault must have zero balance"
-        }
-    }
-
-    /// Method to burn a FungibleToken Vault
-    /// contract implementations should provide an implementation for this function
-    /// that subtracts the vault balance from the token's total supply
-    access(all) fun burn(_ vault: @{FungibleToken.Vault}) {
-        pre {
-            self.publicTypes().contains(vault.getType())
-            vault.balance > 0.0: "Do not use the burn method unless the vault balance is greater than zero!"
-            emit Burned(amount: vault.balance, type: vault.getType().identifier, fromUUID: vault.uuid)
         }
     }
 }
