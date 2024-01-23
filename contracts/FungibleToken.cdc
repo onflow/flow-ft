@@ -206,7 +206,7 @@ access(all) contract interface FungibleToken: ViewResolver {
     /// that subtracts the vault balance from the token's total supply
     access(all) fun burn(_ vault: @{FungibleToken.Vault}) {
         pre {
-            self.getVaultTypes().contains(vault.getType())
+            self.publicTypes().contains(vault.getType())
             vault.balance > 0.0: "Do not use the burn method unless the vault balance is greater than zero!"
             emit Burned(amount: vault.balance, type: vault.getType().identifier, fromUUID: vault.uuid)
         }
