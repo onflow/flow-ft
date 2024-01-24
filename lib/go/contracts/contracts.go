@@ -17,6 +17,7 @@ var (
 	placeholderMetadataViews   = regexp.MustCompile(`"MetadataViews"`)
 	placeholderFTMetadataViews = regexp.MustCompile(`"FungibleTokenMetadataViews"`)
 	placeholderViewResolver    = regexp.MustCompile(`"ViewResolver"`)
+	placeholderBurner          = regexp.MustCompile(`"Burner"`)
 )
 
 const (
@@ -27,13 +28,15 @@ const (
 	filenameFTSwitchboard    = "FungibleTokenSwitchboard.cdc"
 	filenameFTMetadataViews  = "FungibleTokenMetadataViews.cdc"
 	filenameViewResolver     = "utility/ViewResolver.cdc"
+	filenameBurner           = "utility/Burner"
 )
 
 // FungibleToken returns the FungibleToken contract.
-func FungibleToken(resolverAddr string) []byte {
+func FungibleToken(resolverAddr, burnerAddr string) []byte {
 	code := assets.MustAssetString(filenameFungibleToken)
 
 	code = placeholderViewResolver.ReplaceAllString(code, "0x"+resolverAddr)
+	code = placeholderBurner.ReplaceAllString(code, "0x"+burnerAddr)
 
 	return []byte(code)
 }
@@ -68,6 +71,13 @@ func ExampleToken(fungibleTokenAddr, metadataViewsAddr, ftMetadataViewsAddr, vie
 	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)
 	code = placeholderFTMetadataViews.ReplaceAllString(code, "0x"+ftMetadataViewsAddr)
 	code = placeholderViewResolver.ReplaceAllString(code, "0x"+viewResolverAddr)
+
+	return []byte(code)
+}
+
+// Burner returns the Burner contract.
+func Burner() []byte {
+	code := assets.MustAssetString(filenameBurner)
 
 	return []byte(code)
 }

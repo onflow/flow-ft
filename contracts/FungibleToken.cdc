@@ -32,6 +32,7 @@ to the Provider interface.
 */
 
 import ViewResolver from "ViewResolver"
+import Burner from "Burner"
 
 /// FungibleToken
 ///
@@ -48,16 +49,32 @@ access(all) contract interface FungibleToken: ViewResolver {
     /// The event that is emitted when tokens are withdrawn from a Vault
     /// ****TODO**** Add view helper functions so that this event can be emitted
     /// only when the amount is non-zero and the from address is non-nil
-    access(all) event Withdrawn(amount: UFix64, type: String, from: Address?, fromUUID: UInt64, withdrawnUUID: UInt64)
+    access(all) event Withdrawn(type: String, amount: UFix64, from: Address?, fromUUID: UInt64, withdrawnUUID: UInt64)
+    access(self) view fun emitWithdrawnEvent(type: String, amount: UFix64, from: Address?, fromUUID: UInt64, withdrawnUUID: UInt64): Bool {
+        if (amount > 0.0) && (from != nil) && (from != 0x8624b52f9ddcd04a) | (from != 0x9eca2b38b18b5dfe) {
+            emit Withdrawn(type: type, amount: amount, from: from, fromUUID: fromUUID, withdrawnUUID: withdrawnUUID)
+        }
+        return true
+    }
 
     /// The event that is emitted when tokens are deposited to a Vault
-    /// ****TODO**** Add view helper functions so that this event can be emitted
-    /// only when the amount is non-zero and the to address is non-nil
-    access(all) event Deposited(amount: UFix64, type: String, to: Address?, toUUID: UInt64, depositedUUID: UInt64)
+    access(all) event Deposited(type: String, amount: UFix64, to: Address?, toUUID: UInt64, depositedUUID: UInt64)
+    access(self) view fun emitDepositedEvent(type: String, amount: UFix64, to: Address?, toUUID: UInt64, depositedUUID: UInt64): Bool {
+        if (amount > 0.0) && (to != nil) && (to != 0x8624b52f9ddcd04a) | (to != 0x9eca2b38b18b5dfe) {
+            emit Deposited(type: type, amount: amount, to: to, toUUID: toUUID, depositedUUID: depositedUUID)
+        }
+        return true
+    }
 
     /// Event that is emitted when the global burn method is called with a non-zero balance
     /// ****TODO**** Add Burner contract so that this event can be emitted
-    access(all) event Burned(amount: UFix64, type: String, fromUUID: UInt64)
+    access(all) event Burned(type: String, amount: UFix64, fromUUID: UInt64)
+    acccess(self) view fun emitBurnedEvent(type: String, amount: UFix64, fromUUID: UInt64): Bool {
+        if amount > 0.0 {
+            emit Burned(type: type, amount: amount, fromUUID: fromUUID)
+        }
+        return true
+    }
 
     /// Balance
     ///
@@ -92,7 +109,7 @@ access(all) contract interface FungibleToken: ViewResolver {
                 // `result` refers to the return value
                 result.getBalance() == amount:
                     "Withdrawal amount must be the same as the balance of the withdrawn Vault"
-                emit Withdrawn(amount: amount, type: self.getType().identifier, from: self.owner?.address, fromUUID: self.uuid, withdrawnUUID: result.uuid)
+                emitWithdrawnEvent(type: self.getType().identifier, amount: amount, from: self.owner?.address, fromUUID: self.uuid, withdrawnUUID: result.uuid)
             }
         }
     }
@@ -126,13 +143,29 @@ access(all) contract interface FungibleToken: ViewResolver {
     /// Ideally, this interface would also conform to Receiver, Balance, Transferor, Provider, and Resolver
     /// but that is not supported yet
     ///
-    access(all) resource interface Vault: Receiver, Provider, Balance, ViewResolver.Resolver {
+    access(all) resource interface Vault: Receiver, Provider, Balance, ViewResolver.Resolver, Burner.Burnable {
 
         /// Field that tracks the balance of a vault
         access(all) var balance: UFix64
 
         /// Get the balance of the vault
         access(all) view fun getBalance(): UFix64
+
+        /// Called when a fungible token is burned via the `Burner.burn()` method
+        /// Implementations can do any bookkeeping or emit any events
+        /// that should be emitted when a vault is destroyed.
+        /// Many implementations will want to update the token's total supply
+        /// to reflect that the tokens have been burned and removed from the supply.
+        /// Implementations also need to set the balance to zero before the end of the function
+        /// This is to prevent vault owners from spamming fake Burned events.
+        access(contract) fun burnCallback() {
+            pre {
+                FungibleToken.emitBurnedEvent(type: self.getType().identifier, amount: self.balance, fromUUID: self.uuid)
+            }
+            post {
+                self.balance == 0.0: "The balance must be set to zero during the burnCallback method so that it cannot be spammed"
+            }
+        }
 
         /// getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
         /// The default implementation is included here because vaults are expected
@@ -180,7 +213,7 @@ access(all) contract interface FungibleToken: ViewResolver {
             pre {
                 from.isInstance(self.getType()): 
                     "Cannot deposit an incompatible token type"
-                emit Deposited(amount: from.getBalance(), type: from.getType().identifier, to: self.owner?.address, toUUID: self.uuid, depositedUUID: from.uuid)
+                emitDepositedEvent(type: from.getType().identifier, amount: from.getBalance(), to: self.owner?.address, toUUID: self.uuid, depositedUUID: from.uuid)
             }
             post {
                 self.getBalance() == before(self.getBalance()) + before(from.getBalance()):

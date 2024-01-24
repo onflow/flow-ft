@@ -49,6 +49,28 @@ access(all) contract ExampleToken: FungibleToken {
         access(all) var publicPath: PublicPath
         access(all) var receiverPath: PublicPath
 
+        // initialize the balance at resource creation time
+        init(balance: UFix64) {
+            self.balance = balance
+            let identifier = "exampleTokenVault"
+            self.storagePath = StoragePath(identifier: identifier)!
+            self.publicPath = PublicPath(identifier: identifier)!
+            self.receiverPath = PublicPath(identifier: "exampleTokenReceiver")!
+        }
+
+        /// Get the balance of the vault
+        access(all) view fun getBalance(): UFix64 {
+            return self.balance
+        }
+
+        /// Called when a fungible token is burned via the `Burner.burn()` method
+        access(contract) fun burnCallback() {
+            if self.balance > 0.0 {
+                ExampleToken.totalSupply = ExampleToken.totalSupply - vault.getBalance()
+            }
+            self.balance = 0.0
+        }
+
         access(all) view fun getViews(): [Type] {
             return [
                 Type<FungibleTokenMetadataViews.FTView>(),
@@ -113,20 +135,6 @@ access(all) contract ExampleToken: FungibleToken {
 
         access(all) view fun isSupportedVaultType(type: Type): Bool {
             return self.getSupportedVaultTypes()[type] ?? false
-        }
-
-        // initialize the balance at resource creation time
-        init(balance: UFix64) {
-            self.balance = balance
-            let identifier = "exampleTokenVault"
-            self.storagePath = StoragePath(identifier: identifier)!
-            self.publicPath = PublicPath(identifier: identifier)!
-            self.receiverPath = PublicPath(identifier: "exampleTokenReceiver")!
-        }
-
-        /// Get the balance of the vault
-        access(all) view fun getBalance(): UFix64 {
-            return self.balance
         }
 
         /// withdraw
@@ -198,19 +206,6 @@ access(all) contract ExampleToken: FungibleToken {
     ///
     access(all) fun createEmptyVault(vaultType: Type): @ExampleToken.Vault {
         return <- create Vault(balance: 0.0)
-    }
-
-    /// Function that destroys a Vault instance, effectively burning the tokens.
-    ///
-    /// @param from: The Vault resource containing the tokens to burn
-    ///
-    /// Will need to add an update to total supply
-    /// See https://github.com/onflow/flips/pull/131
-    access(all) fun burn(_ vault: @{FungibleToken.Vault}) {
-        if vault.balance > 0.0 {
-            ExampleToken.totalSupply = ExampleToken.totalSupply - vault.getBalance()
-        }
-        destroy vault
     }
 
     init() {
