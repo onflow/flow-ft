@@ -66,7 +66,7 @@ access(all) contract ExampleToken: FungibleToken {
         /// Called when a fungible token is burned via the `Burner.burn()` method
         access(contract) fun burnCallback() {
             if self.balance > 0.0 {
-                ExampleToken.totalSupply = ExampleToken.totalSupply - vault.getBalance()
+                ExampleToken.totalSupply = ExampleToken.totalSupply - self.balance
             }
             self.balance = 0.0
         }

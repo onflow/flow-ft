@@ -28,7 +28,7 @@ const (
 	filenameFTSwitchboard    = "FungibleTokenSwitchboard.cdc"
 	filenameFTMetadataViews  = "FungibleTokenMetadataViews.cdc"
 	filenameViewResolver     = "utility/ViewResolver.cdc"
-	filenameBurner           = "utility/Burner"
+	filenameBurner           = "utility/Burner.cdc"
 )
 
 // FungibleToken returns the FungibleToken contract.
