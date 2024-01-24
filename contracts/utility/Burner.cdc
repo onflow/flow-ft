@@ -21,16 +21,16 @@ access(all) contract Burner {
     /// If the provided resource implements the Burnable interface,
     /// it will call the burnCallback method and then destroy afterwards.
     access(all) fun burn(_ r: @AnyResource) {
-        if let s <- r as @{Burnable} {
+        if let s <- r as? @{Burnable} {
             s.burnCallback()
             destroy s
-        } else if let arr <- r as @[AnyResource] {
+        } else if let arr <- r as? @[AnyResource] {
             while arr.length > 0 {
                 let item <- arr.removeFirst()
                 self.burn(<-item)
             }
             destroy arr
-        } else if let dict <- r as @{HashableStruct: AnyResource} {
+        } else if let dict <- r as? @{HashableStruct: AnyResource} {
             let keys = dict.keys
             while keys.length > 0 {
                 let item <- dict.remove(key: keys.removeFirst())!
