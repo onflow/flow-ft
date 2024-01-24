@@ -69,7 +69,7 @@ access(all) contract interface FungibleToken: ViewResolver {
     /// Event that is emitted when the global burn method is called with a non-zero balance
     /// ****TODO**** Add Burner contract so that this event can be emitted
     access(all) event Burned(type: String, amount: UFix64, fromUUID: UInt64)
-    acccess(self) view fun emitBurnedEvent(type: String, amount: UFix64, fromUUID: UInt64): Bool {
+    access(self) view fun emitBurnedEvent(type: String, amount: UFix64, fromUUID: UInt64): Bool {
         if amount > 0.0 {
             emit Burned(type: type, amount: amount, fromUUID: fromUUID)
         }
