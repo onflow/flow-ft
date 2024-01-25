@@ -62,10 +62,10 @@ access(all) contract interface NonFungibleToken: ViewResolver {
     /// The event makes it so that third-party indexers can monitor the events
     /// and query the updated metadata from the owners' collections.
     ///
-    access(all) event Updated(id: UInt64, uuid: UInt64, owner: Address?, type: String)
-    access(all) view fun emitNFTUpdated(_ nftRef: auth(Update | Owner) &{NonFungibleToken.NFT})
+    access(all) event Updated(type: String, id: UInt64, uuid: UInt64, owner: Address?)
+    access(contract) view fun emitNFTUpdated(_ nftRef: auth(Update | Owner) &{NonFungibleToken.NFT})
     {
-        emit Updated(id: nftRef.id, uuid: nftRef.uuid, owner: nftRef.owner?.address, type: nftRef.getType().identifier)
+        emit Updated(type: nftRef.getType().identifier, id: nftRef.id, uuid: nftRef.uuid, owner: nftRef.owner?.address)
     }
 
 
