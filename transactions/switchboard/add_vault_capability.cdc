@@ -12,21 +12,23 @@ transaction {
 
     prepare(signer: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue, UnpublishCapability) &Account) {
 
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+
         /* ExampleToken Vault configuration */
         //
         // Configure an ExampleToken Vault if needed
-        if signer.storage.borrow<&ExampleToken.Vault>(from: ExampleToken.VaultStoragePath) == nil {
+        if signer.storage.borrow<&ExampleToken.Vault>(from: vaultData.storagePath) == nil {
             // Create a new ExampleToken Vault and save it in storage
-            signer.storage.save(<-ExampleToken.createEmptyVault(), to: ExampleToken.VaultStoragePath)
+            signer.storage.save(<-ExampleToken.createEmptyVault(), to: vaultData.storagePath)
             // Clear existing Capabilities at canonical paths
-            signer.capabilities.unpublish(ExampleToken.VaultPublicPath)
-            signer.capabilities.unpublish(ExampleToken.ReceiverPublicPath)
+            signer.capabilities.unpublish(vaultData.metadataPath)
+            signer.capabilities.unpublish(vaultData.receiverPath)
             // Issue Vault & Receiver Capabilities
-            let vaultCap = signer.capabilities.storage.issue<&ExampleToken.Vault>(ExampleToken.VaultStoragePath)
-            let receiverCap = signer.capabilities.storage.issue<&{FungibleToken.Receiver}>(ExampleToken.VaultStoragePath)
+            let vaultCap = signer.capabilities.storage.issue<&ExampleToken.Vault>(vaultData.storagePath)
+            let receiverCap = signer.capabilities.storage.issue<&{FungibleToken.Receiver}>(vaultData.storagePath)
             // Publish Capabilities
-            signer.capabilities.publish(vaultCap, at: ExampleToken.VaultPublicPath)
-            signer.capabilities.publish(receiverCap, at: ExampleToken.ReceiverPublicPath)
+            signer.capabilities.publish(vaultCap, at: vaultData.metadataPath)
+            signer.capabilities.publish(receiverCap, at: vaultData.receiverPath)
         }
         
         // Get the example token vault capability from the signer's account

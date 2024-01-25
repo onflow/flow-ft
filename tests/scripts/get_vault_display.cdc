@@ -9,8 +9,10 @@ import "ViewResolver"
 access(all) fun main(address: Address): FungibleTokenMetadataViews.FTDisplay {
     let account = getAccount(address)
 
-    let vaultRef = account.capabilities.borrow<&{ViewResolver.Resolver}>(ExampleToken.VaultPublicPath)
-        ?? panic("Could not borrow a reference to the vault resolver")
+    let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+    
+    let vaultRef = account.capabilities.borrow<&{FungibleToken.Vault}>(vaultData.metadataPath)
+        ?? panic("Could not borrow Balance reference to the Vault")
 
     let ftDisplay = FungibleTokenMetadataViews.getFTDisplay(vaultRef)
         ?? panic("Token does not implement FTDisplay view")

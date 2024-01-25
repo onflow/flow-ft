@@ -26,14 +26,17 @@ Steps to set up accounts with token forwarder:
 import FungibleToken from "FungibleToken"
 import ExampleToken from "ExampleToken"
 import TokenForwarding from "TokenForwarding"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 transaction(receiver: Address) {
 
     prepare(acct: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue, UnpublishCapability) &Account) {
 
-        // Get the receiver capability for the account being forwarded to
-        let recipient = getAccount(receiver).capabilities.get<&{FungibleToken.Vault}>(ExampleToken.VaultPublicPath)
-            ?? panic("Could not borrow receiver capability from recipient account")
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+            ?? panic("Could not get vault data view for the contract")
+    
+        let vaultRef = account.capabilities.borrow<&{FungibleToken.Vault}>(vaultData.metadataPath)
+            ?? panic("Could not borrow Balance reference to the Vault")
 
         // Create the forwarder and save it to the account that is doing the forwarding
         let vault <- TokenForwarding.createNewForwarder(recipient: recipient)

@@ -1,6 +1,7 @@
 import FungibleToken from "FungibleToken"
 import ExampleToken from "ExampleToken"
 import PrivateReceiverForwarder from "PrivateReceiverForwarder"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 /// This transaction transfers to many addresses through their private receivers
 
@@ -13,8 +14,11 @@ transaction(addressAmountMap: {Address: UFix64}) {
 
     prepare(signer: auth(BorrowValue) &Account) {
 
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+            ?? panic("Could not get vault data view for the contract")
+
         // Get a reference to the signer's stored vault
-        self.vaultRef = signer.storage.borrow<auth(FungibleToken.Withdrawable) &ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)
+        self.vaultRef = signer.storage.borrow<auth(FungibleToken.Withdrawable) &ExampleToken.Vault>(from: vaultData.storagePath)
 			?? panic("Could not borrow reference to the owner's Vault!")
 
         self.privateForwardingSender = signer.storage.borrow<&PrivateReceiverForwarder.Sender>(from: PrivateReceiverForwarder.SenderStoragePath)

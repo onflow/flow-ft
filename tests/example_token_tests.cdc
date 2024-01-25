@@ -11,6 +11,7 @@ access(all) let recipient = Test.createAccount()
 access(all)
 fun setup() {
     deploy("ViewResolver", "../contracts/utility/ViewResolver.cdc")
+    deploy("Burner", "../contracts/utility/Burner.cdc")
     deploy("FungibleToken", "../contracts/FungibleToken.cdc")
     deploy("NonFungibleToken", "../contracts/utility/NonFungibleToken.cdc")
     deploy("MetadataViews", "../contracts/utility/MetadataViews.cdc")
@@ -72,18 +73,18 @@ fun testMintTokens() {
     Test.expect(txResult, Test.beSucceeded())
 
     // Test that the proper events were emitted
-    var typ = Type<ExampleToken.TokensMinted>()
+    // var typ = Type<ExampleToken.TokensMinted>()
+    // var events = Test.eventsOfType(typ)
+    // Test.assertEqual(1, events.length)
+
+    // let tokensMintedEvent = events[0] as! ExampleToken.TokensMinted
+    // Test.assertEqual(250.0, tokensMintedEvent.amount)
+
+    var typ = Type<FungibleToken.Deposited>()
     var events = Test.eventsOfType(typ)
     Test.assertEqual(1, events.length)
 
-    let tokensMintedEvent = events[0] as! ExampleToken.TokensMinted
-    Test.assertEqual(250.0, tokensMintedEvent.amount)
-
-    typ = Type<FungibleToken.Deposit>()
-    events = Test.eventsOfType(typ)
-    Test.assertEqual(1, events.length)
-
-    let tokensDepositedEvent = events[0] as! FungibleToken.Deposit
+    let tokensDepositedEvent = events[0] as! FungibleToken.Deposited
     Test.assertEqual(250.0, tokensDepositedEvent.amount)
     Test.assertEqual(recipient.address, tokensDepositedEvent.to!)
     Test.assertEqual("A.0000000000000007.ExampleToken.Vault", tokensDepositedEvent.type)
@@ -108,14 +109,14 @@ fun testTransferTokens() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    var typ = Type<FungibleToken.Deposit>()
+    var typ = Type<FungibleToken.Deposited>()
     Test.assertEqual(2, Test.eventsOfType(typ).length)
 
-    typ = Type<FungibleToken.Withdraw>()
+    typ = Type<FungibleToken.Withdrawn>()
     let events = Test.eventsOfType(typ)
     Test.assertEqual(1, events.length)
 
-    let tokensWithdrawnEvent = events[0] as! FungibleToken.Withdraw
+    let tokensWithdrawnEvent = events[0] as! FungibleToken.Withdrawn
     Test.assertEqual(50.0, tokensWithdrawnEvent.amount)
     Test.assertEqual(recipient.address, tokensWithdrawnEvent.from!)
 
@@ -163,11 +164,11 @@ fun testBurnTokens() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    let type = Type<FungibleToken.Burn>()
+    let type = Type<FungibleToken.Burned>()
     let events = Test.eventsOfType(type)
     Test.assertEqual(1, events.length)
 
-    let tokensBurnedEvent = events[0] as! FungibleToken.Burn
+    let tokensBurnedEvent = events[0] as! FungibleToken.Burned
     Test.assertEqual(50.0, tokensBurnedEvent.amount)
     Test.assertEqual("A.0000000000000007.ExampleToken.Vault", tokensBurnedEvent.type)
 

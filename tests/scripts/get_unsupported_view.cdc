@@ -8,7 +8,10 @@ import "FungibleToken"
 
 access(all) fun main(address: Address, type: Type): AnyStruct? {
     let account = getAccount(address)
-    let vaultRef = account.capabilities.borrow<&{FungibleToken.Vault}>(ExampleToken.VaultPublicPath)
+
+    let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+    
+    let vaultRef = account.capabilities.borrow<&{FungibleToken.Vault}>(vaultData.metadataPath)
         ?? panic("Could not borrow Balance reference to the Vault")
 
     return vaultRef.resolveView(type)

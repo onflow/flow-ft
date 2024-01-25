@@ -34,7 +34,7 @@ access(all) contract PrivateReceiverForwarder {
         access(contract) fun deposit(from: @{FungibleToken.Vault}) {
             let receiverRef = self.recipient.borrow()!
 
-            let balance = from.getBalance()
+            let balance = from.balance
 
             let uuid = from.uuid
 

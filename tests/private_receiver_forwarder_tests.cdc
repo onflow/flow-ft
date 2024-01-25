@@ -14,6 +14,7 @@ access(all) fun setup() {
 
     // helper nft contract so we can actually talk to nfts with tests
     deploy("ViewResolver", "../contracts/utility/ViewResolver.cdc")
+    deploy("Burner", "../contracts/utility/Burner.cdc")
     deploy("FungibleToken", "../contracts/FungibleToken.cdc")
     deploy("NonFungibleToken", "../contracts/utility/NonFungibleToken.cdc")
     deploy("MetadataViews", "../contracts/utility/MetadataViews.cdc")

@@ -12,6 +12,7 @@ access(all) let recipient = Test.createAccount()
 access(all)
 fun setup() {
     deploy("ViewResolver", "../contracts/utility/ViewResolver.cdc")
+    deploy("Burner", "../contracts/utility/Burner.cdc")
     deploy("FungibleToken", "../contracts/FungibleToken.cdc")
     deploy("NonFungibleToken", "../contracts/utility/NonFungibleToken.cdc")
     deploy("MetadataViews", "../contracts/utility/MetadataViews.cdc")

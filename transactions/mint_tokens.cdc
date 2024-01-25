@@ -23,10 +23,11 @@ transaction(recipient: Address, amount: UFix64) {
         self.tokenMinter = signer.storage.borrow<&ExampleToken.Minter>(from: ExampleToken.AdminStoragePath)
             ?? panic("Signer is not the token admin")
 
-        // Get the account of the recipient and borrow a reference to their receiver
-        self.tokenReceiver = getAccount(recipient).capabilities.borrow<&{FungibleToken.Vault}>(
-                ExampleToken.VaultPublicPath
-            ) ?? panic("Unable to borrow receiver reference")
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+            ?? panic("Could not get vault data view for the contract")
+    
+        let vaultRef = getAccount(recipient).capabilities.borrow<&{FungibleToken.Vault}>(vaultData.metadataPath)
+            ?? panic("Could not borrow Balance reference to the Vault")
     }
 
     execute {

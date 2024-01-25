@@ -48,30 +48,12 @@ access(all) contract interface FungibleToken: ViewResolver {
 
     /// The event that is emitted when tokens are withdrawn from a Vault
     access(all) event Withdrawn(type: String, amount: UFix64, from: Address?, fromUUID: UInt64, withdrawnUUID: UInt64)
-    // access(contract) view fun emitWithdrawnEvent(type: String, amount: UFix64, from: Address?, fromUUID: UInt64, withdrawnUUID: UInt64): Bool {
-    //     if (amount > 0.0) && (from != nil) && (from != 0x8624b52f9ddcd04a) && (from != 0x9eca2b38b18b5dfe) {
-    //         emit Withdrawn(type: type, amount: amount, from: from, fromUUID: fromUUID, withdrawnUUID: withdrawnUUID)
-    //     }
-    //     return true
-    // }
 
     /// The event that is emitted when tokens are deposited to a Vault
     access(all) event Deposited(type: String, amount: UFix64, to: Address?, toUUID: UInt64, depositedUUID: UInt64)
-    // access(contract) view fun emitDepositedEvent(type: String, amount: UFix64, to: Address?, toUUID: UInt64, depositedUUID: UInt64): Bool {
-    //     if (amount > 0.0) && (to != nil) && (to != 0x8624b52f9ddcd04a) && (to != 0x9eca2b38b18b5dfe) {
-    //         emit Deposited(type: type, amount: amount, to: to, toUUID: toUUID, depositedUUID: depositedUUID)
-    //     }
-    //     return true
-    // }
 
     /// Event that is emitted when the global burn method is called with a non-zero balance
     access(all) event Burned(type: String, amount: UFix64, fromUUID: UInt64)
-    // access(contract) view fun emitBurnedEvent(type: String, amount: UFix64, fromUUID: UInt64): Bool {
-    //     if amount > 0.0 {
-    //         emit Burned(type: type, amount: amount, fromUUID: fromUUID)
-    //     }
-    //     return true
-    // }
 
     /// Balance
     ///
@@ -79,8 +61,7 @@ access(all) contract interface FungibleToken: ViewResolver {
     /// for getting balance information
     ///
     access(all) resource interface Balance {
-        /// Get the balance of the vault
-        access(all) view fun getBalance(): UFix64
+        access(all) var balance: UFix64
     }
 
     /// Provider
@@ -94,6 +75,16 @@ access(all) contract interface FungibleToken: ViewResolver {
     ///
     access(all) resource interface Provider {
 
+        /// Function to ask a provider if a specific amount of tokens
+        /// is available to be withdrawn
+        /// This could be useful to avoid panicing when calling withdraw
+        /// when the balance is unknown
+        /// Additionally, if the provider is pulling from multiple vaults
+        /// it only needs to check some of the vaults until the desired amount
+        /// is reached, potentially helping with performance.
+        /// 
+        access(all) view fun isAvailableToWithdraw(amount: UFix64): Bool
+
         /// withdraw subtracts tokens from the implementing resource
         /// and returns a Vault with the removed tokens.
         ///
@@ -104,9 +95,8 @@ access(all) contract interface FungibleToken: ViewResolver {
         access(Withdraw) fun withdraw(amount: UFix64): @{Vault} {
             post {
                 // `result` refers to the return value
-                result.getBalance() == amount:
+                result.balance == amount:
                     "Withdrawal amount must be the same as the balance of the withdrawn Vault"
-                //FungibleToken.emitWithdrawnEvent(type: self.getType().identifier, amount: amount, from: self.owner?.address, fromUUID: self.uuid, withdrawnUUID: result.uuid)
                 emit Withdrawn(type: self.getType().identifier, amount: amount, from: self.owner?.address, fromUUID: self.uuid, withdrawnUUID: result.uuid)
             }
         }
@@ -146,9 +136,6 @@ access(all) contract interface FungibleToken: ViewResolver {
         /// Field that tracks the balance of a vault
         access(all) var balance: UFix64
 
-        /// Get the balance of the vault
-        access(all) view fun getBalance(): UFix64
-
         /// Called when a fungible token is burned via the `Burner.burn()` method
         /// Implementations can do any bookkeeping or emit any events
         /// that should be emitted when a vault is destroyed.
@@ -158,7 +145,6 @@ access(all) contract interface FungibleToken: ViewResolver {
         /// This is to prevent vault owners from spamming fake Burned events.
         access(contract) fun burnCallback() {
             pre {
-                //FungibleToken.emitBurnedEvent(type: self.getType().identifier, amount: self.balance, fromUUID: self.uuid)
                 emit Burned(type: self.getType().identifier, amount: self.balance, fromUUID: self.uuid)
             }
             post {
@@ -192,14 +178,14 @@ access(all) contract interface FungibleToken: ViewResolver {
         ///
         access(Withdraw) fun withdraw(amount: UFix64): @{Vault} {
             pre {
-                self.getBalance() >= amount:
+                self.balance >= amount:
                     "Amount withdrawn must be less than or equal than the balance of the Vault"
             }
             post {
                 // use the special function `before` to get the value of the `balance` field
                 // at the beginning of the function execution
                 //
-                self.getBalance() == before(self.getBalance()) - amount:
+                self.balance == before(self.balance) - amount:
                     "New Vault balance must be the difference of the previous balance and the withdrawn Vault balance"
             }
         }
@@ -212,11 +198,10 @@ access(all) contract interface FungibleToken: ViewResolver {
             pre {
                 from.isInstance(self.getType()): 
                     "Cannot deposit an incompatible token type"
-                //FungibleToken.emitDepositedEvent(type: from.getType().identifier, amount: from.getBalance(), to: self.owner?.address, toUUID: self.uuid, depositedUUID: from.uuid)
-                emit Deposited(type: from.getType().identifier, amount: from.getBalance(), to: self.owner?.address, toUUID: self.uuid, depositedUUID: from.uuid)
+                emit Deposited(type: from.getType().identifier, amount: from.balance, to: self.owner?.address, toUUID: self.uuid, depositedUUID: from.uuid)
             }
             post {
-                self.getBalance() == before(self.getBalance()) + before(from.getBalance()):
+                self.balance == before(self.balance) + before(from.balance):
                     "New Vault balance must be the sum of the previous balance and the deposited Vault"
             }
         }
@@ -225,7 +210,7 @@ access(all) contract interface FungibleToken: ViewResolver {
         ///
         access(all) fun createEmptyVault(): @{Vault} {
             post {
-                result.getBalance() == 0.0: "The newly created Vault must have zero balance"
+                result.balance == 0.0: "The newly created Vault must have zero balance"
             }
         }
     }
@@ -235,7 +220,7 @@ access(all) contract interface FungibleToken: ViewResolver {
     access(all) fun createEmptyVault(vaultType: Type): @{FungibleToken.Vault} {
         post {
             result.getType() == vaultType: "The returned vault does not match the desired type"
-            result.getBalance() == 0.0: "The newly created Vault must have zero balance"
+            result.balance == 0.0: "The newly created Vault must have zero balance"
         }
     }
 }

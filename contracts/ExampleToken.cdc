@@ -25,7 +25,7 @@ access(all) contract ExampleToken: FungibleToken {
         let vaultRef = self.account.capabilities.borrow<&ExampleToken.Vault>(/public/exampleTokenVault)
             ?? panic("Could not borrow a reference to the vault resolver")
         
-        return vaultRef.resolveView(view)
+        return vaultRef.resolveView(viewType)
     }
 
     /// Vault
@@ -56,11 +56,6 @@ access(all) contract ExampleToken: FungibleToken {
             self.storagePath = StoragePath(identifier: identifier)!
             self.publicPath = PublicPath(identifier: identifier)!
             self.receiverPath = PublicPath(identifier: "exampleTokenReceiver")!
-        }
-
-        /// Get the balance of the vault
-        access(all) view fun getBalance(): UFix64 {
-            return self.balance
         }
 
         /// Called when a fungible token is burned via the `Burner.burn()` method
@@ -135,6 +130,11 @@ access(all) contract ExampleToken: FungibleToken {
 
         access(all) view fun isSupportedVaultType(type: Type): Bool {
             return self.getSupportedVaultTypes()[type] ?? false
+        }
+
+        /// Asks if the amount can be withdrawn from this vault
+        access(all) view fun isAvailableToWithdraw(amount: UFix64): Bool {
+            return amount <= self.balance
         }
 
         /// withdraw
@@ -219,7 +219,7 @@ access(all) contract ExampleToken: FungibleToken {
 
         // Create a public capability to the stored Vault that exposes
         // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
-        // and the `getBalance()` method through the `Balance` interface
+        // and the `balance` method through the `Balance` interface
         //
         let exampleTokenCap = self.account.capabilities.storage.issue<&Vault>(vault.storagePath)
         self.account.capabilities.publish(exampleTokenCap, at: vault.publicPath)

@@ -241,14 +241,14 @@ access(all) contract FungibleTokenSwitchboard {
                 // If we can borrow a reference to the vault...
                 if let vaultRef = depositedVaultCapability.borrow() {
                     // We deposit the funds on said vault
-                    vaultRef.deposit(from: <-from.withdraw(amount: from.getBalance()))
+                    vaultRef.deposit(from: <-from.withdraw(amount: from.balance))
                 }
             }
             // if deposit failed for some reason
-            if from.getBalance() > 0.0 {
+            if from.balance > 0.0 {
                 emit NotCompletedDeposit(
                     type: from.getType(),
-                    amount: from.getBalance(),
+                    amount: from.balance,
                     switchboardOwner: self.owner?.address,
                 )
                 return <-from

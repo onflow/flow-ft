@@ -51,7 +51,7 @@ access(all) contract TokenForwarding {
         access(all) fun deposit(from: @{FungibleToken.Vault}) {
             let receiverRef = self.recipient.borrow<&{FungibleToken.Receiver}>()!
 
-            let balance = from.getBalance()
+            let balance = from.balance
 
             let uuid = from.uuid
 
