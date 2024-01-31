@@ -30,31 +30,35 @@ import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 transaction(receiver: Address) {
 
-    prepare(acct: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue, UnpublishCapability) &Account) {
+    prepare(signer: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue, UnpublishCapability) &Account) {
 
-        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
             ?? panic("Could not get vault data view for the contract")
     
-        let vaultRef = account.capabilities.borrow<&{FungibleToken.Vault}>(vaultData.metadataPath)
+        let vaultRef = signer.capabilities.borrow<&{FungibleToken.Vault}>(vaultData.metadataPath)
             ?? panic("Could not borrow Balance reference to the Vault")
+
+        // Get the receiver capability for the account being forwarded to
+        let recipient = getAccount(receiver).capabilities.get<&{FungibleToken.Receiver}>(vaultData.receiverPath)
+            ?? panic("Could not get the receiver capability")
 
         // Create the forwarder and save it to the account that is doing the forwarding
         let vault <- TokenForwarding.createNewForwarder(recipient: recipient)
-        acct.storage.save(<-vault, to: /storage/exampleTokenForwarder)
+        signer.storage.save(<-vault, to: /storage/exampleTokenForwarder)
 
         // Unlink the existing capability
-        acct.capabilities.unpublish(ExampleToken.ReceiverPublicPath)
+        signer.capabilities.unpublish(vaultData.receiverPath)
 
         // Link the new forwarding receiver capability
-        let tokenReceiverCap = acct.capabilities.storage.issue<&{FungibleToken.Receiver}>(
+        let tokenReceiverCap = signer.capabilities.storage.issue<&{FungibleToken.Receiver}>(
                 /storage/exampleTokenForwarder
             )
-        acct.capabilities.publish(tokenReceiverCap, at: ExampleToken.ReceiverPublicPath)
+        signer.capabilities.publish(tokenReceiverCap, at: vaultData.receiverPath)
 
         // Link the new ForwarderPublic capability
-        let tokenForwarderCap = acct.capabilities.storage.issue<&{TokenForwarding.ForwarderPublic}>(
+        let tokenForwarderCap = signer.capabilities.storage.issue<&{TokenForwarding.ForwarderPublic}>(
                 /storage/exampleTokenForwarder
             )
-        acct.capabilities.publish(tokenForwarderCap, at: /public/exampleTokenForwarder)
+        signer.capabilities.publish(tokenForwarderCap, at: /public/exampleTokenForwarder)
     }
 }

@@ -1,5 +1,7 @@
 import FungibleToken from "FungibleToken"
 import ExampleToken from "ExampleToken"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import Burner from "Burner"
 
 /// This transaction is a template for a transaction that could be used by the admin account to burn tokens from their
 /// stored Vault
@@ -18,16 +20,19 @@ transaction(amount: UFix64) {
 
         self.supplyBefore = ExampleToken.totalSupply
 
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
+            ?? panic("Could not get vault data view for the contract")
+
         // Withdraw tokens from the signer's vault in storage
-        let sourceVault = signer.storage.borrow<auth(FungibleToken.Withdrawable) &ExampleToken.Vault>(
-                from: ExampleToken.VaultStoragePath
+        let sourceVault = signer.storage.borrow<auth(FungibleToken.Withdraw) &ExampleToken.Vault>(
+                from: vaultData.storagePath
             ) ?? panic("Could not borrow a reference to the signer's ExampleToken vault")
         self.burnVault <- sourceVault.withdraw(amount: amount) as! @ExampleToken.Vault
     }
 
     execute {
 
-        ExampleToken.burnTokens(from: <-self.burnVault)
+        Burner.burn(<-self.burnVault)
 
     }
 

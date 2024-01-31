@@ -3,9 +3,11 @@
 
 import FungibleToken from "FungibleToken"
 import ExampleToken from "ExampleToken"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 access(all) fun main(address: Address): UFix64 {
-    let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+    let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
+        ?? panic("Could not get vault data view for the contract")
 
     return getAccount(address).capabilities.borrow<&{FungibleToken.Vault}>(
             vaultData.metadataPath

@@ -1,5 +1,6 @@
 import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
 import ExampleToken from "ExampleToken"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 /// This transaction is a template for a transaction that could be used by anyone to add several new fungible token
 /// vaults, belonging to a certain `Address` to their switchboard resource.
@@ -12,8 +13,11 @@ transaction (address: Address) {
 
     prepare(signer: auth(BorrowValue) &Account) {
 
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+            ?? panic("Could not get vault data view for the contract")
+
         // Get the example token vault path from the contract
-        self.exampleTokenVaultPath = ExampleToken.ReceiverPublicPath
+        self.exampleTokenVaultPath = vaultData.receiverPath
       
         // And store it in the array of public paths that will be passed to the
         // switchboard method

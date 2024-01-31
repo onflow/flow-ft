@@ -10,7 +10,7 @@ import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 transaction {
 
     prepare(signer: auth(IssueStorageCapabilityController, PublishCapability, SaveValue) &Account) {
-        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
             ?? panic("Could not get vault data view for the contract")
 
         if signer.capabilities.get<&PrivateReceiverForwarder.Forwarder>(PrivateReceiverForwarder.PrivateReceiverPublicPath) != nil {
@@ -21,7 +21,7 @@ transaction {
         if signer.storage.check<&ExampleToken.Vault>(from: vaultData.storagePath) == false {
             // Create a new ExampleToken Vault and put it in storage
             signer.storage.save(
-                <-ExampleToken.createEmptyVault(vaultType: Type<ExampleToken.Vault>()),
+                <-ExampleToken.createEmptyVault(vaultType: Type<@ExampleToken.Vault>()),
                 to: vaultData.storagePath
             )
         }

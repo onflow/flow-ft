@@ -23,6 +23,7 @@ var (
 	placeholderMetadataViews      = "\"MetadataViews\""
 	placeholderFTMetadataViews    = "\"FungibleTokenMetadataViews\""
 	placeholderViewResolver       = "\"ViewResolver\""
+	placeholderBurner             = "\"Burner\""
 )
 
 type Environment struct {
@@ -34,6 +35,7 @@ type Environment struct {
 	MetadataViewsAddress              string
 	FungibleTokenMetadataViewsAddress string
 	ViewResolverAddress               string
+	BurnerAddress                     string
 	SwitchboardAddress                string
 }
 
@@ -91,6 +93,12 @@ func ReplaceAddresses(code string, env Environment) string {
 		code,
 		placeholderViewResolver,
 		withHexPrefix(env.ViewResolverAddress),
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		placeholderBurner,
+		withHexPrefix(env.BurnerAddress),
 	)
 
 	code = strings.ReplaceAll(

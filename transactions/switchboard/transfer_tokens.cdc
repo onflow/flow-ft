@@ -1,5 +1,6 @@
 import FungibleToken from "FungibleToken"
 import ExampleToken from "ExampleToken"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 /// This transaction is a template for a transaction that could be used by anyone to send tokens to another account
 /// through a switchboard, as long as they have set up their switchboard and have add the proper capability to it
@@ -10,12 +11,15 @@ import ExampleToken from "ExampleToken"
 transaction(to: Address, amount: UFix64, receiverPath: PublicPath) {
 
     // The signer's vault to withdraw from
-    let sourceVault: auth(FungibleToken.Withdrawable) &ExampleToken.Vault
+    let sourceVault: auth(FungibleToken.Withdraw) &ExampleToken.Vault
 
     prepare(signer: auth(BorrowValue) &Account) {
 
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+            ?? panic("Could not get vault data view for the contract")
+
         // Get a reference to the signer's stored vault
-        self.sourceVault = signer.storage.borrow<auth(FungibleToken.Withdrawable) &ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)
+        self.sourceVault = signer.storage.borrow<auth(FungibleToken.Withdraw) &ExampleToken.Vault>(from: vaultData.storagePath)
 			?? panic("Could not borrow reference to the owner's Vault!")
 
     }

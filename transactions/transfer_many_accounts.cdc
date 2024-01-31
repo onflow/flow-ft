@@ -1,16 +1,23 @@
 import FungibleToken from "FungibleToken"
 import ExampleToken from "ExampleToken"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 /// Transfers tokens to a list of addresses specified in the `addressAmountMap` parameter
 
 transaction(addressAmountMap: {Address: UFix64}) {
 
-    // The Vault resource that holds the tokens that are being transferred
-    let vaultRef: auth(FungibleToken.Withdrawable) &ExampleToken.Vault
+    /// FTVaultData metadata view for the token being used
+    let vaultData: FungibleTokenMetadataViews.FTVaultData
+
+    /// The Vault resource that holds the tokens that are being transferred
+    let vaultRef: auth(FungibleToken.Withdraw) &ExampleToken.Vault
 
     prepare(signer: auth(BorrowValue) &Account) {
+        self.vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
+            ?? panic("ViewResolver does not resolve FTVaultData view")
+
         // Get a reference to the signer's stored vault
-        self.vaultRef = signer.storage.borrow<auth(FungibleToken.Withdrawable) &ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)
+        self.vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &ExampleToken.Vault>(from: self.vaultData.storagePath)
 			?? panic("Could not borrow reference to the owner's Vault!")
     }
 
@@ -25,7 +32,7 @@ transaction(addressAmountMap: {Address: UFix64}) {
             let recipient = getAccount(address)
 
             // Get a reference to the recipient's Receiver
-            let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(ExampleToken.ReceiverPublicPath)
+            let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(self.vaultData.receiverPath)
                 ?? panic("Could not borrow receiver reference to the recipient's Vault")
 
             // Deposit the withdrawn tokens in the recipient's receiver

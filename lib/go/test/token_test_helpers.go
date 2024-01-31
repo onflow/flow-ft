@@ -39,7 +39,7 @@ func deployTokenContracts(
 		[]sdktemplates.Contract{
 			{
 				Name:   "ViewResolver",
-				Source: string(nftcontracts.Resolver()),
+				Source: string(nftcontracts.ViewResolver()),
 			},
 		},
 	)
@@ -59,8 +59,21 @@ func deployTokenContracts(
 	)
 	assert.NoError(t, err)
 
+	// Deploy the Burner contract
+	burnerAddress, err := adapter.CreateAccount(context.Background(),
+		nil,
+		[]sdktemplates.Contract{
+			{
+				Name:   "Burner",
+				Source: string(contracts.Burner()),
+			},
+		},
+	)
+	assert.NoError(t, err)
+	env.BurnerAddress = burnerAddress.Hex()
+
 	// Deploy the FungibleToken contract
-	fungibleTokenCode := contracts.FungibleToken(resolverAddress.String())
+	fungibleTokenCode := contracts.FungibleToken(resolverAddress.String(), burnerAddress.String())
 	fungibleAddr, err := adapter.CreateAccount(context.Background(),
 		nil,
 		[]sdktemplates.Contract{
@@ -102,7 +115,7 @@ func deployTokenContracts(
 	env.FungibleTokenMetadataViewsAddress = fungibleMetadataViewsAddr.Hex()
 
 	// Deploy the ExampleToken contract
-	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String(), metadataViewsAddr.String(), fungibleMetadataViewsAddr.String(), resolverAddress.String(), "")
+	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String(), metadataViewsAddr.String(), fungibleMetadataViewsAddr.String(), resolverAddress.String())
 	tokenAddr, err = adapter.CreateAccount(context.Background(),
 		key,
 		[]sdktemplates.Contract{

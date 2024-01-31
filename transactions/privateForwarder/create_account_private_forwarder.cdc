@@ -1,6 +1,7 @@
 import FungibleToken from "FungibleToken"
 import ExampleToken from "ExampleToken"
 import PrivateReceiverForwarder from "PrivateReceiverForwarder"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 /// This transaction is used to create a user's Flow account with a private forwarder
 
@@ -9,18 +10,21 @@ transaction {
     /// New Account that will hold the forwarder
     let newAccount: auth(Storage, Contracts, Keys, Inbox, Capabilities) &Account
 
-    prepare(payer: auth(BorrowValue) &Account) {
-        self.newAccount = Account(payer: payer)
+    prepare(signer: auth(BorrowValue) &Account) {
+        self.newAccount = Account(payer: signer)
     }
 
     execute {
 
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+            ?? panic("Could not get vault data view for the contract")
+
         // Save a regular vault to the new account
-        self.newAccount.storage.save(<-ExampleToken.createEmptyVault(), to: ExampleToken.VaultStoragePath)
+        self.newAccount.storage.save(<-ExampleToken.createEmptyVault(vaultType: Type<@ExampleToken.Vault>()), to: vaultData.storagePath)
 
         // Issue a Receiver Capability targetting the ExampleToken Vault
         let receiverCapability = self.newAccount.capabilities.storage.issue<&{FungibleToken.Receiver}>(
-            ExampleToken.VaultStoragePath
+            vaultData.storagePath
         )
 
         // Use the private receiver to create a private forwarder

@@ -1,6 +1,7 @@
 import FungibleToken from "FungibleToken"
 import ExampleToken from "ExampleToken"
 import PrivateReceiverForwarder from "PrivateReceiverForwarder"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 // This transaction creates a new private receiver in an account that 
 // doesn't already have a private receiver or a public token receiver
@@ -9,9 +10,13 @@ import PrivateReceiverForwarder from "PrivateReceiverForwarder"
 transaction {
 
     prepare(signer: auth(IssueStorageCapabilityController, PublishCapability, SaveValue) &Account) {
+
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
+            ?? panic("Could not get vault data view for the contract")
+
         // Issue a Receiver Capability targetting the ExampleToken Vault
         let receiverCapability = signer.capabilities.storage.issue<&{FungibleToken.Receiver}>(
-            ExampleToken.VaultStoragePath
+            vaultData.storagePath
         )
         // Create the Forwarder resource
         let forwarder <- PrivateReceiverForwarder.createNewForwarder(recipient: receiverCapability)

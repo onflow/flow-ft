@@ -1,6 +1,7 @@
 import FungibleToken from "FungibleToken"
 import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
 import ExampleToken from "ExampleToken"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 // This transaction is a template for a transaction that could be used by anyone 
 // to send tokens to another account through a switchboard using the safeDeposit
@@ -11,12 +12,15 @@ import ExampleToken from "ExampleToken"
 transaction(to: Address, amount: UFix64) {
 
     // The reference to the vault from the payer's account
-    let vaultRef: auth(FungibleToken.Withdrawable) &ExampleToken.Vault
+    let vaultRef: auth(FungibleToken.Withdraw) &ExampleToken.Vault
 
     prepare(signer: auth(BorrowValue) &Account) {
 
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+            ?? panic("Could not get vault data view for the contract")
+
         // Get a reference to the signer's stored vault
-        self.vaultRef = signer.storage.borrow<auth(FungibleToken.Withdrawable) &ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)
+        self.vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &ExampleToken.Vault>(from: vaultData.storagePath)
 			?? panic("Could not borrow reference to the owner's Vault!")
 
     }

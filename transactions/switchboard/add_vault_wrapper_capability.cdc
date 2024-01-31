@@ -1,6 +1,7 @@
 import FungibleToken from "FungibleToken"
 import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
 import ExampleToken from "ExampleToken"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 /// This transaction is a template for a transaction that could be used by anyone to add a new vault wrapper capability
 /// to their switchboard resource
@@ -12,9 +13,12 @@ transaction {
 
     prepare(signer: auth(BorrowValue) &Account) {
 
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+            ?? panic("Could not get vault data view for the contract")
+
         // Get the token forwarder capability from the signer's account
         self.tokenForwarderCapability = signer.capabilities.get<&{FungibleToken.Receiver}>(
-                ExampleToken.ReceiverPublicPath
+                vaultData.receiverPath
             )
 
         // Check if the receiver capability exists

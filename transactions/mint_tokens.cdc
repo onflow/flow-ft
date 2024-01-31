@@ -1,5 +1,6 @@
 import FungibleToken from "FungibleToken"
 import ExampleToken from "ExampleToken"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 /// This transaction is what the minter Account uses to mint new tokens
 /// They provide the recipient address and amount to mint, and the tokens
@@ -11,7 +12,7 @@ transaction(recipient: Address, amount: UFix64) {
     let tokenMinter: &ExampleToken.Minter
 
     /// Reference to the Fungible Token Receiver of the recipient
-    let tokenReceiver: &{FungibleToken.Vault}
+    let tokenReceiver: &{FungibleToken.Receiver}
 
     /// The total supply of tokens before the burn
     let supplyBefore: UFix64
@@ -23,11 +24,11 @@ transaction(recipient: Address, amount: UFix64) {
         self.tokenMinter = signer.storage.borrow<&ExampleToken.Minter>(from: ExampleToken.AdminStoragePath)
             ?? panic("Signer is not the token admin")
 
-        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
             ?? panic("Could not get vault data view for the contract")
     
-        let vaultRef = getAccount(recipient).capabilities.borrow<&{FungibleToken.Vault}>(vaultData.metadataPath)
-            ?? panic("Could not borrow Balance reference to the Vault")
+        self.tokenReceiver = getAccount(recipient).capabilities.borrow<&{FungibleToken.Receiver}>(vaultData.receiverPath)
+            ?? panic("Could not borrow receiver reference to the Vault")
     }
 
     execute {

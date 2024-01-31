@@ -1,6 +1,7 @@
 import FungibleToken from "FungibleToken"
 import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
 import ExampleToken from "ExampleToken"
+import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 /// This transaction is a template for a transaction that could be used by anyone to add a new fungible token vault
 /// capability to their switchboard resource
@@ -13,13 +14,14 @@ transaction {
     prepare(signer: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue, UnpublishCapability) &Account) {
 
         let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+            ?? panic("Could not get vault data view for the contract")
 
         /* ExampleToken Vault configuration */
         //
         // Configure an ExampleToken Vault if needed
         if signer.storage.borrow<&ExampleToken.Vault>(from: vaultData.storagePath) == nil {
             // Create a new ExampleToken Vault and save it in storage
-            signer.storage.save(<-ExampleToken.createEmptyVault(), to: vaultData.storagePath)
+            signer.storage.save(<-ExampleToken.createEmptyVault(vaultType: Type<@ExampleToken.Vault>()), to: vaultData.storagePath)
             // Clear existing Capabilities at canonical paths
             signer.capabilities.unpublish(vaultData.metadataPath)
             signer.capabilities.unpublish(vaultData.receiverPath)
@@ -33,7 +35,7 @@ transaction {
         
         // Get the example token vault capability from the signer's account
         self.exampleTokenVaultCapability = signer.capabilities.get<&{FungibleToken.Receiver}>(
-                ExampleToken.ReceiverPublicPath
+                vaultData.receiverPath
             ) ?? panic("Signer does not have a Example Token receiver capability")
         
         // Check if the receiver capability exists
