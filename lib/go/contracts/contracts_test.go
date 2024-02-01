@@ -11,12 +11,12 @@ import (
 const addrA = "0A"
 
 func TestFungibleTokenContract(t *testing.T) {
-	contract := contracts.FungibleToken()
+	contract := contracts.FungibleToken(addrA, addrA)
 	assert.NotNil(t, contract)
 }
 
 func TestExampleTokenContract(t *testing.T) {
-	contract := contracts.ExampleToken(addrA, addrA, addrA)
+	contract := contracts.ExampleToken(addrA, addrA, addrA, addrA)
 	assert.NotNil(t, contract)
 	assert.Contains(t, string(contract), addrA)
 }

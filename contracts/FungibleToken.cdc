@@ -182,6 +182,7 @@ access(all) contract interface FungibleToken: ViewResolver {
                     "Amount withdrawn must be less than or equal than the balance of the Vault"
             }
             post {
+                result.getType() == self.getType(): "Must return the same vault type as self"
                 // use the special function `before` to get the value of the `balance` field
                 // at the beginning of the function execution
                 //
