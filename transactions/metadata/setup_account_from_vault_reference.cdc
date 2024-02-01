@@ -28,7 +28,7 @@ transaction(address: Address, publicPath: PublicPath) {
         signer.storage.save(<-emptyVault, to: ftVaultData.storagePath)
         
         // Create a public capability for the vault which includes the .Resolver interface
-        let vaultCap = signer.capabilities.storage.issue<&{FungibleToken.Vault}>(ftVaultData.storagePath)
+        let vaultCap = signer.capabilities.storage.issue<&{FungibleToken.Balance}>(ftVaultData.storagePath)
         signer.capabilities.publish(vaultCap, at: ftVaultData.metadataPath)
 
         // Create a public capability for the vault exposing the receiver interface

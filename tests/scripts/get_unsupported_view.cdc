@@ -11,7 +11,7 @@ access(all) fun main(address: Address, type: Type): AnyStruct? {
 
     let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
     
-    let vaultRef = account.capabilities.borrow<&{FungibleToken.Vault}>(vaultData.metadataPath)
+    let vaultRef = account.capabilities.borrow<&{FungibleToken.Balance}>(vaultData.metadataPath)
         ?? panic("Could not borrow Balance reference to the Vault")
 
     return vaultRef.resolveView(type)

@@ -25,7 +25,7 @@ transaction () {
         signer.storage.save(<-vault, to: vaultData.storagePath)
 
         // Create a public capability to the Vault that exposes the Vault interfaces
-        let vaultCap = signer.capabilities.storage.issue<&ExampleToken.Vault>(
+        let vaultCap = signer.capabilities.storage.issue<&{FungibleToken.Balance}>(
             vaultData.storagePath
         )
         signer.capabilities.publish(vaultCap, at: vaultData.metadataPath)

@@ -12,7 +12,7 @@ access(all) fun main(address: Address): FungibleTokenMetadataViews.FTDisplay {
     let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
         ?? panic("Could not get vault data view for the contract")
     
-    let vaultRef = account.capabilities.borrow<&{FungibleToken.Vault}>(vaultData.metadataPath)
+    let vaultRef = account.capabilities.borrow<&{FungibleToken.Balance}>(vaultData.metadataPath)
         ?? panic("Could not borrow Balance reference to the Vault")
 
     let ftDisplay = FungibleTokenMetadataViews.getFTDisplay(vaultRef)
