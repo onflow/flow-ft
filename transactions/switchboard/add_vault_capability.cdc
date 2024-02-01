@@ -26,7 +26,7 @@ transaction {
             signer.capabilities.unpublish(vaultData.metadataPath)
             signer.capabilities.unpublish(vaultData.receiverPath)
             // Issue Vault & Receiver Capabilities
-            let vaultCap = signer.capabilities.storage.issue<&{FungibleToken.Balance}>(vaultData.storagePath)
+            let vaultCap = signer.capabilities.storage.issue<&{FungibleToken.Balance, FungibleToken.Vault}>(vaultData.storagePath)
             let receiverCap = signer.capabilities.storage.issue<&{FungibleToken.Receiver}>(vaultData.storagePath)
             // Publish Capabilities
             signer.capabilities.publish(vaultCap, at: vaultData.metadataPath)

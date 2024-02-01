@@ -15,14 +15,14 @@ access(all) contract ExampleToken: FungibleToken {
     access(all) let AdminStoragePath: StoragePath
 
     access(all) view fun getContractViews(resourceType: Type?): [Type] {
-        let vaultRef = self.account.capabilities.borrow<&ExampleToken.Vault>(/public/exampleTokenVault)
+        let vaultRef = self.account.capabilities.borrow<&{FungibleToken.Vault}>(/public/exampleTokenVault)
             ?? panic("Could not borrow a reference to the vault resolver")
         
         return vaultRef.getViews()
     }
 
     access(all) fun resolveContractView(resourceType: Type?, viewType: Type): AnyStruct? {
-        let vaultRef = self.account.capabilities.borrow<&ExampleToken.Vault>(/public/exampleTokenVault)
+        let vaultRef = self.account.capabilities.borrow<&{FungibleToken.Vault}>(/public/exampleTokenVault)
             ?? panic("Could not borrow a reference to the vault resolver")
         
         return vaultRef.resolveView(viewType)
@@ -221,7 +221,7 @@ access(all) contract ExampleToken: FungibleToken {
         // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
         // and the `balance` method through the `Balance` interface
         //
-        let exampleTokenCap = self.account.capabilities.storage.issue<&Vault>(vault.storagePath)
+        let exampleTokenCap = self.account.capabilities.storage.issue<&{FungibleToken.Balance, FungibleToken.Vault}>(vault.storagePath)
         self.account.capabilities.publish(exampleTokenCap, at: vault.publicPath)
         let receiverCap = self.account.capabilities.storage.issue<&{FungibleToken.Receiver}>(vault.storagePath)
         self.account.capabilities.publish(receiverCap, at: vault.receiverPath)
