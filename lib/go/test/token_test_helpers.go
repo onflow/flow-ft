@@ -156,6 +156,19 @@ func deployTokenContracts(
 	assert.NoError(t, err)
 	env.SwitchboardAddress = switchboardAddr.Hex()
 
+	// // Deploy the PrivateReceiverForwarder contract
+	// privateRecFor := contracts.PrivateReceiverForwarder(fungibleAddr.String())
+	// _, err = adapter.CreateAccount(context.Background(),
+	// 	key,
+	// 	[]sdktemplates.Contract{
+	// 		{
+	// 			Name:   "PrivateReceiverForwarder",
+	// 			Source: string(privateRecFor),
+	// 		},
+	// 	},
+	// )
+	// assert.NoError(t, err)
+
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
