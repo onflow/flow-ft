@@ -14,7 +14,7 @@ transaction(to: Address, amount: UFix64) {
 
     prepare(signer: auth(BorrowValue) &Account) {
 
-        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
             ?? panic("Could not get vault data view for the contract")
 
         // Get a reference to the signer's stored vault

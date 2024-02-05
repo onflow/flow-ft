@@ -9,7 +9,8 @@ import "ViewResolver"
 access(all) fun main(address: Address): Bool {
     let account = getAccount(address)
 
-    let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+    let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
+        ?? panic("Could not get the vault data view for ExampleToken")
 
     let vaultRef = account.capabilities.borrow<&{ViewResolver.Resolver}>(vaultData.metadataPath)
         ?? panic("Could not borrow a reference to the vault resolver")

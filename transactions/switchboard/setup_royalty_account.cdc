@@ -28,7 +28,7 @@ transaction () {
             // if it's not, create a public capability to the flow vault exposing 
             // the deposit function through the {FungibleToken.Receiver} interface
             signer.unlink(/public/flowTokenReceiver)
-            signer.link<&{FungibleToken.Receiver}>(/public/flowTokenReceiver, 
+            signer.link<&FlowToken.Vault>(/public/flowTokenReceiver, 
                                                      target: /storage/flowTokenVault)
         }
         self.flowTokenVaultCapability = signer.getCapability<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
@@ -45,7 +45,7 @@ transaction () {
             // if it's not, create a public capability to the USDC vault exposing 
             // the deposit function through the {FungibleToken.Receiver} interface
             signer.unlink(FiatToken.VaultReceiverPubPath)
-            signer.link<&{FungibleToken.Receiver}>(FiatToken.VaultReceiverPubPath, 
+            signer.link<&FiatToken.Vault>(FiatToken.VaultReceiverPubPath, 
                                                   target: FiatToken.VaultStoragePath)
         }
         self.fiatTokenVaultCapability = signer.getCapability<&{FungibleToken.Receiver}>(FiatToken.VaultReceiverPubPath)
@@ -59,19 +59,19 @@ transaction () {
         }
         // Check if the receiver capability is linked on the receiver path
         if !signer.getCapability
-                      <&FungibleTokenSwitchboard.Switchboard{FungibleToken.Receiver}>
+                      <&FungibleTokenSwitchboard.Switchboard>
                               (FungibleTokenSwitchboard.ReceiverPublicPath).check() {
             // if it's not, create a public capability to the Switchboard exposing 
             // the deposit function through the {FungibleToken.Receiver} interface
             signer.unlink(FungibleTokenSwitchboard.ReceiverPublicPath)
-            signer.link<&FungibleTokenSwitchboard.Switchboard{FungibleToken.Receiver}>(
+            signer.link<&FungibleTokenSwitchboard.Switchboard>(
                                          FungibleTokenSwitchboard.ReceiverPublicPath,
                                         target: FungibleTokenSwitchboard.StoragePath)
         }
         // Check if the SwitchboardPublic and ft receiver capabilities are linked on
         // the switchboard public path
         if !signer.getCapability<
-        &FungibleTokenSwitchboard.Switchboard{FungibleTokenSwitchboard.SwitchboardPublic, FungibleToken.Receiver}
+        &FungibleTokenSwitchboard.Switchboard
                                        >(FungibleTokenSwitchboard.ReceiverPublicPath)
                                                                            .check() {
             // if it's not, create a public capability to the Switchboard exposing 
@@ -79,7 +79,7 @@ transaction () {
             // {FungibleToken.Receiver} interfaces
             signer.unlink(FungibleTokenSwitchboard.PublicPath)
             signer.link<
-            &FungibleTokenSwitchboard.Switchboard{FungibleTokenSwitchboard.SwitchboardPublic, FungibleToken.Receiver}
+            &FungibleTokenSwitchboard.Switchboard
                                                >(FungibleTokenSwitchboard.PublicPath,
                                         target: FungibleTokenSwitchboard.StoragePath)
         }

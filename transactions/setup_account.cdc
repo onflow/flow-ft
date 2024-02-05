@@ -25,13 +25,13 @@ transaction () {
         signer.storage.save(<-vault, to: vaultData.storagePath)
 
         // Create a public capability to the Vault that exposes the Vault interfaces
-        let vaultCap = signer.capabilities.storage.issue<&{FungibleToken.Balance, FungibleToken.Vault}>(
+        let vaultCap = signer.capabilities.storage.issue<&ExampleToken.Vault>(
             vaultData.storagePath
         )
         signer.capabilities.publish(vaultCap, at: vaultData.metadataPath)
 
         // Create a public Capability to the Vault's Receiver functionality
-        let receiverCap = signer.capabilities.storage.issue<&{FungibleToken.Receiver}>(
+        let receiverCap = signer.capabilities.storage.issue<&ExampleToken.Vault>(
             vaultData.storagePath
         )
         signer.capabilities.publish(receiverCap, at: vaultData.receiverPath)

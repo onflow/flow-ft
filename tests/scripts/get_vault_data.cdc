@@ -9,7 +9,8 @@ import "MetadataViews"
 access(all) fun main(address: Address): Bool {
     let account = getAccount(address)
 
-    let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+    let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
+        ?? panic("Could not get vault data view for the contract")
 
     // FungibleTokenMetadataViews.FTVaultData cannot be returned as
     // a script result, because of the createEmptyVault() function.
@@ -17,7 +18,7 @@ access(all) fun main(address: Address): Bool {
     assert(Type<&ExampleToken.Vault>() == vaultData.receiverLinkedType)
     assert(Type<&ExampleToken.Vault>() == vaultData.metadataLinkedType)
     let vault <- vaultData.createEmptyVault()
-    let vaultIsEmpty = vault.getBalance() == 0.0
+    let vaultIsEmpty = vault.balance == 0.0
     assert(vaultIsEmpty)
 
     destroy vault

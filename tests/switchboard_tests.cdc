@@ -16,33 +16,10 @@ fun setup() {
     deploy("FungibleToken", "../contracts/FungibleToken.cdc")
     deploy("NonFungibleToken", "../contracts/utility/NonFungibleToken.cdc")
     deploy("MetadataViews", "../contracts/utility/MetadataViews.cdc")
-    var err = Test.deployContract(
-        name: "FungibleTokenMetadataViews",
-        path: "../contracts/FungibleTokenMetadataViews.cdc",
-        arguments: []
-    )
-    Test.expect(err, Test.beNil())
-
-    err = Test.deployContract(
-        name: "ExampleToken",
-        path: "../contracts/ExampleToken.cdc",
-        arguments: []
-    )
-    Test.expect(err, Test.beNil())
-
-    err = Test.deployContract(
-        name: "FungibleTokenSwitchboard",
-        path: "../contracts/FungibleTokenSwitchboard.cdc",
-        arguments: []
-    )
-    Test.expect(err, Test.beNil())
-
-    err = Test.deployContract(
-        name: "TokenForwarding",
-        path: "../contracts/utility/TokenForwarding.cdc",
-        arguments: []
-    )
-    Test.expect(err, Test.beNil())
+    deploy("FungibleTokenMetadataViews", "../contracts/FungibleTokenMetadataViews.cdc")
+    deploy("ExampleToken", "../contracts/ExampleToken.cdc")
+    deploy("FungibleTokenSwitchboard", "../contracts/FungibleTokenSwitchboard.cdc")
+    deploy("TokenForwarding", "../contracts/utility/TokenForwarding.cdc")
 }
 
 access(all)

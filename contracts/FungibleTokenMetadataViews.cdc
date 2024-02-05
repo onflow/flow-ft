@@ -143,7 +143,7 @@ access(all) contract FungibleTokenMetadataViews {
         ) {
             pre {
                 receiverLinkedType.isSubtype(of: Type<&{FungibleToken.Receiver}>()): "Receiver public type must include FungibleToken.Receiver."
-                metadataLinkedType.isSubtype(of: Type<&{ViewResolver.Resolver}>()): "Metadata public type must include ViewResolver.Resolver interfaces."
+                metadataLinkedType.isSubtype(of: Type<&{FungibleToken.Vault}>()): "Metadata linked type must be a fungible token vault"
             }
             self.storagePath = storagePath
             self.receiverPath = receiverPath

@@ -15,17 +15,56 @@ access(all) contract ExampleToken: FungibleToken {
     access(all) let AdminStoragePath: StoragePath
 
     access(all) view fun getContractViews(resourceType: Type?): [Type] {
-        let vaultRef = self.account.capabilities.borrow<&{FungibleToken.Vault}>(/public/exampleTokenVault)
-            ?? panic("Could not borrow a reference to the vault resolver")
-        
-        return vaultRef.getViews()
+        return [
+            Type<FungibleTokenMetadataViews.FTView>(),
+            Type<FungibleTokenMetadataViews.FTDisplay>(),
+            Type<FungibleTokenMetadataViews.FTVaultData>(),
+            Type<FungibleTokenMetadataViews.TotalSupply>()
+        ]
     }
 
     access(all) fun resolveContractView(resourceType: Type?, viewType: Type): AnyStruct? {
-        let vaultRef = self.account.capabilities.borrow<&{FungibleToken.Vault}>(/public/exampleTokenVault)
-            ?? panic("Could not borrow a reference to the vault resolver")
-        
-        return vaultRef.resolveView(viewType)
+        switch viewType {
+            case Type<FungibleTokenMetadataViews.FTView>():
+                return FungibleTokenMetadataViews.FTView(
+                    ftDisplay: self.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTDisplay>()) as! FungibleTokenMetadataViews.FTDisplay?,
+                    ftVaultData: self.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
+                )
+            case Type<FungibleTokenMetadataViews.FTDisplay>():
+                let media = MetadataViews.Media(
+                        file: MetadataViews.HTTPFile(
+                        url: "https://assets.website-files.com/5f6294c0c7a8cdd643b1c820/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.svg"
+                    ),
+                    mediaType: "image/svg+xml"
+                )
+                let medias = MetadataViews.Medias([media])
+                return FungibleTokenMetadataViews.FTDisplay(
+                    name: "Example Fungible Token",
+                    symbol: "EFT",
+                    description: "This fungible token is used as an example to help you develop your next FT #onFlow.",
+                    externalURL: MetadataViews.ExternalURL("https://example-ft.onflow.org"),
+                    logos: medias,
+                    socials: {
+                        "twitter": MetadataViews.ExternalURL("https://twitter.com/flow_blockchain")
+                    }
+                )
+            case Type<FungibleTokenMetadataViews.FTVaultData>():
+                return FungibleTokenMetadataViews.FTVaultData(
+                    storagePath: /storage/exampleTokenVault,
+                    receiverPath: /public/exampleTokenReceiver,
+                    metadataPath: /public/exampleTokenVault,
+                    receiverLinkedType: Type<&ExampleToken.Vault>(),
+                    metadataLinkedType: Type<&ExampleToken.Vault>(),
+                    createEmptyVaultFunction: (fun(): @{FungibleToken.Vault} {
+                        return <-ExampleToken.createEmptyVault(vaultType: Type<@ExampleToken.Vault>())
+                    })
+                )
+            case Type<FungibleTokenMetadataViews.TotalSupply>():
+                return FungibleTokenMetadataViews.TotalSupply(
+                    totalSupply: ExampleToken.totalSupply
+                )
+        }
+        return nil
     }
 
     /// Vault
@@ -67,58 +106,11 @@ access(all) contract ExampleToken: FungibleToken {
         }
 
         access(all) view fun getViews(): [Type] {
-            return [
-                Type<FungibleTokenMetadataViews.FTView>(),
-                Type<FungibleTokenMetadataViews.FTDisplay>(),
-                Type<FungibleTokenMetadataViews.FTVaultData>(),
-                Type<FungibleTokenMetadataViews.TotalSupply>()
-            ]
+            return ExampleToken.getContractViews(resourceType: nil)
         }
 
         access(all) fun resolveView(_ view: Type): AnyStruct? {
-            switch view {
-                case Type<FungibleTokenMetadataViews.FTView>():
-                    return FungibleTokenMetadataViews.FTView(
-                        ftDisplay: self.resolveView(Type<FungibleTokenMetadataViews.FTDisplay>()) as! FungibleTokenMetadataViews.FTDisplay?,
-                        ftVaultData: self.resolveView(Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-                    )
-                case Type<FungibleTokenMetadataViews.FTDisplay>():
-                    let media = MetadataViews.Media(
-                            file: MetadataViews.HTTPFile(
-                            url: "https://assets.website-files.com/5f6294c0c7a8cdd643b1c820/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.svg"
-                        ),
-                        mediaType: "image/svg+xml"
-                    )
-                    let medias = MetadataViews.Medias([media])
-                    return FungibleTokenMetadataViews.FTDisplay(
-                        name: "Example Fungible Token",
-                        symbol: "EFT",
-                        description: "This fungible token is used as an example to help you develop your next FT #onFlow.",
-                        externalURL: MetadataViews.ExternalURL("https://example-ft.onflow.org"),
-                        logos: medias,
-                        socials: {
-                            "twitter": MetadataViews.ExternalURL("https://twitter.com/flow_blockchain")
-                        }
-                    )
-                case Type<FungibleTokenMetadataViews.FTVaultData>():
-                    let vaultRef = ExampleToken.account.storage.borrow<&ExampleToken.Vault>(from: self.storagePath)
-                        ?? panic("Could not borrow a reference to the stored vault")
-                    return FungibleTokenMetadataViews.FTVaultData(
-                        storagePath: self.storagePath,
-                        receiverPath: self.receiverPath,
-                        metadataPath: self.publicPath,
-                        receiverLinkedType: Type<&{FungibleToken.Receiver}>(),
-                        metadataLinkedType: Type<&ExampleToken.Vault>(),
-                        createEmptyVaultFunction: (fun(): @{FungibleToken.Vault} {
-                            return <-vaultRef.createEmptyVault()
-                        })
-                    )
-                case Type<FungibleTokenMetadataViews.TotalSupply>():
-                    return FungibleTokenMetadataViews.TotalSupply(
-                        totalSupply: ExampleToken.totalSupply
-                    )
-            }
-            return nil
+            return ExampleToken.resolveContractView(resourceType: nil, viewType: view)
         }
 
         /// getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
@@ -221,9 +213,9 @@ access(all) contract ExampleToken: FungibleToken {
         // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
         // and the `balance` method through the `Balance` interface
         //
-        let exampleTokenCap = self.account.capabilities.storage.issue<&{FungibleToken.Balance, FungibleToken.Vault}>(vault.storagePath)
+        let exampleTokenCap = self.account.capabilities.storage.issue<&ExampleToken.Vault>(vault.storagePath)
         self.account.capabilities.publish(exampleTokenCap, at: vault.publicPath)
-        let receiverCap = self.account.capabilities.storage.issue<&{FungibleToken.Receiver}>(vault.storagePath)
+        let receiverCap = self.account.capabilities.storage.issue<&ExampleToken.Vault>(vault.storagePath)
         self.account.capabilities.publish(receiverCap, at: vault.receiverPath)
 
         self.account.storage.save(<-vault, to: /storage/exampleTokenVault)

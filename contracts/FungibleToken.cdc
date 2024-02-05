@@ -62,8 +62,6 @@ access(all) contract interface FungibleToken: ViewResolver {
     ///
     access(all) resource interface Balance {
         access(all) var balance: UFix64
-        access(all) view fun getViews(): [Type]
-        access(all) fun resolveView(_ view: Type): AnyStruct?
     }
 
     /// Provider
