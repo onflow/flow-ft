@@ -262,7 +262,7 @@ func TestTokenExternalTransfers(t *testing.T) {
 
 	t.Run("Should be able to transfer tokens with the generic transfer transaction", func(t *testing.T) {
 
-		script := templates.GenerateTransferGenericVaultScript(env)
+		script := templates.GenerateTransferGenericVaultScript(env.FungibleTokenAddress)
 
 		tx := createTxWithTemplateAndAuthorizer(b, script, joshAddress)
 

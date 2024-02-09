@@ -6,6 +6,8 @@ import "FungibleTokenMetadataViews"
 import "ExampleToken"
 import "FungibleToken"
 
+access(all) let admin = Test.getAccount(0x0000000000000007)
+
 /* Test Setup */
 
 access(all) fun setup() {
@@ -27,9 +29,18 @@ access(all) fun testSetupAccountUsingFTView() {
     setupExampleToken(alice)
     let aliceBalance = getExampleTokenBalance(alice)
     txExecutor("metadata/setup_account_from_vault_reference.cdc", [bob], [alice.address, /public/exampleTokenVault], nil, nil)
-    let bobBalance = getExampleTokenBalance(alice)
+    let bobBalance = getExampleTokenBalance(bob)
 
     Test.assertEqual(0.0, aliceBalance)
+    Test.assertEqual(0.0, bobBalance)
+}
+
+access(all) fun testSetupAccountUsingContractAddressAndName() {
+    let bob = Test.createAccount()
+
+    txExecutor("metadata/setup_account_from_address.cdc", [bob], [admin.address, "ExampleToken"], nil, nil)
+    let bobBalance = getExampleTokenBalance(bob)
+
     Test.assertEqual(0.0, bobBalance)
 }
 
