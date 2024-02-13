@@ -1,14 +1,13 @@
 package test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	"github.com/onflow/cadence"
 	jsoncdc "github.com/onflow/cadence/encoding/json"
-	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
 
@@ -45,7 +44,7 @@ func TestTokenSetupAccount(t *testing.T) {
 	exampleTokenAccountKey, _ := accountKeys.NewWithSigner()
 
 	env := templates.Environment{}
-	_ = deployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey}, &env)
+	exampleTokenAddr := deployTokenContracts(b, adapter, t, []*flow.AccountKey{exampleTokenAccountKey}, &env)
 
 	t.Run("Should be able to create empty Vault that doesn't affect supply", func(t *testing.T) {
 		joshAddress, _, _ := createAccountWithVault(b, adapter, t,
@@ -74,6 +73,33 @@ func TestTokenSetupAccount(t *testing.T) {
 			jsoncdc.MustEncode(cadence.Address(joshAddress)),
 		})
 		assert.Equal(t, CadenceUFix64("1000.0"), supply)
+	})
+
+	t.Run("Should be able to create empty Vault with the generic setup transaction", func(t *testing.T) {
+		newAccountKey, newSigner := accountKeys.NewWithSigner()
+		newAddress, _ := adapter.CreateAccount(context.Background(), []*flow.AccountKey{newAccountKey}, nil)
+
+		serviceSigner, _ := b.ServiceKey().Signer()
+
+		// Setup new account with an empty vault
+		script := templates.GenerateSetupAccountFromAddressScript(env.FungibleTokenAddress, env.FungibleTokenMetadataViewsAddress)
+		tx := createTxWithTemplateAndAuthorizer(b, script, newAddress)
+
+		tx.AddArgument(cadence.NewAddress(exampleTokenAddr))
+		tx.AddArgument(cadence.String("ExampleToken"))
+
+		signAndSubmit(
+			t, b, tx,
+			[]flow.Address{
+				b.ServiceKey().Address,
+				newAddress,
+			},
+			[]crypto.Signer{
+				serviceSigner,
+				newSigner,
+			},
+			false,
+		)
 	})
 }
 
@@ -186,94 +212,17 @@ func TestTokenExternalTransfers(t *testing.T) {
 		assert.Equal(t, CadenceUFix64("1000.0"), supply)
 	})
 
-	t.Run("Should be able to transfer to multiple accounts ", func(t *testing.T) {
+	t.Run("Should be able to transfer tokens with the generic transfer transactions", func(t *testing.T) {
 
-		recipient1Address := cadence.Address(joshAddress)
-		recipient1Amount := CadenceUFix64("300.0")
-
-		pair := cadence.KeyValuePair{Key: recipient1Address, Value: recipient1Amount}
-		recipientPairs := make([]cadence.KeyValuePair, 1)
-		recipientPairs[0] = pair
-
-		script := templates.GenerateTransferManyAccountsScript(env)
-
-		tx := flow.NewTransaction().
-			SetScript(script).
-			SetGasLimit(100).
-			SetProposalKey(
-				b.ServiceKey().Address,
-				b.ServiceKey().Index,
-				b.ServiceKey().SequenceNumber,
-			).
-			SetPayer(b.ServiceKey().Address).
-			AddAuthorizer(exampleTokenAddr)
-
-		_ = tx.AddArgument(cadence.NewDictionary(recipientPairs))
-
-		signAndSubmit(
-			t, b, tx,
-			[]flow.Address{
-				b.ServiceKey().Address,
-				exampleTokenAddr,
-			},
-			[]crypto.Signer{
-				serviceSigner,
-				exampleTokenSigner,
-			},
-			false,
-		)
-
-		// Assert that the vaults' balances are correct
-		// Sender vault
-		script = templates.GenerateInspectVaultScript(env)
-		result, err := b.ExecuteScript(
-			script,
-			[][]byte{
-				jsoncdc.MustEncode(cadence.Address(exampleTokenAddr)),
-			},
-		)
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
-		balance := result.Value
-		assert.Equal(t, CadenceUFix64("400.0"), balance)
-
-		// Receiver Vault
-		script = templates.GenerateInspectVaultScript(env)
-		result, err = b.ExecuteScript(
-			script,
-			[][]byte{
-				jsoncdc.MustEncode(cadence.Address(joshAddress)),
-			},
-		)
-		require.NoError(t, err)
-		if !assert.True(t, result.Succeeded()) {
-			t.Log(result.Error.Error())
-		}
-		balance = result.Value
-		assert.Equal(t, CadenceUFix64("600.0"), balance)
-
-		// Supply should not have changed
-		script = templates.GenerateInspectSupplyScript(env)
-		supply := executeScriptAndCheck(t, b, script, nil)
-		assert.Equal(t, CadenceUFix64("1000.0"), supply)
-	})
-
-	t.Run("Should be able to transfer tokens with the generic transfer transaction", func(t *testing.T) {
-
-		script := templates.GenerateTransferGenericVaultScript(env.FungibleTokenAddress)
+		script := templates.GenerateTransferGenericVaultWithPathsScript(env.FungibleTokenAddress)
 
 		tx := createTxWithTemplateAndAuthorizer(b, script, joshAddress)
 
 		_ = tx.AddArgument(CadenceUFix64("300.0"))
 		_ = tx.AddArgument(cadence.NewAddress(exampleTokenAddr))
 
-		storagePath := cadence.Path{Domain: common.PathDomainStorage, Identifier: "exampleTokenVault"}
-		publicPath := cadence.Path{Domain: common.PathDomainPublic, Identifier: "exampleTokenReceiver"}
-
-		_ = tx.AddArgument(storagePath)
-		_ = tx.AddArgument(publicPath)
+		tx.AddArgument(cadence.String("exampleTokenVault"))
+		tx.AddArgument(cadence.String("exampleTokenReceiver"))
 
 		signAndSubmit(
 			t, b, tx,
@@ -291,6 +240,48 @@ func TestTokenExternalTransfers(t *testing.T) {
 		// Assert that the vaults' balances are correct
 		script = templates.GenerateInspectVaultScript(env)
 		result := executeScriptAndCheck(t, b,
+			script,
+			[][]byte{
+				jsoncdc.MustEncode(cadence.Address(exampleTokenAddr)),
+			},
+		)
+		assertEqual(t, CadenceUFix64("1000.0"), result)
+
+		script = templates.GenerateInspectVaultScript(env)
+		result = executeScriptAndCheck(t, b,
+			script,
+			[][]byte{
+				jsoncdc.MustEncode(cadence.Address(joshAddress)),
+			},
+		)
+		assertEqual(t, CadenceUFix64("0.0"), result)
+
+		script = templates.GenerateTransferGenericVaultWithAddressScript(env.FungibleTokenAddress, env.FungibleTokenMetadataViewsAddress)
+
+		tx = createTxWithTemplateAndAuthorizer(b, script, exampleTokenAddr)
+
+		_ = tx.AddArgument(CadenceUFix64("300.0"))
+		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
+
+		tx.AddArgument(cadence.NewAddress(exampleTokenAddr))
+		tx.AddArgument(cadence.String("ExampleToken"))
+
+		signAndSubmit(
+			t, b, tx,
+			[]flow.Address{
+				b.ServiceKey().Address,
+				exampleTokenAddr,
+			},
+			[]crypto.Signer{
+				serviceSigner,
+				exampleTokenSigner,
+			},
+			false,
+		)
+
+		// Assert that the vaults' balances are correct
+		script = templates.GenerateInspectVaultScript(env)
+		result = executeScriptAndCheck(t, b,
 			script,
 			[][]byte{
 				jsoncdc.MustEncode(cadence.Address(exampleTokenAddr)),
