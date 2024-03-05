@@ -1,7 +1,6 @@
 import FungibleToken from "FungibleToken"
 import MetadataViews from "MetadataViews"
 import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
-import ViewResolver from "ViewResolver"
 
 access(all) contract ExampleToken: FungibleToken {
 

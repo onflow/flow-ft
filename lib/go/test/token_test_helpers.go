@@ -47,7 +47,7 @@ func deployTokenContracts(
 	env.ViewResolverAddress = resolverAddress.Hex()
 
 	// Deploy the NonFungibleToken contract
-	nonFungibleTokenCode := nftcontracts.NonFungibleToken(resolverAddress)
+	nonFungibleTokenCode := nftcontracts.NonFungibleToken(env.ViewResolverAddress)
 	nftAddress, err := adapter.CreateAccount(context.Background(),
 		nil,
 		[]sdktemplates.Contract{
@@ -87,7 +87,7 @@ func deployTokenContracts(
 	env.FungibleTokenAddress = fungibleAddr.Hex()
 
 	// Deploy the MetadataViews contract
-	metadataViewsCode := nftcontracts.MetadataViews(fungibleAddr, nftAddress, resolverAddress)
+	metadataViewsCode := nftcontracts.MetadataViews(env.FungibleTokenAddress, nftAddress.Hex(), env.ViewResolverAddress)
 	metadataViewsAddr, err := adapter.CreateAccount(context.Background(),
 		nil,
 		[]sdktemplates.Contract{
@@ -115,7 +115,7 @@ func deployTokenContracts(
 	env.FungibleTokenMetadataViewsAddress = fungibleMetadataViewsAddr.Hex()
 
 	// Deploy the ExampleToken contract
-	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String(), metadataViewsAddr.String(), fungibleMetadataViewsAddr.String(), resolverAddress.String())
+	exampleTokenCode := contracts.ExampleToken(fungibleAddr.String(), metadataViewsAddr.String(), fungibleMetadataViewsAddr.String())
 	tokenAddr, err = adapter.CreateAccount(context.Background(),
 		key,
 		[]sdktemplates.Contract{

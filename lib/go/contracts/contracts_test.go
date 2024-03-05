@@ -16,7 +16,7 @@ func TestFungibleTokenContract(t *testing.T) {
 }
 
 func TestExampleTokenContract(t *testing.T) {
-	contract := contracts.ExampleToken(addrA, addrA, addrA, addrA)
+	contract := contracts.ExampleToken(addrA, addrA, addrA)
 	assert.NotNil(t, contract)
 	assert.Contains(t, string(contract), addrA)
 }

@@ -11,7 +11,7 @@ transaction(contractAddress: Address, contractName: String) {
     prepare(signer: auth(SaveValue, Capabilities) &Account) {
         // Borrow a reference to the vault stored on the passed account at the passed publicPath
         let resolverRef = getAccount(contractAddress)
-            .contracts.borrow<&FungibleToken>(name: contractName)
+            .contracts.borrow<&{FungibleToken}>(name: contractName)
             ?? panic("Could not borrow a reference to the fungible token contract")
 
         // Use that reference to retrieve the FTView 

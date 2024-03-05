@@ -64,13 +64,12 @@ func FungibleTokenSwitchboard(fungibleTokenAddr string) []byte {
 // ExampleToken returns the second version of the ExampleToken contract.
 //
 // The returned contract will import the FungibleToken interface from the specified address.
-func ExampleToken(fungibleTokenAddr, metadataViewsAddr, ftMetadataViewsAddr, viewResolverAddr string) []byte {
+func ExampleToken(fungibleTokenAddr, metadataViewsAddr, ftMetadataViewsAddr string) []byte {
 	code := assets.MustAssetString(filenameExampleToken)
 
 	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
 	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)
 	code = placeholderFTMetadataViews.ReplaceAllString(code, "0x"+ftMetadataViewsAddr)
-	code = placeholderViewResolver.ReplaceAllString(code, "0x"+viewResolverAddr)
 
 	return []byte(code)
 }
