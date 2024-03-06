@@ -2,10 +2,10 @@
 // anyone to add a Vault resource to their account so that
 // they can use the exampleToken
 
-import FungibleToken from "FungibleToken"
-import ExampleToken from "ExampleToken"
-import ViewResolver from "ViewResolver"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import "FungibleToken"
+import "ExampleToken"
+import "ViewResolver"
+import "FungibleTokenMetadataViews"
 
 transaction () {
 

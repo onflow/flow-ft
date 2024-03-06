@@ -1,5 +1,5 @@
-import FungibleToken from "FungibleToken"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import "FungibleToken"
+import "FungibleTokenMetadataViews"
 
 /// This transaction is what an account would run
 /// to set itself up to manage fungible tokens. This function

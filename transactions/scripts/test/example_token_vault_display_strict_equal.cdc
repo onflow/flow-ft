@@ -1,7 +1,7 @@
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
-import MetadataViews from "MetadataViews"
-import ViewResolver from "ViewResolver"
-import ExampleToken from "ExampleToken"
+import "FungibleTokenMetadataViews"
+import "MetadataViews"
+import "ViewResolver"
+import "ExampleToken"
 
 /// Test helper script to validate ExampleToken serves FTDisplay as expected
 ///

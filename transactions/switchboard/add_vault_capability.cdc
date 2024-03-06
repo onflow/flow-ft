@@ -1,7 +1,7 @@
-import FungibleToken from "FungibleToken"
-import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
-import ExampleToken from "ExampleToken"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import "FungibleToken"
+import "FungibleTokenSwitchboard"
+import "ExampleToken"
+import "FungibleTokenMetadataViews"
 
 /// This transaction is a template for a transaction that could be used by anyone to add a new fungible token vault
 /// capability to their switchboard resource

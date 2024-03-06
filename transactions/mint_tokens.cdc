@@ -1,6 +1,6 @@
-import FungibleToken from "FungibleToken"
-import ExampleToken from "ExampleToken"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import "FungibleToken"
+import "ExampleToken"
+import "FungibleTokenMetadataViews"
 
 /// This transaction is what the minter Account uses to mint new tokens
 /// They provide the recipient address and amount to mint, and the tokens

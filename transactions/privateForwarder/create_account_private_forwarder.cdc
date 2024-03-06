@@ -1,7 +1,7 @@
-import FungibleToken from "FungibleToken"
-import ExampleToken from "ExampleToken"
-import PrivateReceiverForwarder from "PrivateReceiverForwarder"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import "FungibleToken"
+import "ExampleToken"
+import "PrivateReceiverForwarder"
+import "FungibleTokenMetadataViews"
 
 /// This transaction is used to create a user's Flow account with a private forwarder
 

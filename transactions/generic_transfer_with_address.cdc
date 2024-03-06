@@ -1,4 +1,4 @@
-import FungibleToken from "FungibleToken"
+import "FungibleToken"
 import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
 
 /// Can pass in any contract address and name to transfer a token from that contract

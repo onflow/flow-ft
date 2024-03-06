@@ -1,6 +1,15 @@
 # Fungible Token Standard
 
-This is a description of the Flow standard for fungible token contracts.  It is meant to contain the minimum requirements to implement a safe, secure, easy to understand, and easy to use fungible token contract. It also includes an example implementation to show how a concrete smart contract would actually implement the interface.
+This is a description of the Flow standard for fungible token contracts. 
+It is meant to contain the minimum requirements to implement a safe, secure, easy to understand,
+and easy to use fungible token contract.
+It also includes an example implementation to show how a 
+concrete smart contract would actually implement the interface.
+
+The version of the contracts in the `master` branch is the
+Cadence 1.0 version of the contracts and is not the same
+as the ones that are currently deployed to testnet and mainnet.
+See the `cadence-0.42` branch for the currently deployed versions.
 
 ## What is Flow?
 

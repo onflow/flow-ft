@@ -1,6 +1,6 @@
-import FungibleToken from "FungibleToken"
-import ExampleToken from "ExampleToken"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import "FungibleToken"
+import "ExampleToken"
+import "FungibleTokenMetadataViews"
 
 /// Transfers tokens to a list of addresses specified in the `addressAmountMap` parameter
 

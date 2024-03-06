@@ -1,7 +1,7 @@
-import ExampleToken from "ExampleToken"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
-import FungibleToken from "FungibleToken"
-import ViewResolver from "ViewResolver"
+import "ExampleToken"
+import "FungibleTokenMetadataViews"
+import "FungibleToken"
+import "ViewResolver"
 
 access(all) fun main(address: Address): FungibleTokenMetadataViews.FTView {
     let account = getAccount(address)

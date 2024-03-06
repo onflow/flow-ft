@@ -1,4 +1,4 @@
-import FungibleToken from "FungibleToken"
+import "FungibleToken"
 
 /// Can pass in any storage path and receiver path identifier instead of just the default.
 /// This lets you choose the token you want to send as well the capability you want to send it to.

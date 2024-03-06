@@ -1,7 +1,7 @@
-import FungibleToken from "FungibleToken"
-import ExampleToken from "ExampleToken"
-import PrivateReceiverForwarder from "PrivateReceiverForwarder"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import "FungibleToken"
+import "ExampleToken"
+import "PrivateReceiverForwarder"
+import "FungibleTokenMetadataViews"
 
 /// This transaction transfers to many addresses through their private receivers
 

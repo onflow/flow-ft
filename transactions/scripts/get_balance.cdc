@@ -1,9 +1,9 @@
 // This script reads the balance field
 // of an account's ExampleToken Balance
 
-import FungibleToken from "FungibleToken"
-import ExampleToken from "ExampleToken"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import "FungibleToken"
+import "ExampleToken"
+import "FungibleTokenMetadataViews"
 
 access(all) fun main(address: Address): UFix64 {
     let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?

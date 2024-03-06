@@ -1,6 +1,6 @@
-import FungibleToken from "FungibleToken"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
-import ViewResolver from "ViewResolver"
+import "FungibleToken"
+import "FungibleTokenMetadataViews"
+import "ViewResolver"
 
 /// This transaction is what an account would run
 /// to set itself up to manage fungible tokens. This function

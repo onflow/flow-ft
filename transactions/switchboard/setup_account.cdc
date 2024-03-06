@@ -1,5 +1,5 @@
-import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
-import FungibleToken from "FungibleToken"
+import "FungibleTokenSwitchboard"
+import "FungibleToken"
 
 // This transaction is a template for a transaction that could be used by 
 // anyone to to add a Switchboard resource to their account so that they can

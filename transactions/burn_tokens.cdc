@@ -1,7 +1,7 @@
-import FungibleToken from "FungibleToken"
-import ExampleToken from "ExampleToken"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
-import Burner from "Burner"
+import "FungibleToken"
+import "ExampleToken"
+import "FungibleTokenMetadataViews"
+import "Burner"
 
 /// This transaction is a template for a transaction that could be used by the admin account to burn tokens from their
 /// stored Vault

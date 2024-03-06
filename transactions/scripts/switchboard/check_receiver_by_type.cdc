@@ -1,5 +1,5 @@
-import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
-import ExampleToken from "ExampleToken"
+import "FungibleTokenSwitchboard"
+import "ExampleToken"
 
 access(all) fun main(switchboard: Address): Bool {
 let switchboardRef = getAccount(switchboard)

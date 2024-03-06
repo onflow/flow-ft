@@ -1,6 +1,6 @@
-import FungibleToken from "FungibleToken"
-import ExampleToken from "ExampleToken"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import "FungibleToken"
+import "ExampleToken"
+import "FungibleTokenMetadataViews"
 
 /// This transaction is a template for a transaction that could be used by anyone to send tokens to another account
 /// through a switchboard, as long as they have set up their switchboard and have add the proper capability to it

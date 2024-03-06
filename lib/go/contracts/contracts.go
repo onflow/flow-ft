@@ -18,6 +18,12 @@ var (
 	placeholderFTMetadataViews = regexp.MustCompile(`"FungibleTokenMetadataViews"`)
 	placeholderViewResolver    = regexp.MustCompile(`"ViewResolver"`)
 	placeholderBurner          = regexp.MustCompile(`"Burner"`)
+	exampleTokenImport         = "ExampleToken from "
+	metadataViewsImport        = "MetadataViews from "
+	ftMetadataViewsImport      = "FungibleTokenMetadataViews from "
+	burnerImport               = "Burner from "
+	fungibleTokenImport        = "FungibleToken from "
+	viewResolverImport         = "ViewResolver from "
 )
 
 const (
@@ -35,8 +41,8 @@ const (
 func FungibleToken(resolverAddr, burnerAddr string) []byte {
 	code := assets.MustAssetString(filenameFungibleToken)
 
-	code = placeholderViewResolver.ReplaceAllString(code, "0x"+resolverAddr)
-	code = placeholderBurner.ReplaceAllString(code, "0x"+burnerAddr)
+	code = placeholderViewResolver.ReplaceAllString(code, viewResolverImport+"0x"+resolverAddr)
+	code = placeholderBurner.ReplaceAllString(code, burnerImport+"0x"+burnerAddr)
 
 	return []byte(code)
 }
@@ -45,9 +51,9 @@ func FungibleToken(resolverAddr, burnerAddr string) []byte {
 func FungibleTokenMetadataViews(fungibleTokenAddr, metadataViewsAddr, viewResolverAddr string) []byte {
 	code := assets.MustAssetString(filenameFTMetadataViews)
 
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
-	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)
-	code = placeholderViewResolver.ReplaceAllString(code, "0x"+viewResolverAddr)
+	code = placeholderFungibleToken.ReplaceAllString(code, fungibleTokenImport+"0x"+fungibleTokenAddr)
+	code = placeholderMetadataViews.ReplaceAllString(code, metadataViewsImport+"0x"+metadataViewsAddr)
+	code = placeholderViewResolver.ReplaceAllString(code, viewResolverImport+"0x"+viewResolverAddr)
 
 	return []byte(code)
 }
@@ -56,7 +62,7 @@ func FungibleTokenMetadataViews(fungibleTokenAddr, metadataViewsAddr, viewResolv
 func FungibleTokenSwitchboard(fungibleTokenAddr string) []byte {
 	code := assets.MustAssetString(filenameFTSwitchboard)
 
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = placeholderFungibleToken.ReplaceAllString(code, fungibleTokenImport+"0x"+fungibleTokenAddr)
 
 	return []byte(code)
 }
@@ -67,9 +73,9 @@ func FungibleTokenSwitchboard(fungibleTokenAddr string) []byte {
 func ExampleToken(fungibleTokenAddr, metadataViewsAddr, ftMetadataViewsAddr string) []byte {
 	code := assets.MustAssetString(filenameExampleToken)
 
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
-	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)
-	code = placeholderFTMetadataViews.ReplaceAllString(code, "0x"+ftMetadataViewsAddr)
+	code = placeholderFungibleToken.ReplaceAllString(code, fungibleTokenImport+"0x"+fungibleTokenAddr)
+	code = placeholderMetadataViews.ReplaceAllString(code, metadataViewsImport+"0x"+metadataViewsAddr)
+	code = placeholderFTMetadataViews.ReplaceAllString(code, ftMetadataViewsImport+"0x"+ftMetadataViewsAddr)
 
 	return []byte(code)
 }
@@ -93,9 +99,9 @@ func CustomToken(fungibleTokenAddr,
 
 	code := assets.MustAssetString(filenameExampleToken)
 
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
-	code = placeholderMetadataViews.ReplaceAllString(code, "0x"+metadataViewsAddr)
-	code = placeholderFTMetadataViews.ReplaceAllString(code, "0x"+ftMetadataViewsAddr)
+	code = placeholderFungibleToken.ReplaceAllString(code, fungibleTokenImport+"0x"+fungibleTokenAddr)
+	code = placeholderMetadataViews.ReplaceAllString(code, metadataViewsImport+"0x"+metadataViewsAddr)
+	code = placeholderFTMetadataViews.ReplaceAllString(code, ftMetadataViewsImport+"0x"+ftMetadataViewsAddr)
 
 	code = strings.ReplaceAll(
 		code,
@@ -124,7 +130,7 @@ func CustomToken(fungibleTokenAddr,
 func TokenForwarding(fungibleTokenAddr string) []byte {
 	code := assets.MustAssetString(filenameTokenForwarding)
 
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = placeholderFungibleToken.ReplaceAllString(code, fungibleTokenImport+"0x"+fungibleTokenAddr)
 
 	return []byte(code)
 }
@@ -135,7 +141,7 @@ func TokenForwarding(fungibleTokenAddr string) []byte {
 func CustomTokenForwarding(fungibleTokenAddr, tokenName, storageName string) []byte {
 	code := assets.MustAssetString(filenameTokenForwarding)
 
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = placeholderFungibleToken.ReplaceAllString(code, fungibleTokenImport+"0x"+fungibleTokenAddr)
 
 	code = strings.ReplaceAll(
 		code,
@@ -155,7 +161,7 @@ func CustomTokenForwarding(fungibleTokenAddr, tokenName, storageName string) []b
 func PrivateReceiverForwarder(fungibleTokenAddr string) []byte {
 	code := assets.MustAssetString(filenamePrivateForwarder)
 
-	code = placeholderFungibleToken.ReplaceAllString(code, "0x"+fungibleTokenAddr)
+	code = placeholderFungibleToken.ReplaceAllString(code, fungibleTokenImport+"0x"+fungibleTokenAddr)
 
 	return []byte(code)
 }

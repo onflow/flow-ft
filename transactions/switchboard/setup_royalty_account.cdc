@@ -1,7 +1,7 @@
-import FungibleToken from "FungibleToken"
-import FungibleTokenSwitchboard from "FungibleTokenSwitchboard"
-import FlowToken from "FlowToken"
-import FiatToken from "FiatToken"
+import "FungibleToken"
+import "FungibleTokenSwitchboard"
+import "FlowToken"
+import "FiatToken"
 
 
 // This transaction is a template for a transaction that could be used by 

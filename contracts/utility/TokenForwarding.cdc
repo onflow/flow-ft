@@ -14,7 +14,7 @@ their tokens to.
 
 */
 
-import FungibleToken from "FungibleToken"
+import "FungibleToken"
 
 access(all) contract TokenForwarding {
 

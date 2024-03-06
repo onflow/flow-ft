@@ -24,6 +24,15 @@ var (
 	placeholderFTMetadataViews    = "\"FungibleTokenMetadataViews\""
 	placeholderViewResolver       = "\"ViewResolver\""
 	placeholderBurner             = "\"Burner\""
+	exampleTokenImport            = "ExampleToken from "
+	metadataViewsImport           = "MetadataViews from "
+	ftMetadataViewsImport         = "FungibleTokenMetadataViews from "
+	burnerImport                  = "Burner from "
+	fungibleTokenImport           = "FungibleToken from "
+	viewResolverImport            = "ViewResolver from "
+	switchboardImport             = "FungibleTokenSwitchboard from "
+	forwardingImport              = "TokenForwarding from "
+	privateForwardingImport       = "PrivateReceiverForwarder from "
 )
 
 type Environment struct {
@@ -56,55 +65,55 @@ func ReplaceAddresses(code string, env Environment) string {
 	code = strings.ReplaceAll(
 		code,
 		placeholderFungibleToken,
-		withHexPrefix(env.FungibleTokenAddress),
+		fungibleTokenImport+withHexPrefix(env.FungibleTokenAddress),
 	)
 
 	code = strings.ReplaceAll(
 		code,
 		placeholderExampleToken,
-		withHexPrefix(env.ExampleTokenAddress),
+		exampleTokenImport+withHexPrefix(env.ExampleTokenAddress),
 	)
 
 	code = strings.ReplaceAll(
 		code,
 		placeholderForwarding,
-		withHexPrefix(env.TokenForwardingAddress),
+		forwardingImport+withHexPrefix(env.TokenForwardingAddress),
 	)
 
 	code = strings.ReplaceAll(
 		code,
 		placeholderPrivateForwardAddr,
-		withHexPrefix(env.PrivateForwardingAddress),
+		privateForwardingImport+withHexPrefix(env.PrivateForwardingAddress),
 	)
 
 	code = strings.ReplaceAll(
 		code,
 		placeholderMetadataViews,
-		withHexPrefix(env.MetadataViewsAddress),
+		metadataViewsImport+withHexPrefix(env.MetadataViewsAddress),
 	)
 
 	code = strings.ReplaceAll(
 		code,
 		placeholderFTMetadataViews,
-		withHexPrefix(env.FungibleTokenMetadataViewsAddress),
+		ftMetadataViewsImport+withHexPrefix(env.FungibleTokenMetadataViewsAddress),
 	)
 
 	code = strings.ReplaceAll(
 		code,
 		placeholderViewResolver,
-		withHexPrefix(env.ViewResolverAddress),
+		viewResolverImport+withHexPrefix(env.ViewResolverAddress),
 	)
 
 	code = strings.ReplaceAll(
 		code,
 		placeholderBurner,
-		withHexPrefix(env.BurnerAddress),
+		burnerImport+withHexPrefix(env.BurnerAddress),
 	)
 
 	code = strings.ReplaceAll(
 		code,
 		placeholderSwitchboard,
-		withHexPrefix(env.SwitchboardAddress),
+		switchboardImport+withHexPrefix(env.SwitchboardAddress),
 	)
 
 	// storageName := MakeFirstLowerCase(tokenName)

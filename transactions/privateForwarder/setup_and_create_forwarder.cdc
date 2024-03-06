@@ -1,8 +1,8 @@
 
-import FungibleToken from "FungibleToken"
-import ExampleToken from "ExampleToken"
-import PrivateReceiverForwarder from "PrivateReceiverForwarder"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import "FungibleToken"
+import "ExampleToken"
+import "PrivateReceiverForwarder"
+import "FungibleTokenMetadataViews"
 
 /// This transaction adds a Vault, a private receiver forwarder
 /// a balance capability, and a public capability for the receiver

@@ -31,8 +31,8 @@ to the Provider interface.
 
 */
 
-import ViewResolver from "ViewResolver"
-import Burner from "Burner"
+import "ViewResolver"
+import "Burner"
 
 /// FungibleToken
 ///

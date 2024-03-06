@@ -23,10 +23,10 @@ Steps to set up accounts with token forwarder:
     getting the Receiver from the account that is the recipient.
 */
 
-import FungibleToken from "FungibleToken"
-import ExampleToken from "ExampleToken"
-import TokenForwarding from "TokenForwarding"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import "FungibleToken"
+import "ExampleToken"
+import "TokenForwarding"
+import "FungibleTokenMetadataViews"
 
 transaction(receiver: Address) {
 
