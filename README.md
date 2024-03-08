@@ -37,12 +37,13 @@ The `FungibleToken`, `FungibleTokenMetadataViews`, and `FungibleTokenSwitchboard
 on various networks. You can import them in your contracts from these addresses.
 There is no need to deploy them yourself.
 
-| Network                      | Contract Address     |
-| ---------------------------- | -------------------- |
-| Emulator                     | `0xee82856bf20e2aa6` |
-| Testnet/Previewnet/Crescendo | `0x9a0766d93b6608b7` |
-| Sandboxnet                   | `0xe20612a0776ca4bf` |
-| Mainnet                      | `0xf233dcee88fe0abe` |
+| Network           | Contract Address     |
+| ----------------- | -------------------- |
+| Emulator          | `0xee82856bf20e2aa6` |
+| PreviewNet        | `0xa0225e7000ac82a9` |
+| Testnet/Crescendo | `0x9a0766d93b6608b7` |
+| Sandboxnet        | `0xe20612a0776ca4bf` |
+| Mainnet           | `0xf233dcee88fe0abe` |
 
 The `Burner` contract is also deployed to these addresses, but should not be used until after the Cadence 1.0 network upgrade.
 
