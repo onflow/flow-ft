@@ -157,7 +157,7 @@ fun testTransferTokenAmountGreaterThanBalance() {
 
 access(all)
 fun testBurnTokens() {
-    let txResult = executeTransaction(
+    var txResult = executeTransaction(
         "../transactions/burn_tokens.cdc",
         [50.0],
         admin
@@ -172,15 +172,63 @@ fun testBurnTokens() {
     Test.assertEqual(50.0, tokensBurnedEvent.amount)
     Test.assertEqual("A.0000000000000007.ExampleToken.Vault", tokensBurnedEvent.type)
 
-    let scriptResult = executeScript(
+    var scriptResult = executeScript(
         "../transactions/scripts/get_balance.cdc",
         [admin.address]
     )
     Test.expect(scriptResult, Test.beSucceeded())
 
     // The admin should now have the initial supply of 1000.0 tokens
-    let balance = scriptResult.returnValue! as! UFix64
+    var balance = scriptResult.returnValue! as! UFix64
     Test.assertEqual(1000.0, balance)
+
+    txResult = executeTransaction(
+        "transactions/burn_array.cdc",
+        [10.0, 5],
+        admin
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
+    scriptResult = executeScript(
+        "../transactions/scripts/get_supply.cdc",
+        []
+    )
+    Test.expect(scriptResult, Test.beSucceeded())
+
+    var totalSupply = scriptResult.returnValue! as! UFix64
+    Test.assertEqual(1150.0, totalSupply)
+
+        txResult = executeTransaction(
+        "transactions/burn_dict.cdc",
+        [10.0, 5],
+        admin
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
+    scriptResult = executeScript(
+        "../transactions/scripts/get_supply.cdc",
+        []
+    )
+    Test.expect(scriptResult, Test.beSucceeded())
+
+    totalSupply = scriptResult.returnValue! as! UFix64
+    Test.assertEqual(1100.0, totalSupply)
+
+    txResult = executeTransaction(
+        "transactions/burn_optional.cdc",
+        [],
+        admin
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
+    scriptResult = executeScript(
+        "../transactions/scripts/get_supply.cdc",
+        []
+    )
+    Test.expect(scriptResult, Test.beSucceeded())
+
+    totalSupply = scriptResult.returnValue! as! UFix64
+    Test.assertEqual(200.0, totalSupply)
 }
 
 access(all)

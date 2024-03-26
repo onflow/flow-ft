@@ -20,7 +20,13 @@ access(all) contract Burner {
     /// burn is a global method which will destroy any resource it is given.
     /// If the provided resource implements the Burnable interface,
     /// it will call the burnCallback method and then destroy afterwards.
-    access(all) fun burn(_ r: @AnyResource) {
+    access(all) fun burn(_ toBurn: @AnyResource?) {
+        if toBurn == nil {
+            destroy toBurn
+            return
+        }
+        let r <- toBurn!
+
         if let s <- r as? @{Burnable} {
             s.burnCallback()
             destroy s
