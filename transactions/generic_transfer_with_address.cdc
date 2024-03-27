@@ -1,5 +1,5 @@
 import "FungibleToken"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
+import "FungibleTokenMetadataViews"
 
 /// Can pass in any contract address and name to transfer a token from that contract
 /// This lets you choose the token you want to send

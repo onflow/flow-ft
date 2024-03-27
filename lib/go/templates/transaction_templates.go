@@ -44,13 +44,13 @@ func GenerateSetupAccountFromAddressScript(fungibleTokenAddr, fungibleTokenMVAdd
 	code = strings.ReplaceAll(
 		code,
 		placeholderFungibleToken,
-		withHexPrefix(fungibleTokenAddr),
+		fungibleTokenImport+withHexPrefix(fungibleTokenAddr),
 	)
 
 	code = strings.ReplaceAll(
 		code,
 		placeholderFTMetadataViews,
-		withHexPrefix(fungibleTokenMVAddr),
+		ftMetadataViewsImport+withHexPrefix(fungibleTokenMVAddr),
 	)
 
 	return []byte(code)
@@ -74,7 +74,7 @@ func GenerateTransferGenericVaultWithPathsScript(fungibleTokenAddr string) []byt
 	code = strings.ReplaceAll(
 		code,
 		placeholderFungibleToken,
-		withHexPrefix(fungibleTokenAddr),
+		fungibleTokenImport+withHexPrefix(fungibleTokenAddr),
 	)
 
 	return []byte(code)
@@ -89,13 +89,13 @@ func GenerateTransferGenericVaultWithAddressScript(fungibleTokenAddr, ftMetadata
 	code = strings.ReplaceAll(
 		code,
 		placeholderFungibleToken,
-		withHexPrefix(fungibleTokenAddr),
+		fungibleTokenImport+withHexPrefix(fungibleTokenAddr),
 	)
 
 	code = strings.ReplaceAll(
 		code,
 		placeholderFTMetadataViews,
-		withHexPrefix(ftMetadataViewsAddr),
+		ftMetadataViewsImport+withHexPrefix(ftMetadataViewsAddr),
 	)
 
 	return []byte(code)
