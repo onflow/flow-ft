@@ -1,6 +1,6 @@
 import TokenForwarding from "TokenForwarding"
 
-pub fun main(addr: Address, tokenForwardingPath: PublicPath): Bool {
+access(all) fun main(addr: Address, tokenForwardingPath: PublicPath): Bool {
     let forwarderRef = getAccount(addr)
                        .getCapability<&{TokenForwarding.ForwarderPublic}>(tokenForwardingPath)
                        .borrow()

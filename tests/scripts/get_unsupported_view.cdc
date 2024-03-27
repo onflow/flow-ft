@@ -4,11 +4,16 @@
 
 import "ExampleToken"
 import "MetadataViews"
+import "FungibleToken"
+import "FungibleTokenMetadataViews"
 
-pub fun main(address: Address, type: Type): AnyStruct? {
+access(all) fun main(address: Address, type: Type): AnyStruct? {
     let account = getAccount(address)
-    let vaultRef = account.getCapability(ExampleToken.VaultPublicPath)
-        .borrow<&ExampleToken.Vault{MetadataViews.Resolver}>()
+
+    let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
+        ?? panic("Could not get the vault data view for ExampleToken")
+    
+    let vaultRef = account.capabilities.borrow<&ExampleToken.Vault>(vaultData.metadataPath)
         ?? panic("Could not borrow Balance reference to the Vault")
 
     return vaultRef.resolveView(type)

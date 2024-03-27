@@ -5,18 +5,25 @@
 // The withdraw amount and the account from getAccount
 // would be the parameters to the transaction
 
-import FungibleToken from "FungibleToken"
-import ExampleToken from "ExampleToken"
+import "FungibleToken"
+import "ExampleToken"
+import "FungibleTokenMetadataViews"
 
 transaction(amount: UFix64, to: Address) {
 
-    // The Vault resource that holds the tokens that are being transferred
-    let sentVault: @FungibleToken.Vault
+    /// FTVaultData metadata view for the token being used
+    let vaultData: FungibleTokenMetadataViews.FTVaultData
 
-    prepare(signer: AuthAccount) {
+    // The Vault resource that holds the tokens that are being transferred
+    let sentVault: @{FungibleToken.Vault}
+
+    prepare(signer: auth(BorrowValue) &Account) {
+
+        self.vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
+            ?? panic("ViewResolver does not resolve FTVaultData view")
 
         // Get a reference to the signer's stored vault
-        let vaultRef = signer.borrow<&ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)
+        let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &ExampleToken.Vault>(from: self.vaultData.storagePath)
             ?? panic("Could not borrow reference to the owner's Vault!")
 
         // Withdraw tokens from the signer's stored vault
@@ -29,8 +36,7 @@ transaction(amount: UFix64, to: Address) {
         let recipient = getAccount(to)
 
         // Get a reference to the recipient's Receiver
-        let receiverRef = recipient.getCapability(ExampleToken.ReceiverPublicPath)
-            .borrow<&{FungibleToken.Receiver}>()
+        let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(self.vaultData.receiverPath)
             ?? panic("Could not borrow receiver reference to the recipient's Vault")
 
         // Deposit the withdrawn tokens in the recipient's receiver

@@ -6,7 +6,7 @@ transaction(contractName: String,
             storagePath: StoragePath,
             publicPath: PublicPath) {
 
-  prepare(signer: AuthAccount) {
+  prepare(signer: auth(AddContract) &Account) {
 
     signer.contracts.add(name: contractName, code: code, senderStoragePath, storagePath, publicPath)
 
