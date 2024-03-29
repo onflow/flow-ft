@@ -9,7 +9,7 @@ transaction (address: Address) {
 
     let vaultPaths: [PublicPath]
     let vaultTypes: [Type]
-    let switchboardRef:  &FungibleTokenSwitchboard.Switchboard
+    let switchboardRef:  auth(FungibleTokenSwitchboard.Owner) &FungibleTokenSwitchboard.Switchboard
 
     prepare(signer: auth(BorrowValue) &Account) {
 
@@ -27,7 +27,7 @@ transaction (address: Address) {
         self.vaultTypes.append(Type<@ExampleToken.Vault>())
       
         // Get a reference to the signers switchboard
-        self.switchboardRef = signer.storage.borrow<&FungibleTokenSwitchboard.Switchboard>(
+        self.switchboardRef = signer.storage.borrow<auth(FungibleTokenSwitchboard.Owner) &FungibleTokenSwitchboard.Switchboard>(
                 from: FungibleTokenSwitchboard.StoragePath
             ) ?? panic("Could not borrow reference to switchboard")
     

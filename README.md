@@ -45,7 +45,7 @@ There is no need to deploy them yourself.
 | Sandboxnet        | `0xe20612a0776ca4bf` |
 | Mainnet           | `0xf233dcee88fe0abe` |
 
-The `Burner` contract is also deployed to these addresses, but should not be used until after the Cadence 1.0 network upgrade.
+The `Burner` contract is also deployed to these addresses, but should only be used in Cadence 1.0 `FungibleToken` implementations of the standard.
 
 ## Basics of the Standard:
 
@@ -72,13 +72,14 @@ Specifies that the implementing type must have a `UFix64` `balance` field.
   - `access(all) var balance: UFix64`
 
 ### `Provider` Interface
-Defines a [`withdraw ` function](contracts/FungibleToken.cdc#L95) for withdrawing a specific amount of tokens *amount*.
+Defines a [`withdraw ` function](contracts/FungibleToken.cdc#L95) for withdrawing a specific amount of tokens as *amount*.
   - `access(all) fun withdraw(amount: UFix64): @{FungibleToken.Vault}`
       - Conditions
           - the returned Vault's balance must equal the amount withdrawn
           - The amount withdrawn must be less than or equal to the balance
           - The resulting balance must equal the initial balance - amount
-  - Users can give other accounts a reference to their `Vault` cast as a `Provider`
+  - Users can give other accounts a persistent Capability
+  or ephemeral reference to their `Vault` cast as a `Provider`
   to allow them to withdraw and send tokens for them. 
   A contract can define any custom logic to govern the amount of tokens
   that can be withdrawn at a time with a `Provider`. 
@@ -89,7 +90,7 @@ Defines a [`withdraw ` function](contracts/FungibleToken.cdc#L95) for withdrawin
       If the `Vault` is not in account storage when the event is emitted,
       `from` will be `nil`.
     - Contracts do not have to emit their own events,
-    the standard events will automatically be emitted.
+    the standard events will automatically be emitted from the interface contract with values identifying the relevant `Vault`.
 
 Defines [an `isAvailableToWithdraw()` function](contracts/FungibleToken.cdc#L95)
 to ask a `Provider` if the specified number of tokens can be withdrawn from the implementing type.
@@ -104,14 +105,14 @@ Defines functionality to depositing fungible tokens into a resource object.
   - It is important that if you are making your own implementation of the fungible token interface that
   you cast the input to `deposit` as the type of your token.
   `let vault <- from as! @ExampleToken.Vault`
-  The interface specifies the argument as `@FungibleToken.Vault`, any resource that satisfies this can be sent to the deposit function. The interface checks that the concrete types match, but you'll still need to cast the `Vault` before storing it.
+  The interface specifies the argument as `@{FungibleToken.Vault}`, any resource that satisfies this can be sent to the deposit function. The interface checks that the concrete types match, but you'll still need to cast the `Vault` before incrementing the receiving `Vault`'s balance.
 - deposit event
     - [`FungibleToken.Deposited` event](contracts/FungibleToken.cdc#L53) from the standard
     that indicates how much was deposited and to what account the `Vault` is stored in.
       - If the `Vault` is not in account storage when the event is emitted,
         `to` will be `nil`.
-      - This event is emitted automatically on any deposit, so projects do not need
-        to define and emit their own events.
+      - This event is emitted from the interface contract automatically on any deposit,
+        so projects do not need to define and emit their own events.
 
 Defines Functionality for Getting Supported Vault Types
 - Some resource types can accept multiple different vault types in their deposit functions,
@@ -180,8 +181,13 @@ the format to query and return them, so projects can still be flexible with how 
 The [FungibleTokenMetadataViews contract](contracts/FungibleTokenMetadataViews.cdc) defines four new views that can used to communicate any fungible token information:
 
 1. `FTView`: A view that wraps the two other views that actually contain the data.
-2. `FTDisplay`: The view that contains all the information that will be needed by other dApps to display the fungible token: name, symbol, description, external URL, logos and links to social media.
-3. `FTVaultData`: The view that can be used by other dApps to interact programmatically with the fungible token, providing the information about the public and private paths used by default by the token, the public and private linked types for exposing capabilities and the function for creating new empty vaults. You can use this view to [setup an account using the vault stored in other account without the need of importing the actual token contract.](transactions/setup_account_from_vault_reference.cdc)
+2. `FTDisplay`: The view that contains all the information that will be needed
+by other dApps to display the fungible token: name, symbol, description, external URL, logos and links to social media.
+3. `FTVaultData`: The view that can be used by other dApps to interact programmatically
+with the fungible token, providing the information about the public and storage paths
+used by default by the token, the public linked types for exposing capabilities
+and the function for creating new empty vaults.
+You can use this view to [setup an account using the vault stored in other account without the need of importing the actual token contract.](transactions/setup_account_from_vault_reference.cdc)
 4. `TotalSupply`: Specifies the total supply of the given token.
 
 ### How to implement metadata
@@ -219,7 +225,8 @@ the `FungibleToken` definition to accounts yourself.
 It is a pre-deployed interface in the emulator, testnet, mainnet,
 and playground and you can import definition from those accounts:
     - `0xee82856bf20e2aa6` on emulator
-    - `0x9a0766d93b6608b7` on testnet
+    - `0xa0225e7000ac82a9 ` on previewnet
+    - `0x9a0766d93b6608b7` on testnet/crescendo
     - `0xf233dcee88fe0abe` on mainnet
 2. Deploy the `ExampleToken` definition, making sure to import the `FungibleToken` interface.
 3. You can use the `get_balance.cdc` or `get_supply.cdc` scripts to read the 
@@ -477,7 +484,7 @@ This can be observed in the template transaction `transactions/switchboard/remov
 # Running Automated Tests
 
 There are two sets of tests in the repo, Cadence tests and Go tests.
-The Cadence tests are much more straightforward nad are all written in Cadence,
+The Cadence tests are much more straightforward and are all written in Cadence,
 so we recommend following those.
 
 ## Cadence Testing Framework

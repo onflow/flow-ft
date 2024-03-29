@@ -10,7 +10,10 @@ access(all) contract ExampleToken: FungibleToken {
     /// Total supply of ExampleTokens in existence
     access(all) var totalSupply: UFix64
 
-    /// Admin Path
+    /// Storage and Public Paths
+    access(all) let VaultStoragePath: StoragePath
+    access(all) let VaultPublicPath: PublicPath
+    access(all) let ReceiverPublicPath: PublicPath
     access(all) let AdminStoragePath: StoragePath
 
     access(all) view fun getContractViews(resourceType: Type?): [Type] {
@@ -83,17 +86,9 @@ access(all) contract ExampleToken: FungibleToken {
         /// The total balance of this vault
         access(all) var balance: UFix64
 
-        access(all) var storagePath: StoragePath
-        access(all) var publicPath: PublicPath
-        access(all) var receiverPath: PublicPath
-
         // initialize the balance at resource creation time
         init(balance: UFix64) {
             self.balance = balance
-            let identifier = "exampleTokenVault"
-            self.storagePath = StoragePath(identifier: identifier)!
-            self.publicPath = PublicPath(identifier: identifier)!
-            self.receiverPath = PublicPath(identifier: "exampleTokenReceiver")!
         }
 
         /// Called when a fungible token is burned via the `Burner.burn()` method
@@ -202,6 +197,9 @@ access(all) contract ExampleToken: FungibleToken {
     init() {
         self.totalSupply = 1000.0
 
+        self.VaultStoragePath = /storage/exampleTokenVault
+        self.VaultPublicPath = /public/exampleTokenVault
+        self.ReceiverPublicPath = /public/exampleTokenReceiver
         self.AdminStoragePath = /storage/exampleTokenAdmin 
 
         // Create the Vault with the total supply of tokens and save it in storage
@@ -212,10 +210,10 @@ access(all) contract ExampleToken: FungibleToken {
         // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
         // and the `balance` method through the `Balance` interface
         //
-        let exampleTokenCap = self.account.capabilities.storage.issue<&ExampleToken.Vault>(vault.storagePath)
-        self.account.capabilities.publish(exampleTokenCap, at: vault.publicPath)
-        let receiverCap = self.account.capabilities.storage.issue<&ExampleToken.Vault>(vault.storagePath)
-        self.account.capabilities.publish(receiverCap, at: vault.receiverPath)
+        let exampleTokenCap = self.account.capabilities.storage.issue<&ExampleToken.Vault>(self.VaultStoragePath)
+        self.account.capabilities.publish(exampleTokenCap, at: self.VaultPublicPath)
+        let receiverCap = self.account.capabilities.storage.issue<&ExampleToken.Vault>(self.VaultStoragePath)
+        self.account.capabilities.publish(receiverCap, at: self.ReceiverPublicPath)
 
         self.account.storage.save(<-vault, to: /storage/exampleTokenVault)
 

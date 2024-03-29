@@ -34,9 +34,6 @@ transaction(receiver: Address) {
 
         let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
             ?? panic("Could not get vault data view for the contract")
-    
-        let vaultRef = signer.capabilities.borrow<&ExampleToken.Vault>(vaultData.metadataPath)
-            ?? panic("Could not borrow Balance reference to the Vault")
 
         // Get the receiver capability for the account being forwarded to
         let recipient = getAccount(receiver).capabilities.get<&{FungibleToken.Receiver}>(vaultData.receiverPath)

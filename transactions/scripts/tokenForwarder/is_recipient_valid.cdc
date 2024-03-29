@@ -1,10 +1,8 @@
-import TokenForwarding from "TokenForwarding"
+import "TokenForwarding"
 
 access(all) fun main(addr: Address, tokenForwardingPath: PublicPath): Bool {
     let forwarderRef = getAccount(addr)
-                       .getCapability<&{TokenForwarding.ForwarderPublic}>(tokenForwardingPath)
-                       .borrow()
-                       ?? panic("Unable to borrow {TokenForwarding.ForwarderPublic} restrict type from a capability")
+                       .capabilities.borrow<&{TokenForwarding.ForwarderPublic}>(tokenForwardingPath)
 
     return forwarderRef.check()
 }

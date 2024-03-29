@@ -13,6 +13,8 @@ access(all) contract FungibleTokenSwitchboard {
     access(all) let PublicPath: PublicPath
     access(all) let ReceiverPublicPath: PublicPath
 
+    access(all) entitlement Owner
+
     /// The event that is emitted when a new vault capability is added to a
     /// switchboard resource.
     /// 
@@ -35,12 +37,11 @@ access(all) contract FungibleTokenSwitchboard {
     /// deposit methods to deposit funds on it.
     /// 
     access(all) resource interface SwitchboardPublic {
-        access(all) fun getVaultTypes(): [Type]
         access(all) view fun getVaultTypesWithAddress(): {Type: Address}
         access(all) view fun getSupportedVaultTypes(): {Type: Bool}
+        access(all) view fun isSupportedVaultType(type: Type): Bool
         access(all) fun deposit(from: @{FungibleToken.Vault})
         access(all) fun safeDeposit(from: @{FungibleToken.Vault}): @{FungibleToken.Vault}?
-        access(all) view fun checkReceiverByType(type: Type): Bool
         access(all) view fun safeBorrowByType(type: Type): &{FungibleToken.Receiver}?
     }
 
@@ -62,7 +63,7 @@ access(all) contract FungibleTokenSwitchboard {
         /// token vault deposit function through `{FungibleToken.Receiver}` that
         /// will be added to the switchboard.
         /// 
-        access(all) fun addNewVault(capability: Capability<&{FungibleToken.Receiver}>) {
+        access(Owner) fun addNewVault(capability: Capability<&{FungibleToken.Receiver}>) {
             // Borrow a reference to the vault pointed to by the capability we 
             // want to store inside the switchboard
             let vaultRef = capability.borrow() 
@@ -89,7 +90,7 @@ access(all) contract FungibleTokenSwitchboard {
         /// @param paths: The paths where the public capabilities are stored.
         /// @param address: The address of the owner of the capabilities.
         /// 
-        access(all) fun addNewVaultsByPath(paths: [PublicPath], address: Address) {
+        access(Owner) fun addNewVaultsByPath(paths: [PublicPath], address: Address) {
             // Get the account where the public capabilities are stored
             let owner = getAccount(address)
             // For each path, get the saved capability and store it 
@@ -132,7 +133,7 @@ access(all) contract FungibleTokenSwitchboard {
         /// capability, rather than the `Type` from the reference borrowed from
         /// said capability
         /// 
-        access(all) fun addNewVaultWrapper(capability: Capability<&{FungibleToken.Receiver}>, 
+        access(Owner) fun addNewVaultWrapper(capability: Capability<&{FungibleToken.Receiver}>, 
                                                                         type: Type) {
             // Check if the capability is working
             assert(capability.check(), message: "The passed capability is not valid")
@@ -158,7 +159,7 @@ access(all) contract FungibleTokenSwitchboard {
         /// @param types: The types of the fungible token to be deposited on each path.
         /// @param address: The address of the owner of the capabilities.
         /// 
-        access(all) fun addNewVaultWrappersByPath(paths: [PublicPath], types: [Type], 
+        access(Owner) fun addNewVaultWrappersByPath(paths: [PublicPath], types: [Type], 
                                                                   address: Address) {
             // Get the account where the public capabilities are stored
             let owner = getAccount(address)
@@ -189,7 +190,7 @@ access(all) contract FungibleTokenSwitchboard {
         /// @param capability: The capability to a fungible token vault to be
         /// removed from the switchboard.
         /// 
-        access(all) fun removeVault(capability: Capability<&{FungibleToken.Receiver}>) {
+        access(Owner) fun removeVault(capability: Capability<&{FungibleToken.Receiver}>) {
             // Borrow a reference to the vault pointed to by the capability we 
             // want to remove from the switchboard
             let vaultRef = capability.borrow()
@@ -287,23 +288,6 @@ access(all) contract FungibleTokenSwitchboard {
         }
 
         /// A getter function to know which tokens a certain switchboard 
-        /// resource is prepared to receive.
-        ///
-        /// @return The keys from the dictionary of stored 
-        /// `{FungibleToken.Receiver}` capabilities that can be effectively 
-        /// borrowed.
-        ///
-        access(all) fun getVaultTypes(): [Type] {
-            let effectiveTypes: [Type] = []
-            for vaultType in self.receiverCapabilities.keys {
-                if self.receiverCapabilities[vaultType]!.check() {
-                    effectiveTypes.append(vaultType)
-                }
-            }
-            return effectiveTypes
-        }
-
-        /// A getter function to know which tokens a certain switchboard 
         /// resource is prepared to receive along with the address where
         /// those tokens will be deposited.
         ///
@@ -328,9 +312,20 @@ access(all) contract FungibleTokenSwitchboard {
         /// @return Dictionary of FT types that can be deposited.
         access(all) view fun getSupportedVaultTypes(): {Type: Bool} { 
             let supportedVaults: {Type: Bool} = {}
-            for vaultType in self.receiverCapabilities.keys {
-                if self.receiverCapabilities[vaultType]!.check() {
-                    supportedVaults[vaultType] = true
+            for receiverType in self.receiverCapabilities.keys {
+                if self.receiverCapabilities[receiverType]!.check() {
+                    if receiverType.isSubtype(of: Type<@{FungibleToken.Vault}>()) {
+                        supportedVaults[receiverType] = true
+                    }
+                    if receiverType.isSubtype(of: Type<@{FungibleToken.Receiver}>()) {
+                        let receiverRef = self.receiverCapabilities[receiverType]!.borrow()!
+                        let subReceiverSupportedTypes = receiverRef.getSupportedVaultTypes()
+                        for subReceiverType in subReceiverSupportedTypes.keys {                          
+                            if subReceiverType.isSubtype(of: Type<@{FungibleToken.Vault}>()) {
+                                supportedVaults[subReceiverType] = true
+                            }
+                        }
+                    }
                 }
             }
             return supportedVaults

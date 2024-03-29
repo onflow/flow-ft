@@ -73,15 +73,15 @@ fun testMintTokens() {
     Test.expect(txResult, Test.beSucceeded())
 
     // Test that the proper events were emitted
-    // var typ = Type<ExampleToken.TokensMinted>()
-    // var events = Test.eventsOfType(typ)
-    // Test.assertEqual(1, events.length)
-
-    // let tokensMintedEvent = events[0] as! ExampleToken.TokensMinted
-    // Test.assertEqual(250.0, tokensMintedEvent.amount)
-
-    var typ = Type<FungibleToken.Deposited>()
+    var typ = Type<ExampleToken.TokensMinted>()
     var events = Test.eventsOfType(typ)
+    Test.assertEqual(1, events.length)
+
+    let tokensMintedEvent = events[0] as! ExampleToken.TokensMinted
+    Test.assertEqual(250.0, tokensMintedEvent.amount)
+
+    typ = Type<FungibleToken.Deposited>()
+    events = Test.eventsOfType(typ)
     Test.assertEqual(1, events.length)
 
     let tokensDepositedEvent = events[0] as! FungibleToken.Deposited

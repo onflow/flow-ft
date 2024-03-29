@@ -5,7 +5,7 @@ import "FungibleTokenMetadataViews"
 /// This lets you choose the token you want to send
 ///
 /// Any contract can be chosen here, so wallets should check argument values
-/// to make sure the intended token path is passed in
+/// to make sure the intended token contract name and address is passed in
 ///
 transaction(amount: UFix64, to: Address, contractAddress: Address, contractName: String) {
 

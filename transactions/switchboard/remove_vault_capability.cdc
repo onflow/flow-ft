@@ -8,7 +8,7 @@ import "ExampleToken"
 transaction(path: PublicPath) {
 
     let exampleTokenVaultCapabilty: Capability<&{FungibleToken.Receiver}>
-    let switchboardRef:  &FungibleTokenSwitchboard.Switchboard
+    let switchboardRef:  auth(FungibleTokenSwitchboard.Owner) &FungibleTokenSwitchboard.Switchboard
 
     prepare(signer: auth(BorrowValue) &Account) {
 
@@ -17,7 +17,7 @@ transaction(path: PublicPath) {
             ?? panic("Signer does not have Receiver Capability at given path")
 
         // Get a reference to the signers switchboard
-        self.switchboardRef = signer.storage.borrow<&FungibleTokenSwitchboard.Switchboard>(
+        self.switchboardRef = signer.storage.borrow<auth(FungibleTokenSwitchboard.Owner) &FungibleTokenSwitchboard.Switchboard>(
                 from: FungibleTokenSwitchboard.StoragePath
             ) ?? panic("Could not borrow reference to switchboard")
 

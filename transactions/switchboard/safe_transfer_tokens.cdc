@@ -3,12 +3,10 @@ import "FungibleTokenSwitchboard"
 import "ExampleToken"
 import "FungibleTokenMetadataViews"
 
-// This transaction is a template for a transaction that could be used by anyone 
-// to send tokens to another account through a switchboard using the safeDeposit
-// method. This method will not panic if the switchboard does not have the
-// capability to store the desired FT, returning the deposited vault instead.
-// The withdraw amount and the account from getAccount would be the parameters 
-// to the transaction.
+/// This transaction is a template for a transaction that could be used by anyone to send tokens to another account
+/// through a switchboard using the deposit method but before depositing we will explicitly check whether receiving
+/// capability is borrowable or not and if yes then it will deposit the vault to the receiver capability.
+///
 transaction(to: Address, amount: UFix64) {
 
     // The reference to the vault from the payer's account
@@ -16,7 +14,7 @@ transaction(to: Address, amount: UFix64) {
 
     prepare(signer: auth(BorrowValue) &Account) {
 
-        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
             ?? panic("Could not get vault data view for the contract")
 
         // Get a reference to the signer's stored vault
@@ -32,19 +30,18 @@ transaction(to: Address, amount: UFix64) {
 
         let sentVault <- self.vaultRef.withdraw(amount: amount)
 
-        // Get a reference to the recipient's Switchboard Receiver
-        let switchboardRef = recipient.getCapability(FungibleTokenSwitchboard.PublicPath)
-            .borrow<&FungibleTokenSwitchboard.Switchboard{FungibleTokenSwitchboard.SwitchboardPublic}>()
-			?? panic("Could not borrow receiver reference to switchboard!")    
+        // Get a reference to the recipient's SwitchboardPublic
+        let switchboardRef = recipient.capabilities.borrow<&{FungibleTokenSwitchboard.SwitchboardPublic}>(
+                FungibleTokenSwitchboard.PublicPath
+            ) ?? panic("Could not borrow receiver reference to switchboard!")    
 
-        // Deposit the funds on the switchboard, if the deposit does not complete the method will return the funds
-        // instead of panicking, so we have to recover those funds
-        if let notDepositedVault <- switchboardRef.safeDeposit(from: <- sentVault.withdraw(amount: amount)){
-            self.vaultRef.deposit(from: <-notDepositedVault)
+        // Validate the receiving capability by using safeBorrowByType
+        if let receivingRef = switchboardRef.safeBorrowByType(type: Type<@ExampleToken.Vault>()) {
+            switchboardRef.deposit(from: <-sentVault)
+        } else {
+            // Return funds to signer's account if receiver is not configured to receive the funds
+            self.vaultRef.deposit(from: <-sentVault)
         }
-
-        destroy self.sentVault
-
     }
 
 }

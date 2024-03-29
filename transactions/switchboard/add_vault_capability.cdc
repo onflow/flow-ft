@@ -9,7 +9,7 @@ import "FungibleTokenMetadataViews"
 transaction {
 
     let exampleTokenVaultCapability: Capability<&{FungibleToken.Receiver}>
-    let switchboardRef:  &FungibleTokenSwitchboard.Switchboard
+    let switchboardRef:  auth(FungibleTokenSwitchboard.Owner) &FungibleTokenSwitchboard.Switchboard
 
     prepare(signer: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue, UnpublishCapability) &Account) {
 
@@ -65,7 +65,7 @@ transaction {
             signer.capabilities.publish(switchboardPublicCap, at: FungibleTokenSwitchboard.PublicPath)
         }
         // Get a reference to the signers switchboard
-        self.switchboardRef = signer.storage.borrow<&FungibleTokenSwitchboard.Switchboard>(
+        self.switchboardRef = signer.storage.borrow<auth(FungibleTokenSwitchboard.Owner) &FungibleTokenSwitchboard.Switchboard>(
                 from: FungibleTokenSwitchboard.StoragePath
             ) ?? panic("Could not borrow reference to switchboard")
     

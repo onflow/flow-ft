@@ -40,7 +40,7 @@ fun testSetupSwitchboard() {
 
     // Test that the newly-setup switchboard cannot accept any types
     var scriptResult = executeScript(
-        "scripts/get_supported_vault_types.cdc",
+        "../transactions/scripts/get_supported_vault_types.cdc",
         [recipient.address, /public/GenericFTReceiver]
     )
     Test.expect(scriptResult, Test.beSucceeded())
@@ -57,7 +57,7 @@ fun testSetupSwitchboard() {
 
     // Test that the switchboard can now accept one vault type
     scriptResult = executeScript(
-        "scripts/get_supported_vault_types.cdc",
+        "../transactions/scripts/get_supported_vault_types.cdc",
         [recipient.address, /public/GenericFTReceiver]
     )
     Test.expect(scriptResult, Test.beSucceeded())
@@ -65,12 +65,23 @@ fun testSetupSwitchboard() {
     supportedTypes = scriptResult.returnValue! as! {Type: Bool}
     let expectedTypes = {Type<@ExampleToken.Vault>(): true}
     Test.assertEqual(expectedTypes, supportedTypes)
+
+    // Test that the switchboard capability is correct
+    scriptResult = executeScript(
+        "../transactions/switchboard/scripts/get_vault_types_and_address.cdc",
+        [recipient.address]
+    )
+    Test.expect(scriptResult, Test.beSucceeded())
+
+    var typeAddresses = scriptResult.returnValue! as! {Type: Address}
+    let expectedAddresses = {Type<@ExampleToken.Vault>(): recipient.address}
+    Test.assertEqual(expectedAddresses, typeAddresses)
 }
 
 access(all)
 fun testUseSwitchboard() {
     var txResult = executeTransaction(
-        "../transactions/switchboard/safe_transfer_tokens_v2.cdc",
+        "../transactions/switchboard/safe_transfer_tokens.cdc",
         [recipient.address, 10.0],
         admin
     )
@@ -112,7 +123,7 @@ fun testRemoveVaultTypeFromSwitchboard() {
 
     // Test that the switchboard can now accept zero vault types
     let scriptResult = executeScript(
-        "scripts/get_supported_vault_types.cdc",
+        "../transactions/scripts/get_supported_vault_types.cdc",
         [recipient.address, /public/GenericFTReceiver]
     )
     Test.expect(scriptResult, Test.beSucceeded())
@@ -130,6 +141,14 @@ fun testUseSwitchboardWithForwarder() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
+    // Fail with invalid capability
+    txResult = executeTransaction(
+        "../transactions/switchboard/add_vault_wrapper_capability.cdc",
+        [],
+        recipient
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
     txResult = executeTransaction(
         "../transactions/switchboard/batch_add_vault_wrapper_capabilities.cdc",
         [recipient.address],
@@ -137,9 +156,16 @@ fun testUseSwitchboardWithForwarder() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
+    txResult = executeTransaction(
+        "../transactions/switchboard/batch_add_vault_capabilities.cdc",
+        [recipient.address],
+        recipient
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
     // Test that the switchboard can now accept one vault types
     var scriptResult = executeScript(
-        "scripts/get_supported_vault_types.cdc",
+        "../transactions/scripts/get_supported_vault_types.cdc",
         [recipient.address, /public/GenericFTReceiver]
     )
     Test.expect(scriptResult, Test.beSucceeded())

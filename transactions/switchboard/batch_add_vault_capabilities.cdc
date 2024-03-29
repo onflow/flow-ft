@@ -9,11 +9,11 @@ transaction (address: Address) {
 
     let exampleTokenVaultPath: PublicPath
     let vaultPaths: [PublicPath]
-    let switchboardRef:  &FungibleTokenSwitchboard.Switchboard
+    let switchboardRef:  auth(FungibleTokenSwitchboard.Owner) &FungibleTokenSwitchboard.Switchboard
 
     prepare(signer: auth(BorrowValue) &Account) {
 
-        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>())
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
             ?? panic("Could not get vault data view for the contract")
 
         // Get the example token vault path from the contract
@@ -25,16 +25,16 @@ transaction (address: Address) {
         self.vaultPaths.append(self.exampleTokenVaultPath)
       
         // Get a reference to the signers switchboard
-        self.switchboardRef = signer.storage.borrow<&FungibleTokenSwitchboard.Switchboard>(
-                from: FungibleTokenSwitchboard.StoragePath
-            ) ?? panic("Could not borrow reference to switchboard")
+        self.switchboardRef = signer.storage.borrow<auth(FungibleTokenSwitchboard.Owner) &FungibleTokenSwitchboard.Switchboard>(
+            from: FungibleTokenSwitchboard.StoragePath
+        ) ?? panic("Could not borrow reference to switchboard")
     
     }
 
     execute {
 
         // Add the capability to the switchboard using addNewVault method
-        self.switchboardRef.addNewVaultsByPath (paths: self.vaultPaths, address: address)
+        self.switchboardRef.addNewVaultsByPath(paths: self.vaultPaths, address: address)
 
     }
 
