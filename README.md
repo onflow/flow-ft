@@ -261,65 +261,15 @@ and playground and you can import definition from those accounts:
  
  1. Adding a single capability using `addNewVault(capability: Capability<&{FungibleToken.Receiver}>)`
     * Before calling this method on a transaction you should first retrieve the capability to the token's vault you are
-    willing to add to the switchboard, as is done in the template transaction `transactions/switchboard/add_vault_capability.cdc`.
+    willing to add to the switchboard, as is done in the template transaction [`transactions/switchboard/add_vault_capability.cdc`](./transactions/switchboard/add_vault_capability.cdc).
 
-    ```cadence
-    transaction {
-        let exampleTokenVaultCapabilty: Capability<&{FungibleToken.Receiver}>
-        let switchboardRef:  &FungibleTokenSwitchboard.Switchboard
-
-        prepare(signer: AuthAccount) {
-          // Get the example token vault capability from the signer's account
-          self.exampleTokenVaultCapability = 
-            signer.getCapability<&{FungibleToken.Receiver}>
-                                    (ExampleToken.ReceiverPublicPath)
-          // Get a reference to the signers switchboard
-          self.switchboardRef = signer.borrow<&FungibleTokenSwitchboard.Switchboard>
-            (from: FungibleTokenSwitchboard.StoragePath) 
-              ?? panic("Could not borrow reference to switchboard")
-        }
-
-        execute {
-          // Add the capability to the switchboard using addNewVault method
-          self.switchboardRef.addNewVault(capability: self.exampleTokenVaultCapability)
-        }
-    }
-    ```
     This function will panic if is not possible to `.borrow()` a reference
     to a `&{FungibleToken.Receiver}` from the passed capability.
-    It will also panic if there is already a capability stored
-    for the same `Type` of resource exposed by the capability.
 
- 2. Adding one or more capabilities using the paths where they are stored using `addNewVaultsByPath(paths: [PublicPath], address: Address)`
+ 2. Adding one or more capabilities using the paths where they are stored using `addNewVaultsByPath(paths: [PublicPath], address: Address)`. This is shown in
+    the [`batch_add_vault_wrapper_capabilities.cdc` transaction](./transactions/switchboard/batch_add_vault_wrapper_capabilities.cdc)
     * When using this method, an array of `PublicPath` objects should be passed along with the `Address` of the account from where the vaults' capabilities should be retrieved.
 
-    ```cadence
-    transaction (address: Address) {
-
-        let exampleTokenVaultPath: PublicPath
-        let vaultPaths: [PublicPath]
-        let switchboardRef:  &FungibleTokenSwitchboard.Switchboard
-
-        prepare(signer: AuthAccount) {
-          // Get the example token vault path from the contract
-          self.exampleTokenVaultPath = ExampleToken.ReceiverPublicPath
-          // And store it in the array of public paths that will be passed to the
-          // switchboard method
-          self.vaultPaths = []
-          self.vaultPaths.append(self.exampleTokenVaultPath)
-          // Get a reference to the signers switchboard
-          self.switchboardRef = signer.borrow<&FungibleTokenSwitchboard.Switchboard>
-            (from: FungibleTokenSwitchboard.StoragePath) 
-              ?? panic("Could not borrow reference to switchboard")
-        }
-
-        execute {
-          // Add the capability to the switchboard using addNewVault method
-          self.switchboardRef.addNewVaultsByPath(paths: self.vaultPaths, 
-                                                        address: address)
-        }
-    }
-    ```
     This function won't panic, instead it will just not add to the `@Switchboard`
     any capability which can not be retrieved from any of the provided `PublicPath`s.
     It will also ignore any type of `&{FungibleToken.Receiver}` that is already present on the `@Switchboard`
@@ -329,115 +279,27 @@ and playground and you can import definition from those accounts:
   This method can be used to link a token forwarder or any other wrapper to the switchboard. 
   Once the `Forwarder` has been properly created containing the capability to an actual `@FungibleToken.Vault`,
   this method can be used to link the `@Forwarder` to the switchboard to deposit the specified type of Fungible Token.
-  In the template transaction  `switchboard/add_vault_wrapper_capability.cdc`,
+  In [the template transaction  `switchboard/add_vault_wrapper_capability.cdc`](./transactions/switchboard/add_vault_wrapper_capability.cdc),
   we assume that the signer has a forwarder containing a capability to an `@ExampleToken.Vault` resource:
-
-  ```cadence
-  transaction {
-
-    let tokenForwarderCapability: Capability<&{FungibleToken.Receiver}>
-    let switchboardRef:  &FungibleTokenSwitchboard.Switchboard
-
-    prepare(signer: AuthAccount) {
-
-        // Get the token forwarder capability from the signer's account
-        self.tokenForwarderCapability = 
-            signer.getCapability<&{FungibleToken.Receiver}>
-                                (ExampleToken.ReceiverPublicPath)
-        
-        // Check if the receiver capability exists
-        assert(self.tokenForwarderCapability.check(), 
-            message: "Signer does not have a working fungible token receiver capability")
-        
-        // Get a reference to the signers switchboard
-        self.switchboardRef = signer.borrow<&FungibleTokenSwitchboard.Switchboard>
-            (from: FungibleTokenSwitchboard.StoragePath) 
-            ?? panic("Could not borrow reference to switchboard")
-    
-    }
-
-    execute {
-
-        // Add the capability to the switchboard using addNewVault method
-        self.switchboardRef.addNewVaultWrapper(capability: self.tokenForwarderCapability, type: Type<@ExampleToken.Vault>())
-    
-    }
-
-  }
-  ```
 
  ## Removing a vault from the switchboard
  If a user no longer wants to be able to receive deposits from a certain FT,
  or if they want to update the provided capability for one of them,
  they will need to remove the vault from the switchboard.
  This can be accomplished by using `removeVault(capability: Capability<&{FungibleToken.Receiver}>)`. 
-This can be observed in the template transaction `transactions/switchboard/remove_vault_capability.cdc`:
- ```cadence
- transaction {
-    let exampleTokenVaultCapabilty: Capability<&{FungibleToken.Receiver}>
-    let switchboardRef:  &FungibleTokenSwitchboard.Switchboard
+This can be observed in [the template transaction `transactions/switchboard/remove_vault_capability.cdc`](./transactions/switchboard/remove_vault_capability.cdc):
 
-    prepare(signer: AuthAccount) {
-      // Get the example token vault capability from the signer's account
-      self.exampleTokenVaultCapability = signer.getCapability
-                    <&{FungibleToken.Receiver}>(ExampleToken.ReceiverPublicPath)
-      // Get a reference to the signers switchboard  
-      self.switchboardRef = signer.borrow<&FungibleTokenSwitchboard.Switchboard>
-        (from: FungibleTokenSwitchboard.StoragePath) 
-          ?? panic("Could not borrow reference to switchboard")
-
-    }
-
-    execute {
-      // Remove the capability from the switchboard using the 
-      // removeVault method
-      self.switchboardRef.removeVault(capability: self.exampleTokenVaultCapability)
-    }
- }
- ```
  This function will panic if is not possible to `.borrow()` a reference to a `&{FungibleToken.Receiver}` from the passed capability.
 
  ## Transferring tokens through the switchboard
  The Fungible Token Switchboard provides two different ways of depositing tokens to it,
- using the `deposit(from: @FungibleToken.Vault)` method enforced by
+ using the `deposit(from: @{FungibleToken.Vault})` method enforced by
  the `{FungibleToken.Receiver}` or using the `safeDeposit(from: @FungibleToken.Vault): @FungibleToken`:
 
  1. Using the first method will be just the same as depositing to `&{FungibleToken.Receiver}`.
  The path for the Switchboard receiver is defined in `FungibleTokenSwitchboard.ReceiverPublicPath`,
  the generic receiver path `/public/GenericFTReceiver` that can also be obtained from the NFT MetadataViews contract.
- An example of how to do this can be found in the transaction template on this repo `transactions/switchboard/transfer_tokens.cdc`
- ```cadence
- transaction(to: Address, amount: UFix64) {
-    // The Vault resource that holds the tokens that are being transferred
-    let sentVault: @FungibleToken.Vault
-
-    prepare(signer: AuthAccount) {
-
-        // Get a reference to the signer's stored vault
-        let vaultRef = signer.borrow<&ExampleToken.Vault>
-                                    (from: ExampleToken.VaultStoragePath)
-			?? panic("Could not borrow reference to the owner's Vault!")
-
-        // Withdraw tokens from the signer's stored vault
-        self.sentVault <- vaultRef.withdraw(amount: amount)
-    }
-
-    execute {
-
-        // Get the recipient's public account object
-        let recipient = getAccount(to)
-
-        // Get a reference to the recipient's Switchboard Receiver
-        let switchboardRef = recipient.getCapability
-            (FungibleTokenSwitchboard.ReceiverPublicPath)
-            .borrow<&{FungibleToken.Receiver}>()
-			    ?? panic("Could not borrow receiver reference to switchboard!")
-
-        // Deposit the withdrawn tokens in the recipient's switchboard receiver
-        switchboardRef.deposit(from: <-self.sentVault)
-    }
- }
- ```
+ An example of how to do this can be found in the transaction template on this repo [`transactions/switchboard/transfer_tokens.cdc`](./transactions/switchboard/transfer_tokens.cdc).
 
  2. The `safeDeposit(from: @FungibleToken.Vault): @FungibleToken` works in a similar way,
  with the difference that it will not panic if the desired FT Vault
@@ -445,41 +307,7 @@ This can be observed in the template transaction `transactions/switchboard/remov
  empty if the funds were deposited successfully or still containing the funds
  if the transfer of the funds was not possible. Keep in mind that 
  when using this method on a transaction you will always have to deal
- with the returned resource. An example of this can be found on `transactions/switchboard/safe_transfer_tokens.cdc`:
- ```cadence
- transaction(to: Address, amount: UFix64) {
-    // The reference to the vault from the payer's account
-    let vaultRef: &ExampleToken.Vault
-    // The Vault resource that holds the tokens that are being transferred
-    let sentVault: @FungibleToken.Vault
-
-
-    prepare(signer: AuthAccount) {
-
-        // Get a reference to the signer's stored vault
-        self.vaultRef = signer.borrow<&ExampleToken.Vault>(from: ExampleToken.VaultStoragePath)
-			?? panic("Could not borrow reference to the owner's Vault!")
-
-        // Withdraw tokens from the signer's stored vault
-        self.sentVault <- self.vaultRef.withdraw(amount: amount)
-    }
-
-    execute {
-
-        // Get the recipient's public account object
-        let recipient = getAccount(to)
-
-        // Get a reference to the recipient's Switchboard Receiver
-        let switchboardRef = recipient.getCapability(FungibleTokenSwitchboard.PublicPath)
-            .borrow<&FungibleTokenSwitchboard.Switchboard{FungibleTokenSwitchboard.SwitchboardPublic}>()
-			?? panic("Could not borrow receiver reference to switchboard!")
-
-        // Deposit the withdrawn tokens in the recipient's switchboard receiver,
-        // then deposit the returned vault in the signer's vault
-        self.vaultRef.deposit(from: <- switchboardRef.safeDeposit(from: <-self.sentVault))
-    }
- }
- ```
+ with the returned resource. An example of this can be found on [`transactions/switchboard/safe_transfer_tokens.cdc`](./transactions/switchboard/safe_transfer_tokens.cdc):
 
 # Running Automated Tests
 
