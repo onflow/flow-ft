@@ -214,6 +214,7 @@ access(all) contract interface FungibleToken: ViewResolver {
         access(all) fun createEmptyVault(): @{Vault} {
             post {
                 result.balance == 0.0: "The newly created Vault must have zero balance"
+                result.getType() == self.getType(): "The newly created Vault must have the same type as the creating vault"
             }
         }
     }
