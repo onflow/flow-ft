@@ -18,7 +18,7 @@ const (
 	setupAccountFilename               = "setup_account.cdc"
 	setupGenericVaultFilename          = "metadata/setup_account_from_address.cdc"
 	mintTokensFilename                 = "mint_tokens.cdc"
-	createForwarderFilename            = "create_forwarder.cdc"
+	createForwarderFilename            = "tokenForwarder/create_forwarder.cdc"
 	burnTokensFilename                 = "burn_tokens.cdc"
 )
 

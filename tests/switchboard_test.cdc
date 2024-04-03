@@ -135,7 +135,7 @@ fun testRemoveVaultTypeFromSwitchboard() {
 access(all)
 fun testUseSwitchboardWithForwarder() {
     var txResult = executeTransaction(
-        "../transactions/create_forwarder.cdc",
+        "../transactions/tokenForwarder/create_forwarder.cdc",
         [admin.address],
         recipient
     )

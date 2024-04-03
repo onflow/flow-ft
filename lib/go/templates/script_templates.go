@@ -8,7 +8,7 @@ const (
 	scriptsPath            = "scripts/"
 	readBalanceFilename    = "get_balance.cdc"
 	readSupplyFilename     = "get_supply.cdc"
-	readSupplyViewFilename = "metadata/get_vault_supply_view.cdc"
+	readSupplyViewFilename = "metadata/scripts/get_vault_supply_view.cdc"
 )
 
 // GenerateInspectVaultScript creates a script that retrieves a
@@ -34,7 +34,7 @@ func GenerateInspectSupplyScript(env Environment) []byte {
 // the total supply of tokens in existence through a metadata view
 func GenerateInspectSupplyViewScript(env Environment) []byte {
 
-	code := assets.MustAssetString(scriptsPath + readSupplyViewFilename)
+	code := assets.MustAssetString(readSupplyViewFilename)
 
 	return []byte(ReplaceAddresses(code, env))
 }
