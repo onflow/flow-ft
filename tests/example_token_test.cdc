@@ -234,7 +234,7 @@ fun testBurnTokens() {
 access(all)
 fun testVaultTypes() {
     let scriptResult = executeScript(
-        "scripts/get_views.cdc",
+        "../transactions/metadata/scripts/get_views.cdc",
         [recipient.address]
     )
     Test.expect(scriptResult, Test.beSucceeded())

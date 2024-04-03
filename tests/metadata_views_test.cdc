@@ -48,9 +48,11 @@ access(all) fun testRetrieveVaultDisplayInfo() {
     let alice = Test.createAccount()
 
     setupExampleToken(alice)
-    let result = scriptExecutor("test/example_token_vault_display_strict_equal.cdc", [alice.address])! as! Bool
-
-    Test.assertEqual(true, result)
+    let scriptResult = executeScript(
+        "scripts/example_token_vault_display_strict_equal.cdc",
+        [alice.address]
+    )
+    Test.expect(scriptResult, Test.beSucceeded())
 }
 
 
