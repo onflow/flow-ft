@@ -19,7 +19,7 @@ import "FungibleToken"
 access(all) contract TokenForwarding {
 
     // Event that is emitted when tokens are deposited to the target receiver
-    access(all) event ForwardedDeposit(amount: UFix64, depositedUUID: UInt64, from: Address?, to: Address?, toUUID: UInt64)
+    access(all) event ForwardedDeposit(amount: UFix64, depositedUUID: UInt64, from: Address?, to: Address?, toUUID: UInt64, depositedType: Type)
 
     access(all) resource interface ForwarderPublic {
 
@@ -55,9 +55,9 @@ access(all) contract TokenForwarding {
 
             let uuid = from.uuid
 
-            receiverRef.deposit(from: <-from)
+            emit ForwardedDeposit(amount: balance, depositedUUID: uuid, from: self.owner?.address, to: receiverRef.owner?.address, toUUID: receiverRef.uuid, depositedType: from.getType())
 
-            emit ForwardedDeposit(amount: balance, depositedUUID: uuid, from: self.owner?.address, to: receiverRef.owner?.address, toUUID: receiverRef.uuid)
+            receiverRef.deposit(from: <-from)
         }
 
         /// Helper function to check whether set `recipient` capability
