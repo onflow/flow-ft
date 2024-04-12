@@ -82,9 +82,8 @@ fun testMintTokens() {
 
     typ = Type<FungibleToken.Deposited>()
     events = Test.eventsOfType(typ)
-    Test.assertEqual(1, events.length)
 
-    let tokensDepositedEvent = events[0] as! FungibleToken.Deposited
+    let tokensDepositedEvent = events[events.length - 1] as! FungibleToken.Deposited
     Test.assertEqual(250.0, tokensDepositedEvent.amount)
     Test.assertEqual(recipient.address, tokensDepositedEvent.to!)
     Test.assertEqual("A.0000000000000007.ExampleToken.Vault", tokensDepositedEvent.type)

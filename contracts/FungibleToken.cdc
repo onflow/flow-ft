@@ -36,11 +36,8 @@ import "Burner"
 
 /// FungibleToken
 ///
-/// Fungible Token implementations are no longer required to implement the fungible token
-/// interface. We still have it as an interface here because there are some useful
-/// utility methods that many projects will still want to have on their contracts,
-/// but they are by no means required. all that is required is that the token
-/// implements the `Vault` interface
+/// Fungible Token implementations should implement the fungible token
+/// interface.
 access(all) contract interface FungibleToken: ViewResolver {
 
     // An entitlement for allowing the withdrawal of tokens from a Vault
