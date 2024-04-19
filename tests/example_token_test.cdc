@@ -87,6 +87,7 @@ fun testMintTokens() {
     Test.assertEqual(250.0, tokensDepositedEvent.amount)
     Test.assertEqual(recipient.address, tokensDepositedEvent.to!)
     Test.assertEqual("A.0000000000000007.ExampleToken.Vault", tokensDepositedEvent.type)
+    Test.assertEqual(250.0, tokensDepositedEvent.balanceAfter!)
 
     // Test that the totalSupply increased by the amount of minted tokens
     let scriptResult = executeScript(
@@ -116,8 +117,10 @@ fun testTransferTokens() {
     Test.assertEqual(1, events.length)
 
     let tokensWithdrawnEvent = events[0] as! FungibleToken.Withdrawn
+    Test.assertEqual("A.0000000000000007.ExampleToken.Vault", tokensWithdrawnEvent.type)
     Test.assertEqual(50.0, tokensWithdrawnEvent.amount)
     Test.assertEqual(recipient.address, tokensWithdrawnEvent.from!)
+    Test.assertEqual(200.0, tokensWithdrawnEvent.balanceAfter!)
 
     var scriptResult = executeScript(
         "../transactions/scripts/get_balance.cdc",

@@ -44,10 +44,10 @@ access(all) contract interface FungibleToken: ViewResolver {
     access(all) entitlement Withdraw
 
     /// The event that is emitted when tokens are withdrawn from a Vault
-    access(all) event Withdrawn(type: String, amount: UFix64, from: Address?, fromUUID: UInt64, withdrawnUUID: UInt64)
+    access(all) event Withdrawn(type: String, amount: UFix64, from: Address?, fromUUID: UInt64, withdrawnUUID: UInt64, balanceAfter: UFix64)
 
     /// The event that is emitted when tokens are deposited to a Vault
-    access(all) event Deposited(type: String, amount: UFix64, to: Address?, toUUID: UInt64, depositedUUID: UInt64)
+    access(all) event Deposited(type: String, amount: UFix64, to: Address?, toUUID: UInt64, depositedUUID: UInt64, balanceAfter: UFix64)
 
     /// Event that is emitted when the global burn method is called with a non-zero balance
     access(all) event Burned(type: String, amount: UFix64, fromUUID: UInt64)
@@ -94,7 +94,6 @@ access(all) contract interface FungibleToken: ViewResolver {
                 // `result` refers to the return value
                 result.balance == amount:
                     "Withdrawal amount must be the same as the balance of the withdrawn Vault"
-                emit Withdrawn(type: self.getType().identifier, amount: amount, from: self.owner?.address, fromUUID: self.uuid, withdrawnUUID: result.uuid)
             }
         }
     }
@@ -187,6 +186,7 @@ access(all) contract interface FungibleToken: ViewResolver {
                 //
                 self.balance == before(self.balance) - amount:
                     "New Vault balance must be the difference of the previous balance and the withdrawn Vault balance"
+                emit Withdrawn(type: result.getType().identifier, amount: amount, from: self.owner?.address, fromUUID: self.uuid, withdrawnUUID: result.uuid, balanceAfter: self.balance)
             }
         }
 
@@ -198,9 +198,9 @@ access(all) contract interface FungibleToken: ViewResolver {
             pre {
                 from.isInstance(self.getType()): 
                     "Cannot deposit an incompatible token type"
-                emit Deposited(type: from.getType().identifier, amount: from.balance, to: self.owner?.address, toUUID: self.uuid, depositedUUID: from.uuid)
             }
             post {
+                emit Deposited(type: before(from.getType().identifier), amount: before(from.balance), to: self.owner?.address, toUUID: self.uuid, depositedUUID: before(from.uuid), balanceAfter: self.balance)
                 self.balance == before(self.balance) + before(from.balance):
                     "New Vault balance must be the sum of the previous balance and the deposited Vault"
             }
