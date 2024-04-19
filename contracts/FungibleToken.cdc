@@ -186,7 +186,14 @@ access(all) contract interface FungibleToken: ViewResolver {
                 //
                 self.balance == before(self.balance) - amount:
                     "New Vault balance must be the difference of the previous balance and the withdrawn Vault balance"
-                emit Withdrawn(type: result.getType().identifier, amount: amount, from: self.owner?.address, fromUUID: self.uuid, withdrawnUUID: result.uuid, balanceAfter: self.balance)
+                emit Withdrawn(
+                        type: result.getType().identifier,
+                        amount: amount,
+                        from: self.owner?.address,
+                        fromUUID: self.uuid,
+                        withdrawnUUID: result.uuid,
+                        balanceAfter: self.balance
+                )
             }
         }
 
@@ -200,7 +207,14 @@ access(all) contract interface FungibleToken: ViewResolver {
                     "Cannot deposit an incompatible token type"
             }
             post {
-                emit Deposited(type: before(from.getType().identifier), amount: before(from.balance), to: self.owner?.address, toUUID: self.uuid, depositedUUID: before(from.uuid), balanceAfter: self.balance)
+                emit Deposited(
+                        type: before(from.getType().identifier),
+                        amount: before(from.balance),
+                        to: self.owner?.address,
+                        toUUID: self.uuid,
+                        depositedUUID: before(from.uuid),
+                        balanceAfter: self.balance
+                )
                 self.balance == before(self.balance) + before(from.balance):
                     "New Vault balance must be the sum of the previous balance and the deposited Vault"
             }
