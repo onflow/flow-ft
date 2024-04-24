@@ -96,23 +96,22 @@ access(all) contract FungibleTokenSwitchboard {
             // For each path, get the saved capability and store it 
             // into the switchboard's receiver capabilities dictionary
             for path in paths {
-                if let capability = owner.capabilities.get<&{FungibleToken.Receiver}>(path) {
-                    // Borrow a reference to the vault pointed to by the capability
-                    // we want to store inside the switchboard
-                    // If the vault was borrowed successfully...
-                    if let vaultRef = capability.borrow() {
-                        // ...and if there is no previous capability added for that token
-                        if (self.receiverCapabilities[vaultRef!.getType()] == nil) {
-                            // Use the vault reference type as key for storing the
-                            // capability
-                            self.receiverCapabilities[vaultRef!.getType()] = capability
-                            // and emit the event that indicates that a new
-                            // capability has been added
-                            emit VaultCapabilityAdded(type: vaultRef.getType(),
-                                switchboardOwner: self.owner?.address,
-                                capabilityOwner: address,
-                            )
-                        }
+                let capability = owner.capabilities.get<&{FungibleToken.Receiver}>(path)
+                // Borrow a reference to the vault pointed to by the capability
+                // we want to store inside the switchboard
+                // If the vault was borrowed successfully...
+                if let vaultRef = capability.borrow() {
+                    // ...and if there is no previous capability added for that token
+                    if (self.receiverCapabilities[vaultRef!.getType()] == nil) {
+                        // Use the vault reference type as key for storing the
+                        // capability
+                        self.receiverCapabilities[vaultRef!.getType()] = capability
+                        // and emit the event that indicates that a new
+                        // capability has been added
+                        emit VaultCapabilityAdded(type: vaultRef.getType(),
+                            switchboardOwner: self.owner?.address,
+                            capabilityOwner: address,
+                        )
                     }
                 }
             }
@@ -166,20 +165,19 @@ access(all) contract FungibleTokenSwitchboard {
             // For each path, get the saved capability and store it 
             // into the switchboard's receiver capabilities dictionary
             for i, path in paths {
-                if let capability = owner.capabilities.get<&{FungibleToken.Receiver}>(path) {
-                    // Borrow a reference to the vault pointed to by the capability
-                    // we want to store inside the switchboard
-                    // If the vault was borrowed successfully...
-                    if let vaultRef = capability.borrow() {
-                        // Use the vault reference type as key for storing the capability
-                        self.receiverCapabilities[types[i]] = capability
-                        // and emit the event that indicates that a new capability has been added
-                        emit VaultCapabilityAdded(
-                            type: types[i],
-                            switchboardOwner: self.owner?.address,
-                            capabilityOwner: address,
-                        )
-                    }
+                let capability = owner.capabilities.get<&{FungibleToken.Receiver}>(path)
+                // Borrow a reference to the vault pointed to by the capability
+                // we want to store inside the switchboard
+                // If the vault was borrowed successfully...
+                if let vaultRef = capability.borrow() {
+                    // Use the vault reference type as key for storing the capability
+                    self.receiverCapabilities[types[i]] = capability
+                    // and emit the event that indicates that a new capability has been added
+                    emit VaultCapabilityAdded(
+                        type: types[i],
+                        switchboardOwner: self.owner?.address,
+                        capabilityOwner: address,
+                    )
                 }
             }
         }
@@ -359,5 +357,4 @@ access(all) contract FungibleTokenSwitchboard {
         self.PublicPath = /public/fungibleTokenSwitchboardPublic
         self.ReceiverPublicPath = /public/GenericFTReceiver
     }
-
 }
