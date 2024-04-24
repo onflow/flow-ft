@@ -48,6 +48,7 @@
       "source": "./contracts/utility/TokenForwarding.cdc",
       "aliases": {
         "emulator": "0xf8d6e0586b0a20c7",
+        "testnet": "0x51ea0e37c27a1f1a",
         "testing": "0x0000000000000007"
       }
     },
@@ -134,6 +135,11 @@
         "MetadataViews",
         "FungibleTokenMetadataViews",
         "FungibleTokenSwitchboard",
+        "TokenForwarding"
+      ]
+    },
+    "testnet": {
+      "testnet-forwarding": [
         "TokenForwarding"
       ]
     }
