@@ -52,9 +52,9 @@ access(all) contract ExampleToken: FungibleToken {
                 )
             case Type<FungibleTokenMetadataViews.FTVaultData>():
                 return FungibleTokenMetadataViews.FTVaultData(
-                    storagePath: /storage/exampleTokenVault,
-                    receiverPath: /public/exampleTokenReceiver,
-                    metadataPath: /public/exampleTokenVault,
+                    storagePath: self.VaultStoragePath,
+                    receiverPath: self.ReceiverPublicPath,
+                    metadataPath: self.VaultPublicPath,
                     receiverLinkedType: Type<&ExampleToken.Vault>(),
                     metadataLinkedType: Type<&ExampleToken.Vault>(),
                     createEmptyVaultFunction: (fun(): @{FungibleToken.Vault} {
@@ -178,8 +178,9 @@ access(all) contract ExampleToken: FungibleToken {
         ///
         access(all) fun mintTokens(amount: UFix64): @ExampleToken.Vault {
             ExampleToken.totalSupply = ExampleToken.totalSupply + amount
-            emit TokensMinted(amount: amount, type: self.getType().identifier)
-            return <-create Vault(balance: amount)
+            let vault <-create Vault(balance: amount)
+            emit TokensMinted(amount: amount, type: vault.getType().identifier)
+            return <-vault
         }
     }
 
@@ -205,6 +206,7 @@ access(all) contract ExampleToken: FungibleToken {
         // Create the Vault with the total supply of tokens and save it in storage
         //
         let vault <- create Vault(balance: self.totalSupply)
+        emit TokensMinted(amount: vault.balance, type: vault.getType().identifier)
 
         // Create a public capability to the stored Vault that exposes
         // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
