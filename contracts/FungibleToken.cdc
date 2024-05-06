@@ -4,12 +4,21 @@
 
 ## `FungibleToken` contract
 
-The Fungible Token standard is no longer an interface
-that all fungible token contracts would have to conform to.
-
 If a users wants to deploy a new token contract, their contract
-does not need to implement the FungibleToken interface, but their tokens
-do need to implement the interfaces defined in this contract.
+needs to implement the FungibleToken interface and their tokens
+need to implement the interfaces defined in this contract.
+
+/// Contributors (please add to this list if you contribute!):
+/// - Joshua Hannan - https://github.com/joshuahannan
+/// - Bastian Müller - https://twitter.com/turbolent
+/// - Dete Shirley - https://twitter.com/dete73
+/// - Bjarte Karlsen - https://twitter.com/0xBjartek
+/// - Austin Kline - https://twitter.com/austin_flowty
+/// - Giovanni Sanchez - https://twitter.com/gio_incognito
+/// - Deniz Edincik - https://twitter.com/bluesign
+/// - Jonny - https://github.com/dryruner
+///
+/// Repo reference: https://github.com/onflow/flow-ft
 
 ## `Vault` resource interface
 
