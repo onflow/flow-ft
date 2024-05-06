@@ -53,6 +53,7 @@ access(all) fun testTransferPrivateTokens() {
     let pair = {recipient.address: recipientAmount}
 
     txExecutor("../transactions/privateForwarder/setup_and_create_forwarder.cdc", [recipient], [], nil, nil)
+    
     txExecutor("../transactions/privateForwarder/transfer_private_many_accounts.cdc", [admin], [pair], nil, nil)
 
     let recipientBalance = getExampleTokenBalance(recipient)

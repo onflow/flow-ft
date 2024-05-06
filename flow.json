@@ -137,11 +137,6 @@
         "FungibleTokenSwitchboard",
         "TokenForwarding"
       ]
-    },
-    "testnet": {
-      "testnet-forwarding": [
-        "TokenForwarding"
-      ]
     }
   }
 }

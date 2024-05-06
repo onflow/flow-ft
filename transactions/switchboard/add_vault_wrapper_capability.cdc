@@ -20,8 +20,7 @@ transaction {
 
         // Get the token forwarder capability from the signer's account
         self.tokenReceiverCapability = signer.capabilities.get<&{FungibleToken.Receiver}>(
-            vaultData.receiverPath
-        ) ?? panic("Could not get receiver capability")
+            vaultData.receiverPath)
 
         // Check if the receiver capability exists
         assert(

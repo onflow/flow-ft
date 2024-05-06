@@ -14,7 +14,6 @@ transaction(path: PublicPath) {
 
         // Get the capability from the signer's account
         self.exampleTokenVaultCapabilty = signer.capabilities.get<&{FungibleToken.Receiver}>(path)
-            ?? panic("Signer does not have Receiver Capability at given path")
 
         // Get a reference to the signers switchboard
         self.switchboardRef = signer.storage.borrow<auth(FungibleTokenSwitchboard.Owner) &FungibleTokenSwitchboard.Switchboard>(

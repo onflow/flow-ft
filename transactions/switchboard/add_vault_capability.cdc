@@ -35,8 +35,7 @@ transaction {
         
         // Get the example token vault capability from the signer's account
         self.exampleTokenVaultCapability = signer.capabilities.get<&{FungibleToken.Receiver}>(
-                vaultData.receiverPath
-            ) ?? panic("Signer does not have a Example Token receiver capability")
+                vaultData.receiverPath)
         
         // Check if the receiver capability exists
         assert(

@@ -37,7 +37,6 @@ transaction(receiver: Address) {
 
         // Get the receiver capability for the account being forwarded to
         let recipient = getAccount(receiver).capabilities.get<&{FungibleToken.Receiver}>(vaultData.receiverPath)
-            ?? panic("Could not get the receiver capability")
 
         // Create the forwarder and save it to the account that is doing the forwarding
         let vault <- TokenForwarding.createNewForwarder(recipient: recipient)
