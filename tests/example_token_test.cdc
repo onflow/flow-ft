@@ -1,36 +1,22 @@
 import Test
 import BlockchainHelpers
+import "test_helpers.cdc"
 import "FungibleTokenMetadataViews"
 import "ExampleToken"
+import "FungibleToken"
 
 access(all) let admin = Test.getAccount(0x0000000000000007)
 access(all) let recipient = Test.createAccount()
 
 access(all)
 fun setup() {
-    var err = Test.deployContract(
-        name: "FungibleTokenMetadataViews",
-        path: "../contracts/FungibleTokenMetadataViews.cdc",
-        arguments: []
-    )
-    Test.expect(err, Test.beNil())
-
-    err = Test.deployContract(
-        name: "ExampleToken",
-        path: "../contracts/ExampleToken.cdc",
-        arguments: []
-    )
-    Test.expect(err, Test.beNil())
-}
-
-access(all)
-fun testTokensInitializedEventEmitted() {
-    let typ = Type<ExampleToken.TokensInitialized>()
-    let events = Test.eventsOfType(typ)
-    Test.assertEqual(1, events.length)
-
-    let event = events[0] as! ExampleToken.TokensInitialized
-    Test.assertEqual(1000.0, event.initialSupply)
+    deploy("ViewResolver", "../contracts/utility/ViewResolver.cdc")
+    deploy("Burner", "../contracts/utility/Burner.cdc")
+    deploy("FungibleToken", "../contracts/FungibleToken.cdc")
+    deploy("NonFungibleToken", "../contracts/utility/NonFungibleToken.cdc")
+    deploy("MetadataViews", "../contracts/utility/MetadataViews.cdc")
+    deploy("FungibleTokenMetadataViews", "../contracts/FungibleTokenMetadataViews.cdc")
+    deploy("ExampleToken", "../contracts/ExampleToken.cdc")
 }
 
 access(all)
@@ -89,25 +75,19 @@ fun testMintTokens() {
     // Test that the proper events were emitted
     var typ = Type<ExampleToken.TokensMinted>()
     var events = Test.eventsOfType(typ)
-    Test.assertEqual(1, events.length)
+    Test.assertEqual(2, events.length)
 
-    let tokensMintedEvent = events[0] as! ExampleToken.TokensMinted
+    let tokensMintedEvent = events[1] as! ExampleToken.TokensMinted
     Test.assertEqual(250.0, tokensMintedEvent.amount)
 
-    typ = Type<ExampleToken.MinterCreated>()
+    typ = Type<FungibleToken.Deposited>()
     events = Test.eventsOfType(typ)
-    Test.assertEqual(1, events.length)
 
-    let minterCreatedEvent = events[0] as! ExampleToken.MinterCreated
-    Test.assertEqual(250.0, minterCreatedEvent.allowedAmount)
-
-    typ = Type<ExampleToken.TokensDeposited>()
-    events = Test.eventsOfType(typ)
-    Test.assertEqual(1, events.length)
-
-    let tokensDepositedEvent = events[0] as! ExampleToken.TokensDeposited
+    let tokensDepositedEvent = events[events.length - 1] as! FungibleToken.Deposited
     Test.assertEqual(250.0, tokensDepositedEvent.amount)
     Test.assertEqual(recipient.address, tokensDepositedEvent.to!)
+    Test.assertEqual("A.0000000000000007.ExampleToken.Vault", tokensDepositedEvent.type)
+    Test.assertEqual(250.0, tokensDepositedEvent.balanceAfter!)
 
     // Test that the totalSupply increased by the amount of minted tokens
     let scriptResult = executeScript(
@@ -129,16 +109,18 @@ fun testTransferTokens() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    var typ = Type<ExampleToken.TokensDeposited>()
+    var typ = Type<FungibleToken.Deposited>()
     Test.assertEqual(2, Test.eventsOfType(typ).length)
 
-    typ = Type<ExampleToken.TokensWithdrawn>()
+    typ = Type<FungibleToken.Withdrawn>()
     let events = Test.eventsOfType(typ)
     Test.assertEqual(1, events.length)
 
-    let tokensWithdrawnEvent = events[0] as! ExampleToken.TokensWithdrawn
+    let tokensWithdrawnEvent = events[0] as! FungibleToken.Withdrawn
+    Test.assertEqual("A.0000000000000007.ExampleToken.Vault", tokensWithdrawnEvent.type)
     Test.assertEqual(50.0, tokensWithdrawnEvent.amount)
     Test.assertEqual(recipient.address, tokensWithdrawnEvent.from!)
+    Test.assertEqual(200.0, tokensWithdrawnEvent.balanceAfter!)
 
     var scriptResult = executeScript(
         "../transactions/scripts/get_balance.cdc",
@@ -177,39 +159,84 @@ fun testTransferTokenAmountGreaterThanBalance() {
 
 access(all)
 fun testBurnTokens() {
-    let txResult = executeTransaction(
+    var txResult = executeTransaction(
         "../transactions/burn_tokens.cdc",
         [50.0],
         admin
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    var typ = Type<ExampleToken.BurnerCreated>()
-    var events = Test.eventsOfType(typ)
+    let type = Type<FungibleToken.Burned>()
+    let events = Test.eventsOfType(type)
     Test.assertEqual(1, events.length)
 
-    typ = Type<ExampleToken.TokensBurned>()
-    events = Test.eventsOfType(typ)
-    Test.assertEqual(1, events.length)
-
-    let tokensBurnedEvent = events[0] as! ExampleToken.TokensBurned
+    let tokensBurnedEvent = events[0] as! FungibleToken.Burned
     Test.assertEqual(50.0, tokensBurnedEvent.amount)
+    Test.assertEqual("A.0000000000000007.ExampleToken.Vault", tokensBurnedEvent.type)
 
-    let scriptResult = executeScript(
+    var scriptResult = executeScript(
         "../transactions/scripts/get_balance.cdc",
         [admin.address]
     )
     Test.expect(scriptResult, Test.beSucceeded())
 
     // The admin should now have the initial supply of 1000.0 tokens
-    let balance = scriptResult.returnValue! as! UFix64
+    var balance = scriptResult.returnValue! as! UFix64
     Test.assertEqual(1000.0, balance)
+
+    txResult = executeTransaction(
+        "transactions/burn_array.cdc",
+        [10.0, 5],
+        admin
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
+    scriptResult = executeScript(
+        "../transactions/scripts/get_supply.cdc",
+        []
+    )
+    Test.expect(scriptResult, Test.beSucceeded())
+
+    var totalSupply = scriptResult.returnValue! as! UFix64
+    Test.assertEqual(1150.0, totalSupply)
+
+        txResult = executeTransaction(
+        "transactions/burn_dict.cdc",
+        [10.0, 5],
+        admin
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
+    scriptResult = executeScript(
+        "../transactions/scripts/get_supply.cdc",
+        []
+    )
+    Test.expect(scriptResult, Test.beSucceeded())
+
+    totalSupply = scriptResult.returnValue! as! UFix64
+    Test.assertEqual(1100.0, totalSupply)
+
+    txResult = executeTransaction(
+        "transactions/burn_optional.cdc",
+        [],
+        admin
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
+    scriptResult = executeScript(
+        "../transactions/scripts/get_supply.cdc",
+        []
+    )
+    Test.expect(scriptResult, Test.beSucceeded())
+
+    totalSupply = scriptResult.returnValue! as! UFix64
+    Test.assertEqual(200.0, totalSupply)
 }
 
 access(all)
 fun testVaultTypes() {
     let scriptResult = executeScript(
-        "scripts/get_views.cdc",
+        "../transactions/metadata/scripts/get_views.cdc",
         [recipient.address]
     )
     Test.expect(scriptResult, Test.beSucceeded())

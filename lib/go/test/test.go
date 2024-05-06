@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"testing"
 
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/onflow/cadence"
 	jsoncdc "github.com/onflow/cadence/encoding/json"
 	"github.com/onflow/flow-emulator/convert"
@@ -21,8 +22,12 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// this is added to resolve the issue with chainhash ambiguous import,
+// the code is not used, but it's needed to force go.mod specify and retain chainhash version
+// workaround for issue: https://github.com/golang/go/issues/27899
+var _ = chainhash.Hash{}
+
 // Sets up testing and emulator objects and initialize the emulator default addresses
-//
 func newTestSetup(t *testing.T) (emulator.Emulator, *adapters.SDKAdapter, *test.AccountKeys) {
 	// Set for parallel processing
 	t.Parallel()
@@ -211,12 +216,11 @@ func bytesToCadenceArray(b []byte) cadence.Array {
 
 // assertEqual asserts that two objects are equal.
 //
-//    assertEqual(t, 123, 123)
+//	assertEqual(t, 123, 123)
 //
 // Pointer variable equality is determined based on the equality of the
 // referenced values (as opposed to the memory addresses). Function equality
 // cannot be determined and will always fail.
-//
 func assertEqual(t *testing.T, expected, actual interface{}) bool {
 
 	if assert.ObjectsAreEqual(expected, actual) {

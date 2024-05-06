@@ -1,6 +1,6 @@
-import FungibleToken from "FungibleToken"
-import FungibleTokenMetadataViews from "FungibleTokenMetadataViews"
-import MetadataViews from "contracts/utility/MetadataViews"
+import "FungibleToken"
+import "FungibleTokenMetadataViews"
+import "ViewResolver"
 
 /// This transaction is what an account would run
 /// to set itself up to manage fungible tokens. This function
@@ -9,11 +9,10 @@ import MetadataViews from "contracts/utility/MetadataViews"
 
 transaction(address: Address, publicPath: PublicPath) {
 
-    prepare(signer: AuthAccount) {
+    prepare(signer: auth(SaveValue, Capabilities) &Account) {
         // Borrow a reference to the vault stored on the passed account at the passed publicPath
         let resolverRef = getAccount(address)
-            .getCapability(publicPath)
-            .borrow<&{MetadataViews.Resolver}>()
+            .capabilities.borrow<&{ViewResolver.Resolver}>(publicPath)
             ?? panic("Could not borrow a reference to the vault view resolver ")
 
         // Use that reference to retrieve the FTView 
@@ -26,19 +25,15 @@ transaction(address: Address, publicPath: PublicPath) {
         let emptyVault <-ftVaultData.createEmptyVault()
 
         // Save it to the account
-        signer.save(<-emptyVault, to: ftVaultData.storagePath)
+        signer.storage.save(<-emptyVault, to: ftVaultData.storagePath)
+        
+        // Create a public capability for the vault which includes the .Resolver interface
+        let vaultCap = signer.capabilities.storage.issue<&{FungibleToken.Vault}>(ftVaultData.storagePath)
+        signer.capabilities.publish(vaultCap, at: ftVaultData.metadataPath)
 
         // Create a public capability for the vault exposing the receiver interface
-        signer.link<&{FungibleToken.Receiver}>(
-            ftVaultData.receiverPath,
-            target: ftVaultData.storagePath
-        )
-
-        // Create a public capability for the vault exposing the balance and resolver interfaces
-        signer.link<&{FungibleToken.Balance, MetadataViews.Resolver}>(
-            ftVaultData.metadataPath,
-            target: ftVaultData.storagePath
-        )
+        let receiverCap = signer.capabilities.storage.issue<&{FungibleToken.Receiver}>(ftVaultData.storagePath)
+        signer.capabilities.publish(receiverCap, at: ftVaultData.receiverPath)
 
     }
 }

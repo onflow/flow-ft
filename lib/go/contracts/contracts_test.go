@@ -11,7 +11,7 @@ import (
 const addrA = "0A"
 
 func TestFungibleTokenContract(t *testing.T) {
-	contract := contracts.FungibleToken()
+	contract := contracts.FungibleToken(addrA, addrA)
 	assert.NotNil(t, contract)
 }
 

@@ -1,6 +1,7 @@
-import FungibleToken from "FungibleToken"
-import ExampleToken from "ExampleToken"
-import PrivateReceiverForwarder from "PrivateReceiverForwarder"
+import "FungibleToken"
+import "ExampleToken"
+import "PrivateReceiverForwarder"
+import "FungibleTokenMetadataViews"
 
 // This transaction creates a new private receiver in an account that 
 // doesn't already have a private receiver or a public token receiver
@@ -8,19 +9,27 @@ import PrivateReceiverForwarder from "PrivateReceiverForwarder"
 
 transaction {
 
-    prepare(signer: AuthAccount) {
-        receiverCapability = signer.link<&ExampleToken.Vault{FungibleToken.Receiver}>(
-            /private/exampleTokenReceiver,
-            target: ExampleToken.VaultStoragePath
+    prepare(signer: auth(IssueStorageCapabilityController, PublishCapability, SaveValue) &Account) {
+
+        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
+            ?? panic("Could not get vault data view for the contract")
+
+        // Issue a Receiver Capability targetting the ExampleToken Vault
+        let receiverCapability = signer.capabilities.storage.issue<&{FungibleToken.Receiver}>(
+            vaultData.storagePath
         )
-
-        let vault <- PrivateReceiverForwarder.createNewForwarder(recipient: receiverCapability)
-
-        signer.save(<-vault, to: PrivateReceiverForwarder.PrivateReceiverStoragePath)
-
-        signer.link<&{PrivateReceiverForwarder.Forwarder}>(
-            PrivateReceiverForwarder.PrivateReceiverPublicPath,
-            target: PrivateReceiverForwarder.PrivateReceiverStoragePath
+        // Create the Forwarder resource
+        let forwarder <- PrivateReceiverForwarder.createNewForwarder(recipient: receiverCapability)
+        // Save the Forwarder resource to storage
+        signer.storage.save(<-forwarder, to: PrivateReceiverForwarder.PrivateReceiverStoragePath)
+        // Issue a Capability to the Forwarder resource
+        let forwarderCap = signer.capabilities.storage.issue<&PrivateReceiverForwarder.Forwarder>(
+                PrivateReceiverForwarder.PrivateReceiverStoragePath
+            )
+        // Publish the Capability to the Forwarder resource
+        signer.capabilities.publish(
+            forwarderCap,
+            at: PrivateReceiverForwarder.PrivateReceiverPublicPath
         )
     }
 }
