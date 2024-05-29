@@ -141,6 +141,13 @@ fun testUseSwitchboardWithForwarder() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
+    txResult = executeTransaction(
+        "../transactions/tokenForwarder/change_recipient.cdc",
+        [admin.address],
+        recipient
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
     // Fail with invalid capability
     txResult = executeTransaction(
         "../transactions/switchboard/add_vault_wrapper_capability.cdc",
