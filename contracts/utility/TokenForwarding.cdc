@@ -18,8 +18,13 @@ import "FungibleToken"
 
 access(all) contract TokenForwarding {
 
+    access(all) entitlement Owner
+
     // Event that is emitted when tokens are deposited to the target receiver
-    access(all) event ForwardedDeposit(amount: UFix64, depositedUUID: UInt64, from: Address?, to: Address?, toUUID: UInt64, depositedType: Type)
+    access(all) event ForwardedDeposit(amount: UFix64, depositedUUID: UInt64, from: Address?, to: Address?, toUUID: UInt64, depositedType: String)
+
+    // Event that is emitted when the recipient of a forwarder has changed
+    access(all) event ForwarderRecipientUpdated(owner: Address?, oldRecipient: Address?, newRecipient: Address?, newReceiverType: String, newReceiverUUID: UInt64)
 
     access(all) resource interface ForwarderPublic {
 
@@ -55,7 +60,7 @@ access(all) contract TokenForwarding {
 
             let uuid = from.uuid
 
-            emit ForwardedDeposit(amount: balance, depositedUUID: uuid, from: self.owner?.address, to: receiverRef.owner?.address, toUUID: receiverRef.uuid, depositedType: from.getType())
+            emit ForwardedDeposit(amount: balance, depositedUUID: uuid, from: self.owner?.address, to: receiverRef.owner?.address, toUUID: receiverRef.uuid, depositedType: from.getType().identifier)
 
             receiverRef.deposit(from: <-from)
         }
@@ -78,10 +83,13 @@ access(all) contract TokenForwarding {
 
         // changeRecipient changes the recipient of the forwarder to the provided recipient
         //
-        access(all) fun changeRecipient(_ newRecipient: Capability) {
+        access(Owner) fun changeRecipient(_ newRecipient: Capability) {
             pre {
                 newRecipient.borrow<&{FungibleToken.Receiver}>() != nil: "Could not borrow Receiver reference from the Capability"
             }
+            let newRef = newRecipient.borrow<&{FungibleToken.Receiver}>()!
+            let oldRef = self.recipient.borrow<&{FungibleToken.Receiver}>()!
+            emit ForwarderRecipientUpdated(owner: self.owner?.address, oldRecipient: oldRef.owner?.address, newRecipient: newRef.owner?.address, newReceiverType: newRef.getType().identifier, newReceiverUUID: newRef.uuid)
             self.recipient = newRecipient
         }
 
