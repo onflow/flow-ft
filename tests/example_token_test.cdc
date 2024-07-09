@@ -6,17 +6,16 @@ import "ExampleToken"
 import "FungibleToken"
 
 access(all) let admin = Test.getAccount(0x0000000000000007)
+access(all) let service = Test.getAccount(0x0000000000000001)
 access(all) let recipient = Test.createAccount()
 
 access(all)
 fun setup() {
-    deploy("ViewResolver", "../contracts/utility/ViewResolver.cdc")
     deploy("Burner", "../contracts/utility/Burner.cdc")
     deploy("FungibleToken", "../contracts/FungibleToken.cdc")
-    deploy("NonFungibleToken", "../contracts/utility/NonFungibleToken.cdc")
-    deploy("MetadataViews", "../contracts/utility/MetadataViews.cdc")
     deploy("FungibleTokenMetadataViews", "../contracts/FungibleTokenMetadataViews.cdc")
     deploy("ExampleToken", "../contracts/ExampleToken.cdc")
+    deploy("MaliciousToken", "../contracts/test/MaliciousToken.cdc")
 }
 
 access(all)
@@ -308,4 +307,19 @@ fun testGetUnsupportedViewType() {
 
     let view = scriptResult.returnValue
     Test.expect(view, Test.beNil())
+}
+
+
+access(all) fun testTransferTokenFromMaliciousContract() {
+
+    var txResult = executeTransaction(
+        "../transactions/generic_transfer_with_address.cdc",
+        [0.1, admin.address, admin.address, "MaliciousToken"],
+        recipient
+    )
+    Test.expect(txResult, Test.beFailed())
+    Test.assertError(
+        txResult,
+        errorMessage: "The Vault that was withdrawn to transfer is not the type that was requested!"
+    )
 }

@@ -37,6 +37,12 @@
         "testing": "0x0000000000000007"
       }
     },
+    "MaliciousToken": {
+        "source": "./contracts/test/MaliciousToken.cdc",
+        "aliases": {
+          "testing": "0x0000000000000007"
+        }
+      },
     "PrivateReceiverForwarder": {
       "source": "./contracts/utility/PrivateReceiverForwarder.cdc",
       "aliases": {
@@ -56,7 +62,7 @@
       "source": "./contracts/utility/ViewResolver.cdc",
       "aliases": {
         "emulator": "0xf8d6e0586b0a20c7",
-        "testing": "0x0000000000000007",
+        "testing": "0x0000000000000001",
         "previewnet": "0xb6763b4399a888c8",
         "mainnet": "0x1d7e57aa55817448",
         "testnet": "0x631e88ae7f1d7c20"
@@ -75,7 +81,7 @@
       "source": "./contracts/utility/NonFungibleToken.cdc",
       "aliases": {
         "emulator": "0xf8d6e0586b0a20c7",
-        "testing": "0x0000000000000007",
+        "testing": "0x0000000000000001",
         "previewnet": "0xb6763b4399a888c8",
         "mainnet": "0x1d7e57aa55817448",
         "testnet": "0x631e88ae7f1d7c20"
@@ -85,7 +91,7 @@
       "source": "./contracts/utility/MetadataViews.cdc",
       "aliases": {
         "emulator": "0xf8d6e0586b0a20c7",
-        "testing": "0x0000000000000007",
+        "testing": "0x0000000000000001",
         "previewnet": "0xb6763b4399a888c8",
         "mainnet": "0x1d7e57aa55817448",
         "testnet": "0x631e88ae7f1d7c20"
@@ -94,6 +100,7 @@
     "FlowToken": {
       "source": "./contracts/utility/FlowToken.cdc",
       "aliases": {
+        "testing": "0x0000000000000003",
         "emulator": "0x0ae53cb6e3f42a79",
         "testnet": "0x7e60df042a9c0868",
         "mainnet": "0x1654653399040a61"
