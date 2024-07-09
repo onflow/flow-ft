@@ -1,13 +1,18 @@
 import "FungibleToken"
 import "MetadataViews"
 import "FungibleTokenMetadataViews"
+import "ExampleToken"
 
-access(all) contract ExampleToken: FungibleToken {
+/// This is a contract that returns metadata for a different token
+/// type to try to get a user who is transferring tokens
+/// via the generic transactions to transfer the wrong tokens
+
+access(all) contract MaliciousToken: FungibleToken {
 
     /// The event that is emitted when new tokens are minted
     access(all) event TokensMinted(amount: UFix64, type: String)
 
-    /// Total supply of ExampleTokens in existence
+    /// Total supply of MaliciousTokens in existence
     access(all) var totalSupply: UFix64
 
     /// Storage and Public Paths
@@ -19,7 +24,6 @@ access(all) contract ExampleToken: FungibleToken {
     access(all) view fun getContractViews(resourceType: Type?): [Type] {
         return [
             Type<FungibleTokenMetadataViews.FTView>(),
-            Type<FungibleTokenMetadataViews.FTDisplay>(),
             Type<FungibleTokenMetadataViews.FTVaultData>(),
             Type<FungibleTokenMetadataViews.TotalSupply>()
         ]
@@ -32,38 +36,20 @@ access(all) contract ExampleToken: FungibleToken {
                     ftDisplay: self.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTDisplay>()) as! FungibleTokenMetadataViews.FTDisplay?,
                     ftVaultData: self.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
                 )
-            case Type<FungibleTokenMetadataViews.FTDisplay>():
-                let media = MetadataViews.Media(
-                        file: MetadataViews.HTTPFile(
-                        url: "https://assets.website-files.com/5f6294c0c7a8cdd643b1c820/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.svg"
-                    ),
-                    mediaType: "image/svg+xml"
-                )
-                let medias = MetadataViews.Medias([media])
-                return FungibleTokenMetadataViews.FTDisplay(
-                    name: "Example Fungible Token",
-                    symbol: "EFT",
-                    description: "This fungible token is used as an example to help you develop your next FT #onFlow.",
-                    externalURL: MetadataViews.ExternalURL("https://example-ft.onflow.org"),
-                    logos: medias,
-                    socials: {
-                        "twitter": MetadataViews.ExternalURL("https://twitter.com/flow_blockchain")
-                    }
-                )
             case Type<FungibleTokenMetadataViews.FTVaultData>():
                 return FungibleTokenMetadataViews.FTVaultData(
-                    storagePath: self.VaultStoragePath,
-                    receiverPath: self.ReceiverPublicPath,
-                    metadataPath: self.VaultPublicPath,
+                    storagePath: /storage/exampleTokenVault,
+                    receiverPath: /public/exampleTokenReceiver,
+                    metadataPath: /public/exampleTokenVault,
                     receiverLinkedType: Type<&ExampleToken.Vault>(),
                     metadataLinkedType: Type<&ExampleToken.Vault>(),
                     createEmptyVaultFunction: (fun(): @{FungibleToken.Vault} {
-                        return <-ExampleToken.createEmptyVault(vaultType: Type<@ExampleToken.Vault>())
+                        return <-MaliciousToken.createEmptyVault(vaultType: Type<@MaliciousToken.Vault>())
                     })
                 )
             case Type<FungibleTokenMetadataViews.TotalSupply>():
                 return FungibleTokenMetadataViews.TotalSupply(
-                    totalSupply: ExampleToken.totalSupply
+                    totalSupply: MaliciousToken.totalSupply
                 )
         }
         return nil
@@ -94,7 +80,7 @@ access(all) contract ExampleToken: FungibleToken {
         /// Called when a fungible token is burned via the `Burner.burn()` method
         access(contract) fun burnCallback() {
             if self.balance > 0.0 {
-                ExampleToken.totalSupply = ExampleToken.totalSupply - self.balance
+                MaliciousToken.totalSupply = MaliciousToken.totalSupply - self.balance
             }
             self.balance = 0.0
         }
@@ -102,11 +88,11 @@ access(all) contract ExampleToken: FungibleToken {
         /// In fungible tokens, there are no specific views for specific vaults,
         /// So we can route calls to view functions to the contract views functions
         access(all) view fun getViews(): [Type] {
-            return ExampleToken.getContractViews(resourceType: nil)
+            return MaliciousToken.getContractViews(resourceType: nil)
         }
 
         access(all) fun resolveView(_ view: Type): AnyStruct? {
-            return ExampleToken.resolveContractView(resourceType: nil, viewType: view)
+            return MaliciousToken.resolveContractView(resourceType: nil, viewType: view)
         }
 
         /// getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
@@ -135,7 +121,7 @@ access(all) contract ExampleToken: FungibleToken {
         /// created Vault to the context that called so it can be deposited
         /// elsewhere.
         ///
-        access(FungibleToken.Withdraw) fun withdraw(amount: UFix64): @ExampleToken.Vault {
+        access(FungibleToken.Withdraw) fun withdraw(amount: UFix64): @MaliciousToken.Vault {
             self.balance = self.balance - amount
             return <-create Vault(balance: amount)
         }
@@ -150,7 +136,7 @@ access(all) contract ExampleToken: FungibleToken {
         /// been consumed and therefore can be destroyed.
         ///
         access(all) fun deposit(from: @{FungibleToken.Vault}) {
-            let vault <- from as! @ExampleToken.Vault
+            let vault <- from as! @MaliciousToken.Vault
             self.balance = self.balance + vault.balance
             destroy vault
         }
@@ -162,7 +148,7 @@ access(all) contract ExampleToken: FungibleToken {
         /// and store the returned Vault in their storage in order to allow their
         /// account to be able to receive deposits of this token type.
         ///
-        access(all) fun createEmptyVault(): @ExampleToken.Vault {
+        access(all) fun createEmptyVault(): @MaliciousToken.Vault {
             return <-create Vault(balance: 0.0)
         }
     }
@@ -177,8 +163,8 @@ access(all) contract ExampleToken: FungibleToken {
         /// Function that mints new tokens, adds them to the total supply,
         /// and returns them to the calling context.
         ///
-        access(all) fun mintTokens(amount: UFix64): @ExampleToken.Vault {
-            ExampleToken.totalSupply = ExampleToken.totalSupply + amount
+        access(all) fun mintTokens(amount: UFix64): @MaliciousToken.Vault {
+            MaliciousToken.totalSupply = MaliciousToken.totalSupply + amount
             let vault <-create Vault(balance: amount)
             emit TokensMinted(amount: amount, type: vault.getType().identifier)
             return <-vault
@@ -192,17 +178,17 @@ access(all) contract ExampleToken: FungibleToken {
     /// and store the returned Vault in their storage in order to allow their
     /// account to be able to receive deposits of this token type.
     ///
-    access(all) fun createEmptyVault(vaultType: Type): @ExampleToken.Vault {
+    access(all) fun createEmptyVault(vaultType: Type): @MaliciousToken.Vault {
         return <- create Vault(balance: 0.0)
     }
 
     init() {
         self.totalSupply = 1000.0
 
-        self.VaultStoragePath = /storage/exampleTokenVault
-        self.VaultPublicPath = /public/exampleTokenVault
-        self.ReceiverPublicPath = /public/exampleTokenReceiver
-        self.AdminStoragePath = /storage/exampleTokenAdmin 
+        self.VaultStoragePath = /storage/maliciousTokenVault
+        self.VaultPublicPath = /public/maliciousTokenVault
+        self.ReceiverPublicPath = /public/maliciousTokenReceiver
+        self.AdminStoragePath = /storage/maliciousTokenAdmin 
 
         // Create the Vault with the total supply of tokens and save it in storage
         //
@@ -213,12 +199,12 @@ access(all) contract ExampleToken: FungibleToken {
         // the `deposit` method and getAcceptedTypes method through the `Receiver` interface
         // and the `balance` method through the `Balance` interface
         //
-        let exampleTokenCap = self.account.capabilities.storage.issue<&ExampleToken.Vault>(self.VaultStoragePath)
-        self.account.capabilities.publish(exampleTokenCap, at: self.VaultPublicPath)
-        let receiverCap = self.account.capabilities.storage.issue<&ExampleToken.Vault>(self.VaultStoragePath)
+        let maliciousTokenCap = self.account.capabilities.storage.issue<&MaliciousToken.Vault>(self.VaultStoragePath)
+        self.account.capabilities.publish(maliciousTokenCap, at: self.VaultPublicPath)
+        let receiverCap = self.account.capabilities.storage.issue<&MaliciousToken.Vault>(self.VaultStoragePath)
         self.account.capabilities.publish(receiverCap, at: self.ReceiverPublicPath)
 
-        self.account.storage.save(<-vault, to: /storage/exampleTokenVault)
+        self.account.storage.save(<-vault, to: /storage/maliciousTokenVault)
 
         let admin <- create Minter()
         self.account.storage.save(<-admin, to: self.AdminStoragePath)

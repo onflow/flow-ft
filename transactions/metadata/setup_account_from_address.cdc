@@ -1,10 +1,22 @@
 import "FungibleToken"
 import "FungibleTokenMetadataViews"
 
+#interaction (
+  version: "1.0.0",
+	title: "Generic FT Transfer with Contract Address and Name",
+	description: "Transfer any Fungible Token by providing the contract address and name",
+	language: "en-US",
+)
+
 /// This transaction is what an account would run
 /// to set itself up to manage fungible tokens. This function
 /// uses views to know where to set up the vault
 /// in storage and to create the empty vault.
+///
+/// @param contractAddress: The address of the contract
+///        that defines the tokens to initialize
+/// @param contractName: The name of the contract
+///        that defines the tokens to initialize. Ex: "FlowToken"
 
 transaction(contractAddress: Address, contractName: String) {
 
