@@ -41,7 +41,7 @@ There is no need to deploy them yourself.
 | ----------------- | -------------------- |
 | Emulator          | `0xee82856bf20e2aa6` |
 | PreviewNet        | `0xa0225e7000ac82a9` |
-| Testnet/Crescendo | `0x9a0766d93b6608b7` |
+| Testnet           | `0x9a0766d93b6608b7` |
 | Sandboxnet        | `0xe20612a0776ca4bf` |
 | Mainnet           | `0xf233dcee88fe0abe` |
 

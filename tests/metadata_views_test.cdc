@@ -11,11 +11,8 @@ access(all) let admin = Test.getAccount(0x0000000000000007)
 /* Test Setup */
 
 access(all) fun setup() {
-    deploy("ViewResolver", "../contracts/utility/ViewResolver.cdc")
     deploy("Burner", "../contracts/utility/Burner.cdc")
     deploy("FungibleToken", "../contracts/FungibleToken.cdc")
-    deploy("NonFungibleToken", "../contracts/utility/NonFungibleToken.cdc")
-    deploy("MetadataViews", "../contracts/utility/MetadataViews.cdc")
     deploy("FungibleTokenMetadataViews", "../contracts/FungibleTokenMetadataViews.cdc")
     deploy("ExampleToken", "../contracts/ExampleToken.cdc")
 }
