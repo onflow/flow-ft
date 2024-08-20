@@ -40,7 +40,6 @@ There is no need to deploy them yourself.
 | Network           | Contract Address     |
 | ----------------- | -------------------- |
 | Emulator          | `0xee82856bf20e2aa6` |
-| PreviewNet        | `0xa0225e7000ac82a9` |
 | Testnet           | `0x9a0766d93b6608b7` |
 | Sandboxnet        | `0xe20612a0776ca4bf` |
 | Mainnet           | `0xf233dcee88fe0abe` |
@@ -225,7 +224,6 @@ the `FungibleToken` definition to accounts yourself.
 It is a pre-deployed interface in the emulator, testnet, mainnet,
 and playground and you can import definition from those accounts:
     - `0xee82856bf20e2aa6` on emulator
-    - `0xa0225e7000ac82a9 ` on previewnet
     - `0x9a0766d93b6608b7` on testnet/crescendo
     - `0xf233dcee88fe0abe` on mainnet
 2. Deploy the `ExampleToken` definition, making sure to import the `FungibleToken` interface.
