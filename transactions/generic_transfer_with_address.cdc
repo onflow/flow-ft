@@ -15,6 +15,11 @@ import "FungibleTokenMetadataViews"
 /// to make sure the intended token contract name and address is passed in
 /// Contracts that are used must implement the FTVaultData Metadata View
 ///
+/// Note: This transaction only will work for Fungible Tokens that
+///       have their token's resource name set as "Vault".
+///       Tokens with other names will need to use a different transaction
+///       that additionally specifies the identifier
+///
 /// @param amount: The amount of tokens to transfer
 /// @param to: The address to transfer the tokens to
 /// @param contractAddress: The address of the contract that defines the tokens being transferred
