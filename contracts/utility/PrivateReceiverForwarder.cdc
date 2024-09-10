@@ -45,7 +45,9 @@ access(all) contract PrivateReceiverForwarder {
 
         init(recipient: Capability<&{FungibleToken.Receiver}>) {
             pre {
-                recipient.borrow() != nil: "Could not borrow Receiver reference from the Capability"
+                recipient.borrow() != nil: 
+                    "PrivateReceiverForwarder.Forwarder.init: Could not borrow a Receiver reference from the recipient Capability."
+                    .concat("The recipient needs to have the correct Fungible Token Vault initialized in their account with a public Receiver Capability")
             }
             self.recipient = recipient
         }
@@ -65,7 +67,10 @@ access(all) contract PrivateReceiverForwarder {
 
             let privateReceiver = account.capabilities.borrow<&PrivateReceiverForwarder.Forwarder>(
                     PrivateReceiverForwarder.PrivateReceiverPublicPath
-                ) ?? panic("Could not borrow reference to private forwarder")
+                ) ?? panic("PrivateReceiverForwarder.Sender.sendPrivateTokens: Could not borrow a reference to the private forwarder in the account "
+                            .concat(address.toString())
+                            .concat(". Make sure this account has a Forwarder initialized in its storage with a public capability at ")
+                            .concat(PrivateReceiverForwarder.PrivateReceiverPublicPath.toString()))
 
             privateReceiver.deposit(from: <-tokens)
             
