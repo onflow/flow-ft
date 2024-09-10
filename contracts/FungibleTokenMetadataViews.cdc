@@ -142,8 +142,14 @@ access(all) contract FungibleTokenMetadataViews {
             createEmptyVaultFunction: fun(): @{FungibleToken.Vault}
         ) {
             pre {
-                receiverLinkedType.isSubtype(of: Type<&{FungibleToken.Receiver}>()): "Receiver public type must include FungibleToken.Receiver."
-                metadataLinkedType.isSubtype(of: Type<&{FungibleToken.Vault}>()): "Metadata linked type must be a fungible token vault"
+                receiverLinkedType.isSubtype(of: Type<&{FungibleToken.Receiver}>()):
+                    "Receiver public type <".concat(receiverLinkedType.identifier)
+                    .concat("> must be a subtype of <").concat(Type<&{FungibleToken.Receiver}>().identifier)
+                    .concat(">.")
+                metadataLinkedType.isSubtype(of: Type<&{FungibleToken.Vault}>()):
+                    "Metadata linked type <".concat(metadataLinkedType.identifier)
+                    .concat("> must be a subtype of <").concat(Type<&{FungibleToken.Vault}>().identifier)
+                    .concat(">.")
             }
             self.storagePath = storagePath
             self.receiverPath = receiverPath

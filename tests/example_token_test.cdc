@@ -152,7 +152,7 @@ fun testTransferTokenAmountGreaterThanBalance() {
     Test.expect(txResult, Test.beFailed())
     Test.assertError(
         txResult,
-        errorMessage: "Amount withdrawn must be less than or equal than the balance of the Vault"
+        errorMessage: "FungibleToken.Vault.withdraw: Cannot withdraw tokens! The amount requested to be withdrawn (1550.00000000) is greater than the balance of the Vault (200.00000000)."
     )
 }
 
