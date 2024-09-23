@@ -17,7 +17,8 @@ transaction {
     execute {
 
         let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("Could not get vault data view for the contract")
+            ?? panic("Could not resolve FTVaultData view. The ExampleToken"
+                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction"))
 
         // Save a regular vault to the new account
         self.newAccount.storage.save(<-ExampleToken.createEmptyVault(vaultType: Type<@ExampleToken.Vault>()), to: vaultData.storagePath)

@@ -38,15 +38,20 @@ transaction(amount: UFix64, to: Address, contractAddress: Address, contractName:
         // Borrow a reference to the vault stored on the passed account at the passed publicPath
         let resolverRef = getAccount(contractAddress)
             .contracts.borrow<&{FungibleToken}>(name: contractName)
-            ?? panic("Could not borrow a reference to the fungible token contract")
+                ?? panic("Could not borrow FungibleToken reference to the contract. Make sure the provided contract name ("
+                          .concat(contractName).concat(") and address (").concat(contractAddress.toString()).concat(") are correct!"))
 
         // Use that reference to retrieve the FTView 
         self.vaultData = resolverRef.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("Could not resolve the FTVaultData view for the given Fungible token contract")
+            ?? panic("Could not resolve FTVaultData view. The ".concat(contractName)
+                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction"))
 
         // Get a reference to the signer's stored vault
         let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &{FungibleToken.Provider}>(from: self.vaultData.storagePath)
-			?? panic("Could not borrow reference to the owner's Vault!")
+			?? panic("The signer does not store a FungibleToken.Provider object at the path "
+                .concat(self.vaultData.storagePath.toString()).concat("For the ").concat(contractName)
+                .concat(" contract at address ").concat(contractAddress.toString())
+                .concat(". The signer must initialize their account with this object first!"))
 
         self.tempVault <- vaultRef.withdraw(amount: amount)
 
@@ -71,7 +76,10 @@ transaction(amount: UFix64, to: Address, contractAddress: Address, contractName:
     execute {
         let recipient = getAccount(to)
         let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(self.vaultData.receiverPath)
-            ?? panic("Could not borrow reference to the recipient's Receiver!")
+            ?? panic("Could not borrow a Receiver reference to the FungibleToken Vault in account "
+                .concat(to.toString()).concat(" at path ").concat(self.vaultData.receiverPath.toString())
+                .concat(". Make sure you are sending to an address that has ")
+                .concat("a FungibleToken Vault set up properly at the specified path."))
 
         // Transfer tokens from the signer's stored vault to the receiver capability
         receiverRef.deposit(from: <-self.tempVault)

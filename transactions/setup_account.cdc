@@ -12,7 +12,8 @@ transaction () {
     prepare(signer: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue) &Account) {
 
         let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("ViewResolver does not resolve FTVaultData view")
+            ?? panic("Could not resolve FTVaultData view. The ExampleToken"
+                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction"))
 
         // Return early if the account already stores a ExampleToken Vault
         if signer.storage.borrow<&ExampleToken.Vault>(from: vaultData.storagePath) != nil {

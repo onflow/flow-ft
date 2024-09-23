@@ -13,7 +13,9 @@ transaction(address: Address, publicPath: PublicPath) {
         // Borrow a reference to the vault stored on the passed account at the passed publicPath
         let resolverRef = getAccount(address)
             .capabilities.borrow<&{ViewResolver.Resolver}>(publicPath)
-            ?? panic("Could not borrow a reference to the vault view resolver ")
+            ?? panic("Could not borrow a reference to the ViewResolver in account "
+                .concat(address.toString()).concat(" at path ").concat(publicPath.toString())
+                .concat(". Make sure you are querying an address that has a Vault set up properly."))
 
         // Use that reference to retrieve the FTView 
         let ftView = FungibleTokenMetadataViews.getFTView(viewResolver: resolverRef)

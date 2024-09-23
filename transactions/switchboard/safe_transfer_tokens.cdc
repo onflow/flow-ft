@@ -15,11 +15,14 @@ transaction(to: Address, amount: UFix64) {
     prepare(signer: auth(BorrowValue) &Account) {
 
         let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("Could not get vault data view for the contract")
+            ?? panic("Could not resolve FTVaultData view. The ExampleToken"
+                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction"))
 
         // Get a reference to the signer's stored vault
         self.vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &ExampleToken.Vault>(from: vaultData.storagePath)
-			?? panic("Could not borrow reference to the owner's Vault!")
+			?? panic("The signer does not store a ExampleToken Vault object at the path "
+                .concat(vaultData.storagePath.toString())
+                .concat(". The signer must initialize their account with this object first!"))
 
     }
 
@@ -32,8 +35,10 @@ transaction(to: Address, amount: UFix64) {
 
         // Get a reference to the recipient's SwitchboardPublic
         let switchboardRef = recipient.capabilities.borrow<&{FungibleTokenSwitchboard.SwitchboardPublic}>(
-                FungibleTokenSwitchboard.PublicPath
-            ) ?? panic("Could not borrow receiver reference to switchboard!")    
+                FungibleTokenSwitchboard.PublicPath)
+			?? panic("The signer does not store a FungibleToken Switchboard capability at the path "
+                .concat(FungibleTokenSwitchboard.PublicPath.toString())
+                .concat(". The signer must initialize their account with this object first!"))  
 
         // Validate the receiving capability by using safeBorrowByType
         if let receivingRef = switchboardRef.safeBorrowByType(type: Type<@ExampleToken.Vault>()) {

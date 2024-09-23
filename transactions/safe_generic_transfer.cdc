@@ -18,16 +18,23 @@ transaction(amount: UFix64, to: Address, senderPath: StoragePath, receiverPath: 
 
         // Get a reference to the signer's stored vault
         let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &{FungibleToken.Provider}>(from: senderPath)
-			?? panic("Could not borrow reference to the owner's Vault!")
+            ?? panic("The signer does not store a FungibleToken.Provider object at the path "
+                    .concat(senderPath.toString())
+                    .concat("The signer must initialize their account with this object first!"))
         
         self.senderReceiverRef = signer.storage.borrow<&{FungibleToken.Receiver}>(from: senderPath)
-			?? panic("Could not borrow {FungibleToken.Receiver} reference to the owner's Vault!")
+			?? panic("Could not borrow {FungibleToken.Receiver} reference to the signer's Vault!")
 
         self.tempVault <- vaultRef.withdraw(amount: amount)
     }
 
     execute {
-        let receiverRef = getAccount(to).capabilities.borrow<&{FungibleToken.Receiver}>(receiverPath)!
+        let receiverRef = getAccount(to).capabilities.borrow<&{FungibleToken.Receiver}>(receiverPath)
+            ?? panic("Could not borrow a Receiver reference to the FungibleToken Vault in account "
+                .concat(to.toString()).concat(" at path ").concat(receiverPath.toString())
+                .concat(". Make sure you are sending to an address that has ")
+                .concat("a FungibleToken Vault set up properly at the specified path."))
+
         let supportedVaultTypes = receiverRef.getSupportedVaultTypes()
         // Only transfer tokens when the receiver is willing to receive the targeted FT.
         if supportedVaultTypes.containsKey(self.tempVault.getType()) {
