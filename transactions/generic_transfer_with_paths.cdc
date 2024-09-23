@@ -32,7 +32,9 @@ transaction(amount: UFix64, to: Address, senderPathIdentifier: String, receiverP
 
         // Get a reference to the signer's stored vault
         let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &{FungibleToken.Provider}>(from: storagePath)
-			?? panic("Could not borrow reference to the owner's Vault!")
+			?? panic("The signer does not store a FungibleToken.Provider object at the path "
+                .concat(storagePath.toString())
+                .concat("The signer must initialize their account with this object first!"))
 
         self.tempVault <- vaultRef.withdraw(amount: amount)
 
@@ -48,7 +50,10 @@ transaction(amount: UFix64, to: Address, senderPathIdentifier: String, receiverP
 
         let recipient = getAccount(to)
         let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(publicPath)
-            ?? panic("Could not borrow reference to the recipient's Receiver!")
+            ?? panic("Could not borrow a Receiver reference to the FungibleToken Vault in account "
+                .concat(to.toString()).concat(" at path ").concat(publicPath.toString())
+                .concat(". Make sure you are sending to an address that has ")
+                .concat("a FungibleToken Vault set up properly at the specified path."))
 
         // Transfer tokens from the signer's stored vault to the receiver capability
         receiverRef.deposit(from: <-self.tempVault)

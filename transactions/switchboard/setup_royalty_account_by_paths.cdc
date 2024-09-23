@@ -74,7 +74,9 @@ transaction (address: Address) {
         // Get a reference to the switchboard
         self.switchboardRef = signer.storage.borrow<auth(FungibleTokenSwitchboard.Owner) &FungibleTokenSwitchboard.Switchboard>
                                          (from: FungibleTokenSwitchboard.StoragePath) 
-                                ?? panic("Could not borrow reference to switchboard")
+			?? panic("The signer does not store a FungibleToken Switchboard object at the path "
+                .concat(FungibleTokenSwitchboard.StoragePath.toString())
+                .concat(". The signer must initialize their account with this object first!"))
     }
 
     execute {

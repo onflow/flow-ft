@@ -20,11 +20,14 @@ transaction(amount: UFix64, to: Address) {
     prepare(signer: auth(BorrowValue) &Account) {
 
         self.vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("ViewResolver does not resolve FTVaultData view")
+            ?? panic("Could not resolve FTVaultData view. The ExampleToken"
+                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction"))
 
         // Get a reference to the signer's stored vault
         let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &ExampleToken.Vault>(from: self.vaultData.storagePath)
-            ?? panic("Could not borrow reference to the owner's Vault!")
+            ?? panic("The signer does not store an ExampleToken.Vault object at the path "
+                    .concat(self.vaultData.storagePath.toString())
+                    .concat("The signer must initialize their account with this vault first!"))
 
         // Withdraw tokens from the signer's stored vault
         self.sentVault <- vaultRef.withdraw(amount: amount)
@@ -37,7 +40,10 @@ transaction(amount: UFix64, to: Address) {
 
         // Get a reference to the recipient's Receiver
         let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(self.vaultData.receiverPath)
-            ?? panic("Could not borrow receiver reference to the recipient's Vault")
+            ?? panic("Could not borrow a Receiver reference to the FungibleToken Vault in account "
+                .concat(to.toString()).concat(" at path ").concat(self.vaultData.receiverPath.toString())
+                .concat(". Make sure you are sending to an address that has ")
+                .concat("a FungibleToken Vault set up properly at the specified path."))
 
         // Deposit the withdrawn tokens in the recipient's receiver
         receiverRef.deposit(from: <-self.sentVault)
