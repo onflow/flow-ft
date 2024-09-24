@@ -29,8 +29,8 @@ transaction(amount: UFix64) {
                 from: vaultData.storagePath)
 			?? panic("The signer does not store a ExampleToken Vault object at the path "
                 .concat(vaultData.storagePath.toString())
-                .concat("The signer must initialize their account with this object first!"))
-                
+                .concat(". The signer must initialize their account with this object first!"))
+
         self.burnVault <- sourceVault.withdraw(amount: amount) as! @ExampleToken.Vault
     }
 

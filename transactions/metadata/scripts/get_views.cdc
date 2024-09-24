@@ -11,7 +11,7 @@ access(all) fun main(address: Address): [Type] {
 
     let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
         ?? panic("Could not resolve FTVaultData view. The ExampleToken"
-            .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction"))
+            .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction."))
     
     let vaultRef = account.capabilities.borrow<&ExampleToken.Vault>(vaultData.metadataPath)
         ?? panic("Could not borrow a reference to the ExampleToken Vault in account "

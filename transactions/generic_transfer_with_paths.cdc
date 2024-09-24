@@ -28,13 +28,13 @@ transaction(amount: UFix64, to: Address, senderPathIdentifier: String, receiverP
     prepare(signer: auth(BorrowValue) &Account) {
 
         let storagePath = StoragePath(identifier: senderPathIdentifier)
-            ?? panic("Could not construct a storage path from the provided path identifier string")
+            ?? panic("Could not construct a storage path from the provided path identifier string.")
 
         // Get a reference to the signer's stored vault
         let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &{FungibleToken.Provider}>(from: storagePath)
 			?? panic("The signer does not store a FungibleToken.Provider object at the path "
                 .concat(storagePath.toString())
-                .concat("The signer must initialize their account with this object first!"))
+                .concat(". The signer must initialize their account with this object first!"))
 
         self.tempVault <- vaultRef.withdraw(amount: amount)
 

@@ -46,8 +46,8 @@ access(all) contract PrivateReceiverForwarder {
         init(recipient: Capability<&{FungibleToken.Receiver}>) {
             pre {
                 recipient.borrow() != nil: 
-                    "PrivateReceiverForwarder.Forwarder.init: Could not borrow a Receiver reference from the recipient Capability."
-                    .concat("The recipient needs to have the correct Fungible Token Vault initialized in their account with a public Receiver Capability")
+                    "PrivateReceiverForwarder.Forwarder.init: Could not borrow a Receiver reference from the recipient Capability. "
+                    .concat("The recipient needs to have the correct Fungible Token Vault initialized in their account with a public Receiver Capability.")
             }
             self.recipient = recipient
         }
