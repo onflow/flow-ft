@@ -26,7 +26,7 @@ transaction(recipient: Address, amount: UFix64) {
 
         let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
             ?? panic("Could not resolve FTVaultData view. The ExampleToken"
-                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction"))
+                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction."))
     
         self.tokenReceiver = getAccount(recipient).capabilities.borrow<&{FungibleToken.Receiver}>(vaultData.receiverPath)
             ?? panic("Could not borrow a Receiver reference to the FungibleToken Vault in account "

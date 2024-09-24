@@ -15,7 +15,7 @@ transaction (address: Address) {
 
         let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
             ?? panic("Could not resolve FTVaultData view. The ExampleToken"
-                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction"))
+                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction."))
 
         // Store the Example Token receiver's public path in the array of public 
         // paths that will be passed to the switchboard method

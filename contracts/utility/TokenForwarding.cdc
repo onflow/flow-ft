@@ -89,8 +89,8 @@ access(all) contract TokenForwarding {
                     "TokenForwarding.Forwarder.changeRecipient: Could not borrow a Receiver reference from the new Capability. "
                     .concat("This is likely because the recipient account ")
                     .concat(newRecipient.address.toString())
-                    .concat(" has not set up the FungibleToken Vault or public capability correctly.")
-                    .concat("Verify that the address is correct and the account has the correct Vault and capability")
+                    .concat(" has not set up the FungibleToken Vault or public capability correctly. ")
+                    .concat("Verify that the address is correct and the account has the correct Vault and capability.")
             }
             let newRef = newRecipient.borrow<&{FungibleToken.Receiver}>()!
             let oldRef = self.recipient.borrow<&{FungibleToken.Receiver}>()!
@@ -127,8 +127,8 @@ access(all) contract TokenForwarding {
                     "TokenForwarding.Forwarder.changeRecipient: Could not borrow a Receiver reference from the Capability. "
                     .concat("This is likely because the recipient account ")
                     .concat(recipient.address.toString())
-                    .concat(" has not set up the FungibleToken Vault or public capability correctly.")
-                    .concat("Verify that the address is correct and the account has the correct Vault and capability")
+                    .concat(" has not set up the FungibleToken Vault or public capability correctly. ")
+                    .concat("Verify that the address is correct and the account has the correct Vault and capability. ")
             }
             self.recipient = recipient
         }

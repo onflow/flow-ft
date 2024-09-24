@@ -20,7 +20,7 @@ transaction(amount: UFix64, to: Address, senderPath: StoragePath, receiverPath: 
         let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &{FungibleToken.Provider}>(from: senderPath)
             ?? panic("The signer does not store a FungibleToken.Provider object at the path "
                     .concat(senderPath.toString())
-                    .concat("The signer must initialize their account with this object first!"))
+                    .concat(". The signer must initialize their account with this object first!"))
         
         self.senderReceiverRef = signer.storage.borrow<&{FungibleToken.Receiver}>(from: senderPath)
 			?? panic("Could not borrow {FungibleToken.Receiver} reference to the signer's Vault!")

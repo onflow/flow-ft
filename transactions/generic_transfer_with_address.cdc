@@ -44,7 +44,7 @@ transaction(amount: UFix64, to: Address, contractAddress: Address, contractName:
         // Use that reference to retrieve the FTView 
         self.vaultData = resolverRef.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
             ?? panic("Could not resolve FTVaultData view. The ".concat(contractName)
-                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction"))
+                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction."))
 
         // Get a reference to the signer's stored vault
         let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &{FungibleToken.Provider}>(from: self.vaultData.storagePath)

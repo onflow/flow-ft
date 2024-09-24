@@ -67,10 +67,10 @@ access(all) contract FungibleTokenSwitchboard {
             // Borrow a reference to the vault pointed to by the capability we 
             // want to store inside the switchboard
             let vaultRef = capability.borrow() 
-                ?? panic("FungibleTokenSwitchboard.Switchboard.addNewVault: Cannot borrow reference to vault from capability"
-                          .concat("Make sure that the capability path points to a Vault that has been properly initialized"))
+                ?? panic("FungibleTokenSwitchboard.Switchboard.addNewVault: Cannot borrow reference to vault from capability! "
+                          .concat("Make sure that the capability path points to a Vault that has been properly initialized. "))
 
-            // Check if there is a previous capability for this token, if not
+            // Check if there is a previous capability for this token
             if (self.receiverCapabilities[vaultRef.getType()] == nil) {
                 // use the vault reference type as key for storing the 
                 // capability and then
@@ -80,6 +80,11 @@ access(all) contract FungibleTokenSwitchboard {
                 emit VaultCapabilityAdded(type: vaultRef.getType(),
                                                switchboardOwner: self.owner?.address, 
                                                  capabilityOwner: capability.address)
+            } else {
+                // If there was already a capability for that token, panic
+                panic("FungibleTokenSwitchboard.Switchboard.addNewVault: Cannot add new Vault capability! "
+                    .concat("There is already a vault in the Switchboard for this type <")
+                    .concat(vaultRef.getType().identifier).concat(">."))
             }
         }
 
@@ -137,8 +142,8 @@ access(all) contract FungibleTokenSwitchboard {
             assert (
                 capability.check(),
                 message:
-                    "FungibleTokenSwitchboard.Switchboard.addNewVaultWrapper: Cannot borrow reference to a vault from the provided capability"
-                    .concat("Make sure that the capability path points to a Vault that has been properly initialized")
+                    "FungibleTokenSwitchboard.Switchboard.addNewVaultWrapper: Cannot borrow reference to a vault from the provided capability! "
+                    .concat("Make sure that the capability path points to a Vault that has been properly initialized.")
             )
             // Use the type parameter as key for the capability
             self.receiverCapabilities[type] = capability
@@ -196,8 +201,8 @@ access(all) contract FungibleTokenSwitchboard {
             // Borrow a reference to the vault pointed to by the capability we 
             // want to remove from the switchboard
             let vaultRef = capability.borrow()
-                ?? panic ("FungibleTokenSwitchboard.Switchboard.addNewVaultWrapper: Cannot borrow reference to a vault from the provided capability"
-                          .concat("Make sure that the capability path points to a Vault that has been properly initialized"))
+                ?? panic ("FungibleTokenSwitchboard.Switchboard.addNewVaultWrapper: Cannot borrow reference to a vault from the provided capability! "
+                          .concat("Make sure that the capability path points to a Vault that has been properly initialized."))
 
             // Use the vault reference to find the capability to remove
             self.receiverCapabilities.remove(key: vaultRef.getType())
@@ -225,9 +230,9 @@ access(all) contract FungibleTokenSwitchboard {
 
             // Borrow the reference to the desired vault
             let vaultRef = depositedVaultCapability.borrow()
-                ?? panic ("FungibleTokenSwitchboard.Switchboard.deposit: Cannot borrow reference to a vault"
+                ?? panic ("FungibleTokenSwitchboard.Switchboard.deposit: Cannot borrow reference to a vault "
                           .concat("from the type of the deposited Vault <").concat(from.getType().identifier)
-                          .concat(">. Make sure that the capability path points to a Vault that has been properly initialized"))
+                          .concat(">. Make sure that the capability path points to a Vault that has been properly initialized."))
 
             vaultRef.deposit(from: <-from)
         }

@@ -21,13 +21,13 @@ transaction(amount: UFix64, to: Address) {
 
         self.vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
             ?? panic("Could not resolve FTVaultData view. The ExampleToken"
-                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction"))
+                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction."))
 
         // Get a reference to the signer's stored vault
         let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &ExampleToken.Vault>(from: self.vaultData.storagePath)
             ?? panic("The signer does not store an ExampleToken.Vault object at the path "
                     .concat(self.vaultData.storagePath.toString())
-                    .concat("The signer must initialize their account with this vault first!"))
+                    .concat(". The signer must initialize their account with this vault first!"))
 
         // Withdraw tokens from the signer's stored vault
         self.sentVault <- vaultRef.withdraw(amount: amount)

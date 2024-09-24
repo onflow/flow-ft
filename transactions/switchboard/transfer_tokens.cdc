@@ -22,8 +22,8 @@ transaction(to: Address, amount: UFix64, receiverPath: PublicPath) {
         // Get a reference to the signer's stored vault
         self.sourceVault = signer.storage.borrow<auth(FungibleToken.Withdraw) &ExampleToken.Vault>(from: vaultData.storagePath)
 			?? panic("The signer does not store a ExampleToken Vault object at the path "
-                .concat(vaultData.storagePath.toString()).concat("For the ExampleToken contract. ")
-                .concat("The signer must initialize their account with this object first!"))
+                .concat(vaultData.storagePath.toString())
+                .concat(". The signer must initialize their account with this object first!"))
 
     }
 
