@@ -4,3 +4,4 @@ node_modules/*
 coverage.lcov
 coverage.json
 *.pkey
+lcov.info
