@@ -75,7 +75,7 @@ access(all) contract interface FungibleToken: ViewResolver {
     /// The interface that provides a standard field
     /// for representing balance
     ///
-    access(all) resource interface Balance {
+    access(all) resource interface Balance: Burner.Burnable {
         access(all) var balance: UFix64
 
         // This default implementation needs to be in a separate interface
