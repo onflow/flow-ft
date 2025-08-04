@@ -263,8 +263,7 @@ func TestTokenExternalTransfers(t *testing.T) {
 		_ = tx.AddArgument(CadenceUFix64("300.0"))
 		_ = tx.AddArgument(cadence.NewAddress(joshAddress))
 
-		tx.AddArgument(cadence.NewAddress(exampleTokenAddr))
-		tx.AddArgument(cadence.String("ExampleToken"))
+		_ = tx.AddArgument(cadence.String("A." + exampleTokenAddr.String() + ".ExampleToken.Vault"))
 
 		signAndSubmit(
 			t, b, tx,
@@ -459,6 +458,7 @@ func TestMintingAndBurning(t *testing.T) {
 		tx := createTxWithTemplateAndAuthorizer(
 			b, script, exampleTokenAddr)
 
+		_ = tx.AddArgument(cadence.String("A." + exampleTokenAddr.String() + ".ExampleToken.Vault"))
 		_ = tx.AddArgument(CadenceUFix64("50.0"))
 
 		signAndSubmit(

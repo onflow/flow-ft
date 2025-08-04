@@ -1,49 +1,40 @@
 import "FungibleToken"
-import "ExampleToken"
+import "MetadataViews"
 import "FungibleTokenMetadataViews"
 import "Burner"
 
-/// This transaction is a template for a transaction that could be used by the admin account to burn tokens from their
-/// stored Vault
+/// This transaction is a template for a transaction that could be used
+/// by any account to burn tokens from their stored Vault for any Fungible Token
 ///
-/// The burning amount would be a parameter to the transaction
+/// @param ftTypeIdentifier: The type identifier name of the FT type to burn
+/// Ex: "A.1654653399040a61.FlowToken.Vault"
+/// @param amount: The amount of tokens to burn
 ///
-transaction(amount: UFix64) {
-
-    /// The total supply of tokens before the burn
-    let supplyBefore: UFix64
+transaction(ftTypeIdentifier: String, amount: UFix64) {
 
     /// Vault resource that holds the tokens that are being burned
-    let burnVault: @ExampleToken.Vault
+    let burnVault: @{FungibleToken.Vault}
 
     prepare(signer: auth(BorrowValue) &Account) {
 
-        self.supplyBefore = ExampleToken.totalSupply
-
-        let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("Could not resolve FTVaultData view. The ExampleToken"
-                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction"))
+        let vaultData = MetadataViews.resolveContractViewFromTypeIdentifier(
+            resourceTypeIdentifier: ftTypeIdentifier,
+            viewType: Type<FungibleTokenMetadataViews.FTVaultData>()
+        ) as? FungibleTokenMetadataViews.FTVaultData
+            ?? panic("Could not construct valid FT type and view from identifier \(ftTypeIdentifier)")
 
         // Withdraw tokens from the signer's vault in storage
-        let sourceVault = signer.storage.borrow<auth(FungibleToken.Withdraw) &ExampleToken.Vault>(
+        let sourceVault = signer.storage.borrow<auth(FungibleToken.Withdraw) &{FungibleToken.Vault}>(
                 from: vaultData.storagePath)
-			?? panic("The signer does not store a ExampleToken Vault object at the path "
-                .concat(vaultData.storagePath.toString())
+			?? panic("The signer does not store a FungibleToken Vault object at the path \(vaultData.storagePath.toString())"
                 .concat(". The signer must initialize their account with this object first!"))
 
-        self.burnVault <- sourceVault.withdraw(amount: amount) as! @ExampleToken.Vault
+        self.burnVault <- sourceVault.withdraw(amount: amount)
     }
 
     execute {
 
         Burner.burn(<-self.burnVault)
 
-    }
-
-    post {
-        ExampleToken.totalSupply == (self.supplyBefore - amount):
-            "Before: ".concat(self.supplyBefore.toString())
-            .concat(" | After: ".concat(ExampleToken.totalSupply.toString()))
-            .concat(" | Expected: ".concat((self.supplyBefore - amount).toString()))
     }
 }

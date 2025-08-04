@@ -9,6 +9,9 @@ access(all) let admin = Test.getAccount(0x0000000000000007)
 access(all) let service = Test.getAccount(0x0000000000000001)
 access(all) let recipient = Test.createAccount()
 
+access(all) let exampleTokenIdentifier = "A.0000000000000007.ExampleToken.Vault"
+access(all) let maliciousTokenIdentifier = "A.0000000000000007.MaliciousToken.Vault"
+
 access(all)
 fun setup() {
     deploy("Burner", "../contracts/utility/Burner.cdc")
@@ -85,7 +88,7 @@ fun testMintTokens() {
     let tokensDepositedEvent = events[events.length - 1] as! FungibleToken.Deposited
     Test.assertEqual(250.0, tokensDepositedEvent.amount)
     Test.assertEqual(recipient.address, tokensDepositedEvent.to!)
-    Test.assertEqual("A.0000000000000007.ExampleToken.Vault", tokensDepositedEvent.type)
+    Test.assertEqual(exampleTokenIdentifier, tokensDepositedEvent.type)
     Test.assertEqual(250.0, tokensDepositedEvent.balanceAfter!)
 
     // Test that the totalSupply increased by the amount of minted tokens
@@ -116,7 +119,7 @@ fun testTransferTokens() {
     Test.assertEqual(1, events.length)
 
     let tokensWithdrawnEvent = events[0] as! FungibleToken.Withdrawn
-    Test.assertEqual("A.0000000000000007.ExampleToken.Vault", tokensWithdrawnEvent.type)
+    Test.assertEqual(exampleTokenIdentifier, tokensWithdrawnEvent.type)
     Test.assertEqual(50.0, tokensWithdrawnEvent.amount)
     Test.assertEqual(recipient.address, tokensWithdrawnEvent.from!)
     Test.assertEqual(200.0, tokensWithdrawnEvent.balanceAfter!)
@@ -160,7 +163,7 @@ access(all)
 fun testBurnTokens() {
     var txResult = executeTransaction(
         "../transactions/burn_tokens.cdc",
-        [50.0],
+        [exampleTokenIdentifier, 50.0],
         admin
     )
     Test.expect(txResult, Test.beSucceeded())
@@ -171,7 +174,7 @@ fun testBurnTokens() {
 
     let tokensBurnedEvent = events[0] as! FungibleToken.Burned
     Test.assertEqual(50.0, tokensBurnedEvent.amount)
-    Test.assertEqual("A.0000000000000007.ExampleToken.Vault", tokensBurnedEvent.type)
+    Test.assertEqual(exampleTokenIdentifier, tokensBurnedEvent.type)
 
     var scriptResult = executeScript(
         "../transactions/scripts/get_balance.cdc",
@@ -314,7 +317,7 @@ access(all) fun testTransferTokenFromMaliciousContract() {
 
     var txResult = executeTransaction(
         "../transactions/generic_transfer_with_address.cdc",
-        [0.1, admin.address, admin.address, "MaliciousToken"],
+        [0.1, admin.address, maliciousTokenIdentifier],
         recipient
     )
     Test.expect(txResult, Test.beFailed())

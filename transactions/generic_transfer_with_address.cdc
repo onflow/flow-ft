@@ -1,10 +1,11 @@
 import "FungibleToken"
 import "FungibleTokenMetadataViews"
+import "MetadataViews"
 
 #interaction (
-  version: "1.0.0",
+  version: "1.1.0",
 	title: "Generic FT Transfer with Contract Address and Name",
-	description: "Transfer any Fungible Token by providing the contract address and name",
+	description: "Transfer any Fungible Token by providing the vault type identifier",
 	language: "en-US",
 )
 
@@ -22,10 +23,10 @@ import "FungibleTokenMetadataViews"
 ///
 /// @param amount: The amount of tokens to transfer
 /// @param to: The address to transfer the tokens to
-/// @param contractAddress: The address of the contract that defines the tokens being transferred
-/// @param contractName: The name of the contract that defines the tokens being transferred. Ex: "FlowToken"
+/// @param ftTypeIdentifier: The type identifier name of the FT type to burn
+/// Ex: "A.1654653399040a61.FlowToken.Vault"
 ///
-transaction(amount: UFix64, to: Address, contractAddress: Address, contractName: String) {
+transaction(amount: UFix64, to: Address, ftTypeIdentifier: String,) {
 
     // The Vault resource that holds the tokens that are being transferred
     let tempVault: @{FungibleToken.Vault}
@@ -35,40 +36,23 @@ transaction(amount: UFix64, to: Address, contractAddress: Address, contractName:
 
     prepare(signer: auth(BorrowValue) &Account) {
 
-        // Borrow a reference to the vault stored on the passed account at the passed publicPath
-        let resolverRef = getAccount(contractAddress)
-            .contracts.borrow<&{FungibleToken}>(name: contractName)
-                ?? panic("Could not borrow FungibleToken reference to the contract. Make sure the provided contract name ("
-                          .concat(contractName).concat(") and address (").concat(contractAddress.toString()).concat(") are correct!"))
-
-        // Use that reference to retrieve the FTView 
-        self.vaultData = resolverRef.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("Could not resolve FTVaultData view. The ".concat(contractName)
-                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction."))
+        self.vaultData = MetadataViews.resolveContractViewFromTypeIdentifier(
+            resourceTypeIdentifier: ftTypeIdentifier,
+            viewType: Type<FungibleTokenMetadataViews.FTVaultData>()
+        ) as? FungibleTokenMetadataViews.FTVaultData
+            ?? panic("Could not construct valid FT type and view from identifier \(ftTypeIdentifier)")
 
         // Get a reference to the signer's stored vault
         let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &{FungibleToken.Provider}>(from: self.vaultData.storagePath)
 			?? panic("The signer does not store a FungibleToken.Provider object at the path "
-                .concat(self.vaultData.storagePath.toString()).concat("For the ").concat(contractName)
-                .concat(" contract at address ").concat(contractAddress.toString())
-                .concat(". The signer must initialize their account with this object first!"))
+                .concat(" \(self.vaultData.storagePath.toString())."))
 
         self.tempVault <- vaultRef.withdraw(amount: amount)
 
-        // Get the string representation of the address without the 0x
-        var addressString = contractAddress.toString()
-        if addressString.length == 18 {
-            addressString = addressString.slice(from: 2, upTo: 18)
-        }
-        let typeString: String = "A.".concat(addressString).concat(".").concat(contractName).concat(".Vault")
-        let type = CompositeType(typeString)
-        assert(
-            type != nil,
-            message: "Could not create a type out of the contract name and address!"
-        )
+        let type = CompositeType(ftTypeIdentifier)!
 
         assert(
-            self.tempVault.getType() == type!,
+            self.tempVault.getType() == type,
             message: "The Vault that was withdrawn to transfer is not the type that was requested!"
         )
     }
@@ -76,8 +60,7 @@ transaction(amount: UFix64, to: Address, contractAddress: Address, contractName:
     execute {
         let recipient = getAccount(to)
         let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(self.vaultData.receiverPath)
-            ?? panic("Could not borrow a Receiver reference to the FungibleToken Vault in account "
-                .concat(to.toString()).concat(" at path ").concat(self.vaultData.receiverPath.toString())
+            ?? panic("Could not borrow a Receiver reference to the FungibleToken Vault in account \(to.toString()) at path \(self.vaultData.receiverPath.toString())"
                 .concat(". Make sure you are sending to an address that has ")
                 .concat("a FungibleToken Vault set up properly at the specified path."))
 
