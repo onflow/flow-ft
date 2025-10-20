@@ -256,7 +256,7 @@ func TestTokenExternalTransfers(t *testing.T) {
 		)
 		assertEqual(t, CadenceUFix64("0.0"), result)
 
-		script = templates.GenerateTransferGenericVaultWithAddressScript(env.FungibleTokenAddress, env.FungibleTokenMetadataViewsAddress)
+		script = templates.TESTGenerateTransferGenericVaultWithAddressScript(env.FungibleTokenAddress, env.FungibleTokenMetadataViewsAddress, env.MetadataViewsAddress)
 
 		tx = createTxWithTemplateAndAuthorizer(b, script, exampleTokenAddr)
 

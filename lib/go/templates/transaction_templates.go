@@ -98,6 +98,37 @@ func GenerateTransferGenericVaultWithAddressScript(fungibleTokenAddr, ftMetadata
 		ftMetadataViewsImport+withHexPrefix(ftMetadataViewsAddr),
 	)
 
+	code = strings.ReplaceAll(
+		code,
+		placeholderMetadataViews,
+		metadataViewsImport+withHexPrefix(ftMetadataViewsAddr),
+	)
+
+	return []byte(code)
+}
+
+func TESTGenerateTransferGenericVaultWithAddressScript(fungibleTokenAddr, ftMetadataViewsAddr, metadataViewsAddr string) []byte {
+
+	code := assets.MustAssetString(genericTransferWithAddressFilename)
+
+	code = strings.ReplaceAll(
+		code,
+		placeholderFungibleToken,
+		fungibleTokenImport+withHexPrefix(fungibleTokenAddr),
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		placeholderFTMetadataViews,
+		ftMetadataViewsImport+withHexPrefix(ftMetadataViewsAddr),
+	)
+
+	code = strings.ReplaceAll(
+		code,
+		placeholderMetadataViews,
+		metadataViewsImport+withHexPrefix(metadataViewsAddr),
+	)
+
 	return []byte(code)
 }
 
