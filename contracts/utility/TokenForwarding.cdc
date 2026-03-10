@@ -93,8 +93,11 @@ access(all) contract TokenForwarding {
                     .concat("Verify that the address is correct and the account has the correct Vault and capability.")
             }
             let newRef = newRecipient.borrow<&{FungibleToken.Receiver}>()!
-            let oldRef = self.recipient.borrow<&{FungibleToken.Receiver}>()!
-            emit ForwarderRecipientUpdated(owner: self.owner?.address, oldRecipient: oldRef.owner?.address, newRecipient: newRef.owner?.address, newReceiverType: newRef.getType().identifier, newReceiverUUID: newRef.uuid)
+            // The old recipient capability may be stale (e.g. the recipient deleted their vault),
+            // so we use an optional borrow instead of a force-unwrap to avoid permanently
+            // bricking the forwarder in that case.
+            let oldRef = self.recipient.borrow<&{FungibleToken.Receiver}>()
+            emit ForwarderRecipientUpdated(owner: self.owner?.address, oldRecipient: oldRef?.owner?.address, newRecipient: newRef.owner?.address, newReceiverType: newRef.getType().identifier, newReceiverUUID: newRef.uuid)
             self.recipient = newRecipient
         }
 
@@ -107,9 +110,11 @@ access(all) contract TokenForwarding {
                 return {}
             }
             let vaultRef = self.recipient.borrow<&{FungibleToken.Receiver}>()!
-            let supportedVaults: {Type: Bool} = {}
-            supportedVaults[vaultRef.getType()] = true
-            return supportedVaults
+            // Delegate to the recipient's own getSupportedVaultTypes() rather than
+            // returning vaultRef.getType(), which would yield the receiver's concrete
+            // type (e.g. TokenForwarding.Forwarder) instead of the underlying vault
+            // type when forwarders are chained.
+            return vaultRef.getSupportedVaultTypes()
         }
 
         /// Returns whether or not the given type is accepted by the Receiver
