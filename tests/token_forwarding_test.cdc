@@ -17,19 +17,15 @@ fun setup() {
     deploy("TokenForwarding", "../contracts/utility/TokenForwarding.cdc")
 }
 
-/// Bug fix #1: changeRecipient should succeed even when the old recipient
-/// capability is stale (e.g. the previous recipient deleted their vault).
-///
-/// Before the fix, the force-unwrap on `self.recipient.borrow()!` would panic,
-/// permanently bricking the Forwarder. After the fix, an optional borrow is used
-/// so changeRecipient always succeeds regardless of the old cap's validity.
+/// Verifies that changeRecipient succeeds when the old recipient's vault has
+/// been removed, making the stored capability stale. The ForwarderRecipientUpdated
+/// event should emit nil for oldRecipient and the correct address for newRecipient.
 access(all)
 fun testChangeRecipientSucceedsWhenOldCapabilityIsStale() {
     let initialRecipient = Test.createAccount()
     let forwarderOwner = Test.createAccount()
     let newRecipient = Test.createAccount()
 
-    // Both the initial and new recipients set up ExampleToken vaults
     var txResult = executeTransaction(
         "../transactions/setup_account.cdc",
         [],
@@ -44,7 +40,6 @@ fun testChangeRecipientSucceedsWhenOldCapabilityIsStale() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    // forwarderOwner creates a Forwarder pointing to initialRecipient
     txResult = executeTransaction(
         "../transactions/tokenForwarder/create_forwarder.cdc",
         [initialRecipient.address],
@@ -52,8 +47,7 @@ fun testChangeRecipientSucceedsWhenOldCapabilityIsStale() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    // initialRecipient destroys their vault, making forwarderOwner's
-    // stored recipient capability stale
+    // Remove initialRecipient's vault, making forwarderOwner's stored capability stale
     txResult = executeTransaction(
         "transactions/unload_example_token_vault.cdc",
         [],
@@ -61,8 +55,6 @@ fun testChangeRecipientSucceedsWhenOldCapabilityIsStale() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    // changeRecipient must succeed even though the old capability is now stale.
-    // Before the fix this would panic with a force-unwrap failure.
     txResult = executeTransaction(
         "../transactions/tokenForwarder/change_recipient.cdc",
         [newRecipient.address],
@@ -70,7 +62,6 @@ fun testChangeRecipientSucceedsWhenOldCapabilityIsStale() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    // The event should record nil for oldRecipient (stale cap) and the correct newRecipient
     let recipientUpdatedEvents = Test.eventsOfType(Type<TokenForwarding.ForwarderRecipientUpdated>())
     Test.assertEqual(1, recipientUpdatedEvents.length)
 
@@ -79,8 +70,8 @@ fun testChangeRecipientSucceedsWhenOldCapabilityIsStale() {
     Test.assertEqual(newRecipient.address, recipientUpdatedEvent.newRecipient!)
 }
 
-/// Verify that after changeRecipient, the Forwarder actually routes tokens
-/// to the new recipient and not the old (now-stale) one.
+/// Verifies that tokens sent to a Forwarder are routed to the current recipient
+/// after changeRecipient has been called with a stale old capability.
 access(all)
 fun testTokensForwardedToNewRecipientAfterChange() {
     let initialRecipient = Test.createAccount()
@@ -108,7 +99,7 @@ fun testTokensForwardedToNewRecipientAfterChange() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    // Destroy the initial recipient's vault to make the capability stale
+    // Remove initialRecipient's vault, making the stored capability stale
     txResult = executeTransaction(
         "transactions/unload_example_token_vault.cdc",
         [],
@@ -116,7 +107,6 @@ fun testTokensForwardedToNewRecipientAfterChange() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    // Update the Forwarder to point to the new (valid) recipient
     txResult = executeTransaction(
         "../transactions/tokenForwarder/change_recipient.cdc",
         [newRecipient.address],
@@ -124,8 +114,7 @@ fun testTokensForwardedToNewRecipientAfterChange() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    // Mint tokens directly to the forwarderOwner's receiver path (the Forwarder).
-    // They should be forwarded through to newRecipient.
+    // Tokens deposited to forwarderOwner's receiver should be forwarded to newRecipient
     txResult = executeTransaction(
         "../transactions/mint_tokens.cdc",
         [forwarderOwner.address, 100.0],
@@ -133,7 +122,6 @@ fun testTokensForwardedToNewRecipientAfterChange() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    // newRecipient should have received the forwarded tokens
     let scriptResult = executeScript(
         "../transactions/scripts/get_balance.cdc",
         [newRecipient.address]
@@ -143,19 +131,13 @@ fun testTokensForwardedToNewRecipientAfterChange() {
     Test.assertEqual(100.0, balance)
 }
 
-/// Bug fix #2: getSupportedVaultTypes on a chained Forwarder should return the
-/// underlying vault type, not the intermediate forwarder's concrete type.
-///
-/// Before the fix, `getSupportedVaultTypes` returned `{vaultRef.getType(): true}`,
-/// which yields `TokenForwarding.Forwarder` when forwarders are chained rather than
-/// the actual depositable vault type. After the fix it delegates to
-/// `vaultRef.getSupportedVaultTypes()`, propagating the correct type through the chain.
+/// Verifies that getSupportedVaultTypes on a Forwarder returns the vault type
+/// of the underlying recipient, not the Forwarder's own concrete type.
 access(all)
 fun testGetSupportedVaultTypesForSingleForwarder() {
     let vaultAccount = Test.createAccount()
     let forwarderAccount = Test.createAccount()
 
-    // vaultAccount sets up a real ExampleToken vault
     var txResult = executeTransaction(
         "../transactions/setup_account.cdc",
         [],
@@ -163,7 +145,6 @@ fun testGetSupportedVaultTypesForSingleForwarder() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    // forwarderAccount creates a Forwarder pointing to vaultAccount's vault
     txResult = executeTransaction(
         "../transactions/tokenForwarder/create_forwarder.cdc",
         [vaultAccount.address],
@@ -171,7 +152,6 @@ fun testGetSupportedVaultTypesForSingleForwarder() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    // getSupportedVaultTypes on the Forwarder must return the underlying vault type
     let scriptResult = executeScript(
         "../transactions/scripts/get_supported_vault_types.cdc",
         [forwarderAccount.address, /public/exampleTokenReceiver]
@@ -183,13 +163,15 @@ fun testGetSupportedVaultTypesForSingleForwarder() {
     Test.assertEqual(expectedTypes, supportedTypes)
 }
 
+/// Verifies that getSupportedVaultTypes correctly resolves the underlying vault
+/// type through a chain of Forwarders (Forwarder → Forwarder → Vault),
+/// returning the depositable vault type rather than an intermediate forwarder type.
 access(all)
 fun testGetSupportedVaultTypesForChainedForwarders() {
     let vaultAccount = Test.createAccount()
     let forwarderA = Test.createAccount()
     let forwarderB = Test.createAccount()
 
-    // vaultAccount sets up a real ExampleToken vault
     var txResult = executeTransaction(
         "../transactions/setup_account.cdc",
         [],
@@ -213,8 +195,6 @@ fun testGetSupportedVaultTypesForChainedForwarders() {
     )
     Test.expect(txResult, Test.beSucceeded())
 
-    // Before the fix, querying forwarderB returned {TokenForwarding.Forwarder: true}.
-    // After the fix, it must recursively resolve to {ExampleToken.Vault: true}.
     let scriptResult = executeScript(
         "../transactions/scripts/get_supported_vault_types.cdc",
         [forwarderB.address, /public/exampleTokenReceiver]
@@ -225,7 +205,6 @@ fun testGetSupportedVaultTypesForChainedForwarders() {
     let expectedTypes = {Type<@ExampleToken.Vault>(): true}
     Test.assertEqual(expectedTypes, supportedTypes)
 
-    // Sanity check: the incorrect pre-fix result is NOT present
     Test.assert(
         supportedTypes[Type<@TokenForwarding.Forwarder>()] == nil,
         message: "getSupportedVaultTypes must not return TokenForwarding.Forwarder as a supported type"
