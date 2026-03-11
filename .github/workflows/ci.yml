@@ -19,10 +19,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Install Flow CLI
-        run: sh -ci "$(curl -fsSL https://raw.githubusercontent.com/onflow/flow-cli/master/install.sh)"
-      - name: Flow CLI Version
-        run: flow version
-      - name: Update PATH
-        run: echo "/root/.local/bin" >> $GITHUB_PATH
+        uses: onflow/flow-cli-action@v1
       - name: Run tests
         run: make ci
