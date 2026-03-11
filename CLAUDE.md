@@ -32,6 +32,12 @@ The `.cdc` files in `contracts/` and `transactions/` are the canonical source. T
 1. **Cadence tests** (`tests/*.cdc`) — run directly by `flow test` against the Flow testing framework. These are the primary tests and easiest to write/read. All new tests should preferably be written in Cadence.
 2. **Go tests** (`lib/go/test/`) — use `go-bindata`-embedded copies of the same `.cdc` files (via `lib/go/contracts/internal/assets/`). The Go layer also has template helpers in `lib/go/templates/` that inject contract addresses into transaction/script strings at test time.
 
+### Tests
+
+All new tests should be written in Cadence unless an old Go test can be easily modified.
+
+If any changes are made to any of the Cadence code, all the tests in `make test` should pass before finishing. `make ci` should also pass before finishing any tasks.
+
 ### Contract hierarchy
 
 `FungibleToken.cdc` is a **contract interface** (not a concrete contract). It defines the `Vault` resource interface, `Withdraw` entitlement, and standard events (`Withdrawn`, `Deposited`, `Burned`). Crucially, it enforces pre/post conditions on `withdraw` and `deposit` at the interface level — implementations get these for free.
