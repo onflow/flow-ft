@@ -132,6 +132,106 @@ fun testRemoveVaultTypeFromSwitchboard() {
     Test.expect(supportedTypes, Test.beEmpty())
 }
 
+/// Verifies that removeVault panics with the correct function name in the error
+/// message when the provided capability cannot be borrowed.
+access(all)
+fun testRemoveVaultPanicsWithCorrectFunctionName() {
+    let account = Test.createAccount()
+
+    var txResult = executeTransaction(
+        "../transactions/switchboard/setup_account.cdc",
+        [],
+        account
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
+    // Pass a path where nothing is published so the borrow will fail
+    txResult = executeTransaction(
+        "../transactions/switchboard/remove_vault_capability.cdc",
+        [/public/nonExistentPath],
+        account
+    )
+    Test.expect(txResult, Test.beFailed())
+    Test.assert(
+        txResult.error!.message.contains("removeVault"),
+        message: "Expected panic message to name 'removeVault' as the failing function"
+    )
+}
+
+/// Verifies that addNewVaultWrappersByPath panics when the paths and types
+/// arrays have different lengths.
+access(all)
+fun testAddNewVaultWrappersByPathPanicsOnMismatchedArrayLengths() {
+    let account = Test.createAccount()
+
+    var txResult = executeTransaction(
+        "../transactions/setup_account.cdc",
+        [],
+        account
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
+    txResult = executeTransaction(
+        "../transactions/switchboard/setup_account.cdc",
+        [],
+        account
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
+    // Two paths, one type — should fail the pre-condition
+    txResult = executeTransaction(
+        "transactions/switchboard_add_wrappers_mismatched_arrays.cdc",
+        [account.address],
+        account
+    )
+    Test.expect(txResult, Test.beFailed())
+    Test.assert(
+        txResult.error!.message.contains("paths and types arrays must be the same length"),
+        message: "Expected panic message about mismatched paths and types array lengths"
+    )
+}
+
+/// Verifies that addNewVaultsByPath correctly adds vault capabilities from
+/// the given address to the switchboard, using the vault reference type as the key.
+access(all)
+fun testAddNewVaultsByPathAddsCapabilitiesCorrectly() {
+    let vaultOwner = Test.createAccount()
+    let switchboardOwner = Test.createAccount()
+
+    var txResult = executeTransaction(
+        "../transactions/setup_account.cdc",
+        [],
+        vaultOwner
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
+    txResult = executeTransaction(
+        "../transactions/switchboard/setup_account.cdc",
+        [],
+        switchboardOwner
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
+    // Add vaultOwner's ExampleToken vault capability to switchboardOwner's switchboard
+    txResult = executeTransaction(
+        "../transactions/switchboard/batch_add_vault_capabilities.cdc",
+        [vaultOwner.address],
+        switchboardOwner
+    )
+    Test.expect(txResult, Test.beSucceeded())
+
+    // Verify the ExampleToken vault type is now in the switchboard
+    let scriptResult = executeScript(
+        "../transactions/scripts/get_supported_vault_types.cdc",
+        [switchboardOwner.address, /public/GenericFTReceiver]
+    )
+    Test.expect(scriptResult, Test.beSucceeded())
+
+    let supportedTypes = scriptResult.returnValue! as! {Type: Bool}
+    let expectedTypes = {Type<@ExampleToken.Vault>(): true}
+    Test.assertEqual(expectedTypes, supportedTypes)
+}
+
 access(all)
 fun testUseSwitchboardWithForwarder() {
     var txResult = executeTransaction(
