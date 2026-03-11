@@ -106,8 +106,8 @@ access(all) contract TokenForwarding {
             let oldRef = self.recipient.borrow<&{FungibleToken.Receiver}>()
             emit ForwarderRecipientUpdated(
                 owner: self.owner?.address,
-                oldRecipient: oldRef?.owner?.address,
-                newRecipient: newRef.owner?.address,
+                oldRecipient: self.recipient.address,
+                newRecipient: newRecipient.address,
                 newReceiverType: newRef.getType().identifier,
                 newReceiverUUID: newRef.uuid
             )

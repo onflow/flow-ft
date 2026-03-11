@@ -19,7 +19,8 @@ fun setup() {
 
 /// Verifies that changeRecipient succeeds when the old recipient's vault has
 /// been removed, making the stored capability stale. The ForwarderRecipientUpdated
-/// event should emit nil for oldRecipient and the correct address for newRecipient.
+/// event should emit the old capability's address for oldRecipient and the correct
+/// address for newRecipient.
 access(all)
 fun testChangeRecipientSucceedsWhenOldCapabilityIsStale() {
     let initialRecipient = Test.createAccount()
@@ -66,7 +67,7 @@ fun testChangeRecipientSucceedsWhenOldCapabilityIsStale() {
     Test.assertEqual(1, recipientUpdatedEvents.length)
 
     let recipientUpdatedEvent = recipientUpdatedEvents[0] as! TokenForwarding.ForwarderRecipientUpdated
-    Test.assertEqual(nil, recipientUpdatedEvent.oldRecipient)
+    Test.assertEqual(initialRecipient.address, recipientUpdatedEvent.oldRecipient!)
     Test.assertEqual(newRecipient.address, recipientUpdatedEvent.newRecipient!)
 }
 
