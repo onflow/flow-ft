@@ -40,7 +40,13 @@ access(all) contract PrivateReceiverForwarder {
 
             receiverRef.deposit(from: <-from)
 
-            emit PrivateDeposit(amount: balance, depositedUUID: uuid, from: self.owner?.address, to: receiverRef.owner?.address, toUUID: receiverRef.uuid)
+            emit PrivateDeposit(
+                amount: balance,
+                depositedUUID: uuid,
+                from: self.owner?.address,
+                to: receiverRef.owner?.address,
+                toUUID: receiverRef.uuid
+            )
         }
 
         init(recipient: Capability<&{FungibleToken.Receiver}>) {

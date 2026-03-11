@@ -180,7 +180,10 @@ access(all) contract ExampleToken: FungibleToken {
         access(all) fun mintTokens(amount: UFix64): @ExampleToken.Vault {
             ExampleToken.totalSupply = ExampleToken.totalSupply + amount
             let vault <-create Vault(balance: amount)
-            emit TokensMinted(amount: amount, type: vault.getType().identifier)
+            emit TokensMinted(
+                amount: amount,
+                type: vault.getType().identifier
+            )
             return <-vault
         }
     }
