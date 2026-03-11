@@ -60,7 +60,14 @@ access(all) contract TokenForwarding {
 
             let uuid = from.uuid
 
-            emit ForwardedDeposit(amount: balance, depositedUUID: uuid, from: self.owner?.address, to: receiverRef.owner?.address, toUUID: receiverRef.uuid, depositedType: from.getType().identifier)
+            emit ForwardedDeposit(
+                amount: balance,
+                depositedUUID: uuid,
+                from: self.owner?.address,
+                to: receiverRef.owner?.address,
+                toUUID: receiverRef.uuid,
+                depositedType: from.getType().identifier
+            )
 
             receiverRef.deposit(from: <-from)
         }
@@ -97,7 +104,13 @@ access(all) contract TokenForwarding {
             // so we use an optional borrow instead of a force-unwrap to avoid permanently
             // bricking the forwarder in that case.
             let oldRef = self.recipient.borrow<&{FungibleToken.Receiver}>()
-            emit ForwarderRecipientUpdated(owner: self.owner?.address, oldRecipient: oldRef?.owner?.address, newRecipient: newRef.owner?.address, newReceiverType: newRef.getType().identifier, newReceiverUUID: newRef.uuid)
+            emit ForwarderRecipientUpdated(
+                owner: self.owner?.address,
+                oldRecipient: oldRef?.owner?.address,
+                newRecipient: newRef.owner?.address,
+                newReceiverType: newRef.getType().identifier,
+                newReceiverUUID: newRef.uuid
+            )
             self.recipient = newRecipient
         }
 

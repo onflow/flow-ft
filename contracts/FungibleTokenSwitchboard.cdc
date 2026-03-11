@@ -77,9 +77,11 @@ access(all) contract FungibleTokenSwitchboard {
                 self.receiverCapabilities[vaultRef.getType()] = capability
                 // emit the event that indicates that a new capability has been 
                 // added
-                emit VaultCapabilityAdded(type: vaultRef.getType(),
-                                               switchboardOwner: self.owner?.address, 
-                                                 capabilityOwner: capability.address)
+                emit VaultCapabilityAdded(
+                    type: vaultRef.getType(),
+                    switchboardOwner: self.owner?.address,
+                    capabilityOwner: capability.address
+                )
             } else {
                 // If there was already a capability for that token, panic
                 panic("FungibleTokenSwitchboard.Switchboard.addNewVault: Cannot add new Vault capability! "
@@ -112,7 +114,8 @@ access(all) contract FungibleTokenSwitchboard {
                         self.receiverCapabilities[vaultRef!.getType()] = capability
                         // and emit the event that indicates that a new
                         // capability has been added
-                        emit VaultCapabilityAdded(type: vaultRef.getType(),
+                        emit VaultCapabilityAdded(
+                            type: vaultRef.getType(),
                             switchboardOwner: self.owner?.address,
                             capabilityOwner: address,
                         )

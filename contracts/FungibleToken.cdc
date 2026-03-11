@@ -185,7 +185,11 @@ access(all) contract interface FungibleToken: ViewResolver {
         /// This is to prevent vault owners from spamming fake Burned events.
         access(contract) fun burnCallback() {
             pre {
-                emit Burned(type: self.getType().identifier, amount: self.balance, fromUUID: self.uuid)
+                emit Burned(
+                    type: self.getType().identifier,
+                    amount: self.balance,
+                    fromUUID: self.uuid
+                )
             }
             post {
                 self.balance == 0.0:
