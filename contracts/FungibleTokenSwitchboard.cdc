@@ -108,10 +108,10 @@ access(all) contract FungibleTokenSwitchboard {
                 // If the vault was borrowed successfully...
                 if let vaultRef = capability.borrow() {
                     // ...and if there is no previous capability added for that token
-                    if (self.receiverCapabilities[vaultRef!.getType()] == nil) {
+                    if (self.receiverCapabilities[vaultRef.getType()] == nil) {
                         // Use the vault reference type as key for storing the
                         // capability
-                        self.receiverCapabilities[vaultRef!.getType()] = capability
+                        self.receiverCapabilities[vaultRef.getType()] = capability
                         // and emit the event that indicates that a new
                         // capability has been added
                         emit VaultCapabilityAdded(
@@ -170,8 +170,12 @@ access(all) contract FungibleTokenSwitchboard {
         /// @param types: The types of the fungible token to be deposited on each path.
         /// @param address: The address of the owner of the capabilities.
         /// 
-        access(Owner) fun addNewVaultWrappersByPath(paths: [PublicPath], types: [Type], 
+        access(Owner) fun addNewVaultWrappersByPath(paths: [PublicPath], types: [Type],
                                                                   address: Address) {
+            pre {
+                paths.length == types.length:
+                    "FungibleTokenSwitchboard.Switchboard.addNewVaultWrappersByPath: paths and types arrays must be the same length."
+            }
             // Get the account where the public capabilities are stored
             let owner = getAccount(address)
             // For each path, get the saved capability and store it 
@@ -204,7 +208,7 @@ access(all) contract FungibleTokenSwitchboard {
             // Borrow a reference to the vault pointed to by the capability we 
             // want to remove from the switchboard
             let vaultRef = capability.borrow()
-                ?? panic ("FungibleTokenSwitchboard.Switchboard.addNewVaultWrapper: Cannot borrow reference to a vault from the provided capability! "
+                ?? panic ("FungibleTokenSwitchboard.Switchboard.removeVault: Cannot borrow reference to a vault from the provided capability! "
                           .concat("Make sure that the capability path points to a Vault that has been properly initialized."))
 
             // Use the vault reference to find the capability to remove
