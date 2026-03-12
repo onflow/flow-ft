@@ -99,7 +99,7 @@ access(all) contract interface FungibleToken: ViewResolver {
 
         /// Function to ask a provider if a specific amount of tokens
         /// is available to be withdrawn
-        /// This could be useful to avoid panicing when calling withdraw
+        /// This could be useful to avoid panicking when calling withdraw
         /// when the balance is unknown
         /// Additionally, if the provider is pulling from multiple vaults
         /// it only needs to check some of the vaults until the desired amount
