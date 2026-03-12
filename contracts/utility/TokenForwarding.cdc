@@ -44,15 +44,13 @@ access(all) contract TokenForwarding {
     access(all) resource Forwarder: FungibleToken.Receiver, ForwarderPublic {
 
         /// The capability pointing to the receiver that deposited tokens will be forwarded to.
-        /// Using a typed capability ensures compile-time safety and avoids requiring explicit
-        /// type parameters on every borrow/check call.
-        access(self) var recipient: Capability<&{FungibleToken.Receiver}>
+        access(self) var recipient: Capability
 
         /// Forwards the deposited vault to the recipient receiver.
         /// Emits a ForwardedDeposit event before calling the external deposit
         /// to follow the Checks-Effects-Interactions pattern.
         access(all) fun deposit(from: @{FungibleToken.Vault}) {
-            let receiverRef = self.recipient.borrow()
+            let receiverRef = self.recipient.borrow<&{FungibleToken.Receiver}>()
                 ?? panic("TokenForwarding.Forwarder.deposit: Could not borrow a Receiver reference from the recipient capability. "
                     .concat("This is likely because the recipient account has removed their Vault or public capability. ")
                     .concat("The owner of this Forwarder should call changeRecipient to update it to a valid receiver."))
@@ -76,7 +74,7 @@ access(all) contract TokenForwarding {
         /// Helper function to check whether set `recipient` capability
         /// is not latent or the capability tied to a type is valid.
         access(all) fun check(): Bool {
-            return self.recipient.check()
+            return self.recipient.check<&{FungibleToken.Receiver}>()
         }
 
         /// Gets the receiver assigned to a recipient capability.
@@ -86,7 +84,7 @@ access(all) contract TokenForwarding {
         ///
         /// @return an optional receiver capability for consumers of the TokenForwarding to check/validate on their own
         access(all) fun safeBorrow(): &{FungibleToken.Receiver}? {
-            return self.recipient.borrow()
+            return self.recipient.borrow<&{FungibleToken.Receiver}>()
         }
 
         /// Changes the recipient of the forwarder to the provided capability.
@@ -121,7 +119,7 @@ access(all) contract TokenForwarding {
         /// @return Dictionary of FT types that can be deposited.
         access(all) view fun getSupportedVaultTypes(): {Type: Bool} {
             // Single borrow eliminates the TOCTOU between a separate check() and borrow()
-            if let vaultRef = self.recipient.borrow() {
+            if let vaultRef = self.recipient.borrow<&{FungibleToken.Receiver}>() {
                 return vaultRef.getSupportedVaultTypes()
             }
             return {}
