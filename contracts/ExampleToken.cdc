@@ -109,17 +109,6 @@ access(all) contract ExampleToken: FungibleToken {
             return ExampleToken.resolveContractView(resourceType: nil, viewType: view)
         }
 
-        /// getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
-        access(all) view fun getSupportedVaultTypes(): {Type: Bool} {
-            let supportedTypes: {Type: Bool} = {}
-            supportedTypes[self.getType()] = true
-            return supportedTypes
-        }
-
-        access(all) view fun isSupportedVaultType(type: Type): Bool {
-            return self.getSupportedVaultTypes()[type] ?? false
-        }
-
         /// Asks if the amount can be withdrawn from this vault
         access(all) view fun isAvailableToWithdraw(amount: UFix64): Bool {
             return amount <= self.balance
@@ -180,7 +169,10 @@ access(all) contract ExampleToken: FungibleToken {
         access(all) fun mintTokens(amount: UFix64): @ExampleToken.Vault {
             ExampleToken.totalSupply = ExampleToken.totalSupply + amount
             let vault <-create Vault(balance: amount)
-            emit TokensMinted(amount: amount, type: vault.getType().identifier)
+            emit TokensMinted(
+                amount: amount,
+                type: vault.getType().identifier
+            )
             return <-vault
         }
     }

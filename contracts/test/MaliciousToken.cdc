@@ -166,7 +166,10 @@ access(all) contract MaliciousToken: FungibleToken {
         access(all) fun mintTokens(amount: UFix64): @MaliciousToken.Vault {
             MaliciousToken.totalSupply = MaliciousToken.totalSupply + amount
             let vault <-create Vault(balance: amount)
-            emit TokensMinted(amount: amount, type: vault.getType().identifier)
+            emit TokensMinted(
+                amount: amount,
+                type: vault.getType().identifier
+            )
             return <-vault
         }
     }
@@ -193,7 +196,10 @@ access(all) contract MaliciousToken: FungibleToken {
         // Create the Vault with the total supply of tokens and save it in storage
         //
         let vault <- create Vault(balance: self.totalSupply)
-        emit TokensMinted(amount: vault.balance, type: vault.getType().identifier)
+        emit TokensMinted(
+            amount: vault.balance,
+            type: vault.getType().identifier
+        )
 
         // Create a public capability to the stored Vault that exposes
         // the `deposit` method and getAcceptedTypes method through the `Receiver` interface

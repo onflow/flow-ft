@@ -6,11 +6,6 @@ and easy to use fungible token contract.
 It also includes an example implementation to show how a 
 concrete smart contract would actually implement the interface.
 
-The version of the contracts in the `master` branch is the
-Cadence 1.0 version of the contracts and is not the same
-as the ones that are currently deployed to testnet and mainnet.
-See the `cadence-0.42` branch for the currently deployed versions.
-
 ## What is Flow?
 
 Flow is a new blockchain for open worlds. Read more about it [here](https://www.flow.com/).
