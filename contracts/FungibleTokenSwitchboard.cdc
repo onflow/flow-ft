@@ -17,20 +17,14 @@ access(all) contract FungibleTokenSwitchboard {
 
     /// The event that is emitted when a new vault capability is added to a
     /// switchboard resource.
-    /// 
-    access(all) event VaultCapabilityAdded(type: Type, switchboardOwner: Address?, 
-                                    capabilityOwner: Address?)
+    access(all) event VaultCapabilityAdded(type: Type, switchboardOwner: Address?, capabilityOwner: Address?)
 
-    /// The event that is emitted when a vault capability is removed from a 
+    /// The event that is emitted when a vault capability is removed from a
     /// switchboard resource.
-    /// 
-    access(all) event VaultCapabilityRemoved(type: Type,  switchboardOwner: Address?, 
-                                        capabilityOwner: Address?)
+    access(all) event VaultCapabilityRemoved(type: Type, switchboardOwner: Address?, capabilityOwner: Address?)
 
     /// The event that is emitted when a deposit can not be completed.
-    /// 
-    access(all) event NotCompletedDeposit(type: Type, amount: UFix64, 
-                                    switchboardOwner: Address?)
+    access(all) event NotCompletedDeposit(type: Type, amount: UFix64, switchboardOwner: Address?)
 
     /// The interface that enforces the method to allow anyone to check on the
     /// available capabilities of a switchboard resource and also exposes the 
@@ -139,15 +133,13 @@ access(all) contract FungibleTokenSwitchboard {
         /// capability, rather than the `Type` from the reference borrowed from
         /// said capability
         /// 
-        access(Owner) fun addNewVaultWrapper(capability: Capability<&{FungibleToken.Receiver}>, 
+        access(Owner) fun addNewVaultWrapper(capability: Capability<&{FungibleToken.Receiver}>,
                                                                         type: Type) {
-            // Check if the capability is working
-            assert (
-                capability.check(),
-                message:
+            pre {
+                capability.check():
                     "FungibleTokenSwitchboard.Switchboard.addNewVaultWrapper: Cannot borrow reference to a vault from the provided capability! "
                     .concat("Make sure that the capability path points to a Vault that has been properly initialized.")
-            )
+            }
             // Use the type parameter as key for the capability
             self.receiverCapabilities[type] = capability
             // emit the event that indicates that a new capability has been 
@@ -279,33 +271,33 @@ access(all) contract FungibleTokenSwitchboard {
             return nil
         }
 
-        /// Checks that the capability tied to a type is valid
+        /// Checks that the capability tied to a type is valid.
         ///
-        /// @param vaultType: The type of the ft vault whose capability needs to be checked
+        /// @param type: The type of the ft vault whose capability needs to be checked
         ///
         /// @return a boolean marking the capability for a type as valid or not
         access(all) view fun checkReceiverByType(type: Type): Bool {
-            if self.receiverCapabilities[type] == nil {
-                return false
+            if let cap = self.receiverCapabilities[type] {
+                return cap.check()
             }
-
-            return self.receiverCapabilities[type]!.check()
+            return false
         }
 
         /// Gets the receiver assigned to a provided vault type.
         /// This is necessary because without it, it is not possible to look under the hood and see if a capability
-        /// is of an expected type or not. This helps guard against infinitely chained TokenForwarding or other invalid 
+        /// is of an expected type or not. This helps guard against infinitely chained TokenForwarding or other invalid
         /// malicious kinds of updates that could prevent listings from being made that are valid on storefronts.
         ///
-        /// @param vaultType: The type of the ft vault whose capability needs to be checked
+        /// @param type: The type of the ft vault whose capability needs to be checked
         ///
         /// @return an optional receiver capability for consumers of the switchboard to check/validate on their own
         access(all) view fun safeBorrowByType(type: Type): &{FungibleToken.Receiver}? {
-            if !self.checkReceiverByType(type: type) {
-                return nil
+            // Single dictionary lookup: returns nil if the type is not registered
+            // or if the capability is stale, without a separate check() + borrow() TOCTOU.
+            if let cap = self.receiverCapabilities[type] {
+                return cap.borrow()
             }
-
-            return self.receiverCapabilities[type]!.borrow()
+            return nil
         }
 
         /// A getter function to know which tokens a certain switchboard 
@@ -317,11 +309,11 @@ access(all) contract FungibleTokenSwitchboard {
         ///
         access(all) view fun getVaultTypesWithAddress(): {Type: Address} {
             let effectiveTypesWithAddress: {Type: Address} = {}
-            // Check if each capability is live
+            // Iterate over key-value pairs to avoid double dictionary lookups per entry
             for vaultType in self.receiverCapabilities.keys {
-                if self.receiverCapabilities[vaultType]!.check() {
-                    // and attach it to the owner's address
-                    effectiveTypesWithAddress[vaultType] = self.receiverCapabilities[vaultType]!.address
+                let cap = self.receiverCapabilities[vaultType]!
+                if cap.check() {
+                    effectiveTypesWithAddress[vaultType] = cap.address
                 }
             }
             return effectiveTypesWithAddress
@@ -331,18 +323,26 @@ access(all) contract FungibleTokenSwitchboard {
         /// which can be deposited using the 'deposit' function.
         ///
         /// @return Dictionary of FT types that can be deposited.
-        access(all) view fun getSupportedVaultTypes(): {Type: Bool} { 
+        access(all) view fun getSupportedVaultTypes(): {Type: Bool} {
             let supportedVaults: {Type: Bool} = {}
+            // Iterate over key-value pairs to avoid repeated dictionary lookups.
+            // Using borrow() instead of check() + borrow() eliminates the TOCTOU
+            // between the two calls and reduces the total number of capability operations.
             for receiverType in self.receiverCapabilities.keys {
-                if self.receiverCapabilities[receiverType]!.check() {
+                let cap = self.receiverCapabilities[receiverType]!
+                if let receiverRef = cap.borrow() {
+                    // Direct vault types are added as-is
                     if receiverType.isSubtype(of: Type<@{FungibleToken.Vault}>()) {
                         supportedVaults[receiverType] = true
                     }
+                    // Wrapper receivers (e.g. TokenForwarding.Forwarder) are not Vault subtypes,
+                    // but they implement Receiver — recurse into their supported types to find
+                    // the underlying vault types they accept.
                     if receiverType.isSubtype(of: Type<@{FungibleToken.Receiver}>()) {
-                        let receiverRef = self.receiverCapabilities[receiverType]!.borrow()!
-                        let subReceiverSupportedTypes = receiverRef.getSupportedVaultTypes()
-                        for subReceiverType in subReceiverSupportedTypes.keys {                          
-                            if subReceiverType.isSubtype(of: Type<@{FungibleToken.Vault}>()) {
+                        let subTypes = receiverRef.getSupportedVaultTypes()
+                        for subReceiverType in subTypes.keys {
+                            let supported = subTypes[subReceiverType]!
+                            if supported && subReceiverType.isSubtype(of: Type<@{FungibleToken.Vault}>()) {
                                 supportedVaults[subReceiverType] = true
                             }
                         }
@@ -352,13 +352,10 @@ access(all) contract FungibleTokenSwitchboard {
             return supportedVaults
         }
 
-        /// Returns whether or not the given type is accepted by the Receiver
-        /// A vault that can accept any type should just return true by default
+        /// Returns whether or not the given type is accepted by the Receiver.
+        /// A vault that can accept any type should just return true by default.
         access(all) view fun isSupportedVaultType(type: Type): Bool {
-            let supportedVaults = self.getSupportedVaultTypes()
-            if let supported = supportedVaults[type] {
-                return supported
-            } else { return false }
+            return self.getSupportedVaultTypes()[type] ?? false
         }
 
         init() {
