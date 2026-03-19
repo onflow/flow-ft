@@ -18,8 +18,7 @@ transaction () {
     prepare(signer: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue, UnpublishCapability) Account) {
 
         self.flowTokenVaultCapability = signer.capabilities.get<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
-            ?? panic("The signer does not store a FlowToken Vault capability at the path "
-                .concat("/public/flowTokenReceiver. The signer must initialize their account with this object first!"))
+            ?? panic("The signer does not store a FlowToken Vault capability at the path /public/flowTokenReceiver. The signer must initialize their account with this object first!")
 
         // Check if the account already has a USDC Vault
         if signer.storage.borrow<&FiatToken.Vault>(from: FiatToken.VaultStoragePath) == nil {
@@ -68,9 +67,7 @@ transaction () {
         // Get a reference to the switchboard
         self.switchboardRef = signer.storage.borrow<auth(FungibleTokenSwitchboard.Owner) &FungibleTokenSwitchboard.Switchboard>
                                          (from: FungibleTokenSwitchboard.StoragePath) 
-			?? panic("The signer does not store a FungibleToken Switchboard object at the path "
-                .concat(FungibleTokenSwitchboard.StoragePath.toString())
-                .concat(". The signer must initialize their account with this object first!"))
+	            ?? panic("The signer does not store a FungibleToken Switchboard object at the path \(FungibleTokenSwitchboard.StoragePath). The signer must initialize their account with this object first!")
 
     }
 
