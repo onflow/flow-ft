@@ -61,7 +61,7 @@ access(all) contract FungibleTokenSwitchboard {
             // Borrow a reference to the vault pointed to by the capability we 
             // want to store inside the switchboard
             let vaultRef = capability.borrow()
-                ?? panic("FungibleTokenSwitchboard.Switchboard.addNewVault: Cannot borrow reference to vault from capability. Make sure that the capability path points to a Vault that has been properly initialized.")
+                ?? panic("FungibleTokenSwitchboard.Switchboard.addNewVault: Cannot borrow reference to vault from capability. Make sure that the capability path points to a `Vault` that has been properly initialized.")
 
             // Check if there is a previous capability for this token
             if (self.receiverCapabilities[vaultRef.getType()] == nil) {
@@ -77,7 +77,7 @@ access(all) contract FungibleTokenSwitchboard {
                 )
             } else {
                 // If there was already a capability for that token, panic
-                panic("FungibleTokenSwitchboard.Switchboard.addNewVault: Cannot add new Vault capability! There is already a vault in the Switchboard for this type <\(vaultRef.getType().identifier)>.")
+                panic("FungibleTokenSwitchboard.Switchboard.addNewVault: Cannot add new `Vault` capability! There is already a vault in the `Switchboard` for this type <\(vaultRef.getType().identifier)>.")
             }
         }
 
@@ -196,7 +196,7 @@ access(all) contract FungibleTokenSwitchboard {
             // Borrow a reference to the vault pointed to by the capability we 
             // want to remove from the switchboard
             let vaultRef = capability.borrow()
-                ?? panic("FungibleTokenSwitchboard.Switchboard.removeVault: Cannot borrow reference to a vault from the provided capability. Make sure that the capability path points to a Vault that has been properly initialized.")
+                ?? panic("FungibleTokenSwitchboard.Switchboard.removeVault: Cannot borrow reference to a vault from the provided capability. Make sure that the capability path points to a `Vault` that has been properly initialized.")
 
             // Use the vault reference to find the capability to remove
             self.receiverCapabilities.remove(key: vaultRef.getType())
@@ -217,11 +217,11 @@ access(all) contract FungibleTokenSwitchboard {
         access(all) fun deposit(from: @{FungibleToken.Vault}) {
             // Get the capability from the ones stored at the switchboard
             let depositedVaultCapability = self.receiverCapabilities[from.getType()]
-                ?? panic("FungibleTokenSwitchboard.Switchboard.deposit: Cannot deposit Vault! The deposited vault of type <\(from.getType().identifier)> is not available on this Fungible Token Switchboard. The recipient needs to initialize their account and Switchboard to hold and receive the deposited vault type.")
+                ?? panic("FungibleTokenSwitchboard.Switchboard.deposit: Cannot deposit `Vault`! The deposited vault of type <\(from.getType().identifier)> is not available on this Fungible Token `Switchboard`. The recipient needs to initialize their account and `Switchboard` to hold and receive the deposited vault type.")
 
             // Borrow the reference to the desired vault
             let vaultRef = depositedVaultCapability.borrow()
-                ?? panic("FungibleTokenSwitchboard.Switchboard.deposit: Cannot borrow reference to a vault from the type of the deposited Vault <\(from.getType().identifier)>. Make sure that the capability path points to a Vault that has been properly initialized.")
+                ?? panic("FungibleTokenSwitchboard.Switchboard.deposit: Cannot borrow reference to a vault from the type of the deposited `Vault` <\(from.getType().identifier)>. Make sure that the capability path points to a `Vault` that has been properly initialized.")
 
             vaultRef.deposit(from: <-from)
         }

@@ -14,7 +14,7 @@ transaction {
     prepare(signer: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue, UnpublishCapability) &Account) {
 
         let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("Could not resolve FTVaultData view. The ExampleToken contract needs to implement the FTVaultData Metadata view in order to execute this transaction.")
+            ?? panic("Could not resolve `FTVaultData` view. The ExampleToken contract needs to implement the `FTVaultData` Metadata view in order to execute this transaction.")
 
         /* ExampleToken Vault configuration */
         //
@@ -40,7 +40,7 @@ transaction {
         // Check if the receiver capability exists
         assert(
             self.exampleTokenVaultCapability.check(), 
-            message: "The signer does not store an ExampleToken.Vault capability at the path \(vaultData.receiverPath). The signer must initialize their account with this object first!"
+            message: "The signer does not store an `ExampleToken.Vault` capability at the path \(vaultData.receiverPath). The signer must initialize their account with this object first!"
         )
         
         /* Switchboard setup */
@@ -66,7 +66,7 @@ transaction {
         // Get a reference to the signers switchboard
         self.switchboardRef = signer.storage.borrow<auth(FungibleTokenSwitchboard.Owner) &FungibleTokenSwitchboard.Switchboard>(
                 from: FungibleTokenSwitchboard.StoragePath)
-	            ?? panic("The signer does not store a FungibleToken Switchboard object at the path \(FungibleTokenSwitchboard.StoragePath). The signer must initialize their account with this object first!")
+	            ?? panic("The signer does not store a FungibleToken `Switchboard` object at the path \(FungibleTokenSwitchboard.StoragePath). The signer must initialize their account with this object first!")
     
     }
 

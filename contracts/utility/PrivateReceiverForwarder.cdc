@@ -31,7 +31,7 @@ access(all) contract PrivateReceiverForwarder {
         /// the Checks-Effects-Interactions pattern.
         access(contract) fun deposit(from: @{FungibleToken.Vault}) {
             let receiverRef = self.recipient.borrow()
-                ?? panic("PrivateReceiverForwarder.Forwarder.deposit: Could not borrow a Receiver reference from the recipient capability. The recipient needs to have the correct Fungible Token Vault initialized in their account with a public Receiver Capability.")
+                ?? panic("PrivateReceiverForwarder.Forwarder.deposit: Could not borrow a `Receiver` reference from the recipient capability. The recipient needs to have the correct Fungible Token `Vault` initialized in their account with a public `Receiver` Capability.")
 
             let balance = from.balance
             let uuid = from.uuid
@@ -51,7 +51,7 @@ access(all) contract PrivateReceiverForwarder {
         init(recipient: Capability<&{FungibleToken.Receiver}>) {
             pre {
                 recipient.borrow() != nil:
-                    "PrivateReceiverForwarder.Forwarder.init: Could not borrow a Receiver reference from the recipient Capability. The recipient needs to have the correct Fungible Token Vault initialized in their account with a public Receiver Capability."
+                    "PrivateReceiverForwarder.Forwarder.init: Could not borrow a `Receiver` reference from the recipient Capability. The recipient needs to have the correct Fungible Token `Vault` initialized in their account with a public `Receiver` Capability."
             }
             self.recipient = recipient
         }
@@ -72,7 +72,7 @@ access(all) contract PrivateReceiverForwarder {
 
             let privateReceiver = account.capabilities.borrow<&PrivateReceiverForwarder.Forwarder>(
                     PrivateReceiverForwarder.PrivateReceiverPublicPath
-                ) ?? panic("PrivateReceiverForwarder.Sender.sendPrivateTokens: Could not borrow a reference to the private forwarder in the account \(address). Make sure this account has a Forwarder initialized in its storage with a public capability at \(PrivateReceiverForwarder.PrivateReceiverPublicPath).")
+                ) ?? panic("PrivateReceiverForwarder.Sender.sendPrivateTokens: Could not borrow a reference to the private forwarder in the account \(address). Make sure this account has a `Forwarder` initialized in its storage with a public capability at \(PrivateReceiverForwarder.PrivateReceiverPublicPath).")
 
             privateReceiver.deposit(from: <-tokens)
         }

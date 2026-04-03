@@ -18,7 +18,7 @@ transaction(newRecipient: Address) {
 
         // Get a reference to the signer's forwarder
         let forwarderRef = signer.storage.borrow<auth(TokenForwarding.Owner) &TokenForwarding.Forwarder>(from: /storage/exampleTokenForwarder)
-			?? panic("Could not borrow reference to the owner's forwarder!")
+			?? panic("Could not borrow reference to the owner's `Forwarder`!")
 
         forwarderRef.changeRecipient(recipient)
     }

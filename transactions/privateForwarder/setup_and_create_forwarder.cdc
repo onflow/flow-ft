@@ -11,7 +11,7 @@ transaction {
 
     prepare(signer: auth(IssueStorageCapabilityController, PublishCapability, SaveValue) &Account) {
         let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("Could not resolve FTVaultData view. The ExampleToken contract needs to implement the FTVaultData Metadata view in order to execute this transaction.")
+            ?? panic("Could not resolve `FTVaultData` view. The ExampleToken contract needs to implement the `FTVaultData` Metadata view in order to execute this transaction.")
 
         if signer.capabilities.get<&PrivateReceiverForwarder.Forwarder>(PrivateReceiverForwarder.PrivateReceiverPublicPath).check() {
             // private forwarder was already set up
