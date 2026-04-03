@@ -13,15 +13,13 @@ transaction(address: Address, publicPath: PublicPath) {
         // Borrow a reference to the vault stored on the passed account at the passed publicPath
         let resolverRef = getAccount(address)
             .capabilities.borrow<&{ViewResolver.Resolver}>(publicPath)
-            ?? panic("Could not borrow a reference to the ViewResolver in account "
-                .concat(address.toString()).concat(" at path ").concat(publicPath.toString())
-                .concat(". Make sure you are querying an address that has a Vault set up properly."))
+            ?? panic("Could not borrow a reference to the `ViewResolver.Resolver` in account \(address) at path \(publicPath). Make sure you are querying an address that has a `Vault` set up properly.")
 
-        // Use that reference to retrieve the FTView 
+        // Use that reference to retrieve the FTView
         let ftView = FungibleTokenMetadataViews.getFTView(viewResolver: resolverRef)
 
-        // Get the FTVaultData view from from the FTView
-        let ftVaultData = ftView.ftVaultData ?? panic ("The stored vault didn't implement the vault data view")
+        // Get the FTVaultData view from the FTView
+        let ftVaultData = ftView.ftVaultData ?? panic("The `Vault` at path \(publicPath) in account \(address) does not implement the `FTVaultData` metadata view. Make sure the token contract implements the `FTVaultData` view.")
 
         // Create a new empty vault using the createEmptyVault function inside the FTVaultData
         let emptyVault <-ftVaultData.createEmptyVault()

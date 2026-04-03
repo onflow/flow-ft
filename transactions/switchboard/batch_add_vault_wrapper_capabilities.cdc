@@ -14,8 +14,7 @@ transaction (address: Address) {
     prepare(signer: auth(BorrowValue) &Account) {
 
         let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("Could not resolve FTVaultData view. The ExampleToken"
-                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction."))
+            ?? panic("Could not resolve `FTVaultData` view. The ExampleToken contract needs to implement the `FTVaultData` Metadata view in order to execute this transaction.")
 
         // Store the Example Token receiver's public path in the array of public 
         // paths that will be passed to the switchboard method
@@ -30,9 +29,7 @@ transaction (address: Address) {
         // Get a reference to the signers switchboard
         self.switchboardRef = signer.storage.borrow<auth(FungibleTokenSwitchboard.Owner) &FungibleTokenSwitchboard.Switchboard>(
                 from: FungibleTokenSwitchboard.StoragePath)
-			?? panic("The signer does not store a FungibleToken Switchboard object at the path "
-                .concat(FungibleTokenSwitchboard.StoragePath.toString())
-                .concat(". The signer must initialize their account with this object first!"))
+	            ?? panic("The signer does not store a FungibleToken `Switchboard` object at the path \(FungibleTokenSwitchboard.StoragePath). The signer must initialize their account with this object first!")
     
     }
 

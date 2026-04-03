@@ -10,13 +10,10 @@ access(all) fun main(address: Address): [Type] {
     let account = getAccount(address)
 
     let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-        ?? panic("Could not resolve FTVaultData view. The ExampleToken"
-            .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction."))
-    
+        ?? panic("Could not resolve `FTVaultData` view. The ExampleToken contract needs to implement the `FTVaultData` Metadata view in order to execute this script.")
+
     let vaultRef = account.capabilities.borrow<&ExampleToken.Vault>(vaultData.metadataPath)
-        ?? panic("Could not borrow a reference to the ExampleToken Vault in account "
-                .concat(address.toString()).concat(" at path ").concat(vaultData.metadataPath.toString())
-                .concat(". Make sure you are querying an address that has an ExampleToken Vault set up properly."))
+        ?? panic("Could not borrow a reference to the `ExampleToken.Vault` in account \(address) at path \(vaultData.metadataPath). Make sure you are querying an address that has an `ExampleToken.Vault` set up properly.")
 
     return vaultRef.getViews()
 }

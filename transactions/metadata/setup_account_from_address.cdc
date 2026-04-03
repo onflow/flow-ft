@@ -24,13 +24,11 @@ transaction(contractAddress: Address, contractName: String) {
         // Borrow a reference to the vault stored on the passed account at the passed publicPath
         let resolverRef = getAccount(contractAddress)
             .contracts.borrow<&{FungibleToken}>(name: contractName)
-                ?? panic("Could not borrow FungibleToken reference to the contract. Make sure the provided contract name ("
-                          .concat(contractName).concat(") and address (").concat(contractAddress.toString()).concat(") are correct!"))
+                ?? panic("Could not borrow a FungibleToken reference to the contract \(contractName) at address \(contractAddress). Make sure the provided contract name and address are correct.")
 
-        // Use that reference to retrieve the FTView 
+        // Use that reference to retrieve the FTView
         let ftVaultData = resolverRef.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("Could not resolve FTVaultData view. The ".concat(contractName)
-                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction."))
+            ?? panic("Could not resolve `FTVaultData` view. The \(contractName) contract needs to implement the `FTVaultData` Metadata view in order to execute this transaction.")
 
         // Create a new empty vault using the createEmptyVault function inside the FTVaultData
         let emptyVault <-ftVaultData.createEmptyVault()

@@ -16,14 +16,11 @@ transaction(to: Address, amount: UFix64, receiverPath: PublicPath) {
     prepare(signer: auth(BorrowValue) &Account) {
 
         let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("Could not resolve FTVaultData view. The ExampleToken"
-                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction"))
+            ?? panic("Could not resolve `FTVaultData` view. The ExampleToken contract needs to implement the `FTVaultData` Metadata view in order to execute this transaction.")
 
         // Get a reference to the signer's stored vault
         self.sourceVault = signer.storage.borrow<auth(FungibleToken.Withdraw) &ExampleToken.Vault>(from: vaultData.storagePath)
-			?? panic("The signer does not store a ExampleToken Vault object at the path "
-                .concat(vaultData.storagePath.toString())
-                .concat(". The signer must initialize their account with this object first!"))
+            ?? panic("The signer does not store an `ExampleToken.Vault` object at the path \(vaultData.storagePath). The signer must initialize their account with this object first!")
 
     }
 
@@ -34,10 +31,7 @@ transaction(to: Address, amount: UFix64, receiverPath: PublicPath) {
 
         // Get a reference to the recipient's Receiver
         let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(receiverPath)
-            ?? panic("Could not borrow a Receiver reference to the FungibleToken Vault in account "
-                .concat(to.toString()).concat(" at path ").concat(receiverPath.toString())
-                .concat(". Make sure you are querying an address that has ")
-                .concat("a FungibleToken Vault set up properly at the specified path."))
+            ?? panic("Could not borrow a `Receiver` reference to the `FungibleToken.Vault` in account \(to) at path \(receiverPath). Make sure you are sending to an address that has a `FungibleToken.Vault` set up properly at the specified path.")
 
         // Deposit the withdrawn tokens in the recipient's receiver
         receiverRef.deposit(from: <-self.sourceVault.withdraw(amount: amount))

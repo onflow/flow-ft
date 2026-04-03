@@ -22,17 +22,13 @@ transaction(recipient: Address, amount: UFix64) {
 
         // Borrow a reference to the admin object
         self.tokenMinter = signer.storage.borrow<&ExampleToken.Minter>(from: ExampleToken.AdminStoragePath)
-            ?? panic("Cannot mint: Signer does not store the ExampleToken Minter in their account!")
+            ?? panic("Cannot mint: Signer does not store the `ExampleToken.Minter` in their account!")
 
         let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("Could not resolve FTVaultData view. The ExampleToken"
-                .concat(" contract needs to implement the FTVaultData Metadata view in order to execute this transaction."))
-    
+            ?? panic("Could not resolve FTVaultData view. The ExampleToken contract needs to implement the FTVaultData Metadata view in order to execute this transaction.")
+
         self.tokenReceiver = getAccount(recipient).capabilities.borrow<&{FungibleToken.Receiver}>(vaultData.receiverPath)
-            ?? panic("Could not borrow a Receiver reference to the FungibleToken Vault in account "
-                .concat(recipient.toString()).concat(" at path ").concat(vaultData.receiverPath.toString())
-                .concat(". Make sure you are sending to an address that has ")
-                .concat("a FungibleToken Vault set up properly at the specified path."))
+            ?? panic("Could not borrow a `Receiver` reference to the `FungibleToken.Vault` in account \(recipient) at path \(vaultData.receiverPath). Make sure you are sending to an address that has a `FungibleToken.Vault` set up properly at the specified path.")
     }
 
     execute {
