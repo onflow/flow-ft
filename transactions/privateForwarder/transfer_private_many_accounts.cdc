@@ -19,10 +19,10 @@ transaction(addressAmountMap: {Address: UFix64}) {
 
         // Get a reference to the signer's stored vault
         self.vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &ExampleToken.Vault>(from: vaultData.storagePath)
-            ?? panic("The signer does not store an ExampleToken.Vault object at the path \(vaultData.storagePath). The signer must initialize their account with this vault first!")
+            ?? panic("The signer does not store an `ExampleToken.Vault` object at the path \(vaultData.storagePath). The signer must initialize their account with this vault first!")
 
         self.privateForwardingSender = signer.storage.borrow<&PrivateReceiverForwarder.Sender>(from: PrivateReceiverForwarder.SenderStoragePath)
-            ?? panic("The signer does not store a PrivateReceiverForwarder.Sender object at the path \(PrivateReceiverForwarder.SenderStoragePath). The signer must initialize their account with this object first!")
+            ?? panic("The signer does not store a `PrivateReceiverForwarder.Sender` object at the path \(PrivateReceiverForwarder.SenderStoragePath). The signer must initialize their account with this object first!")
 
     }
 

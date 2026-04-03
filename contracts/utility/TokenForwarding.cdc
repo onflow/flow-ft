@@ -51,7 +51,7 @@ access(all) contract TokenForwarding {
         /// to follow the Checks-Effects-Interactions pattern.
         access(all) fun deposit(from: @{FungibleToken.Vault}) {
             let receiverRef = self.recipient.borrow<&{FungibleToken.Receiver}>()
-                ?? panic("TokenForwarding.Forwarder.deposit: Could not borrow a Receiver reference from the recipient capability. This is likely because the recipient account has removed their Vault or public capability. The owner of this Forwarder should call changeRecipient to update it to a valid receiver.")
+                ?? panic("TokenForwarding.Forwarder.deposit: Could not borrow a `Receiver` reference from the recipient capability. This is likely because the recipient account has removed their `Vault` or public capability. The owner of this `Forwarder` should call `changeRecipient` to update it to a valid receiver.")
 
             let balance = from.balance
             let uuid = from.uuid
@@ -92,7 +92,7 @@ access(all) contract TokenForwarding {
         access(Owner) fun changeRecipient(_ newRecipient: Capability<&{FungibleToken.Receiver}>) {
             pre {
                 newRecipient.borrow() != nil:
-                    "TokenForwarding.Forwarder.changeRecipient: Could not borrow a Receiver reference from the new Capability. This is likely because the recipient account \(newRecipient.address) has not set up the FungibleToken Vault or public capability correctly. Verify that the address is correct and the account has the correct Vault and capability."
+                    "TokenForwarding.Forwarder.changeRecipient: Could not borrow a `Receiver` reference from the new Capability. This is likely because the recipient account \(newRecipient.address) has not set up the FungibleToken `Vault` or public capability correctly. Verify that the address is correct and the account has the correct `Vault` and capability."
             }
             let newRef = newRecipient.borrow()!
             emit ForwarderRecipientUpdated(
@@ -128,7 +128,7 @@ access(all) contract TokenForwarding {
         init(recipient: Capability<&{FungibleToken.Receiver}>) {
             pre {
                 recipient.borrow() != nil:
-                    "TokenForwarding.Forwarder.init: Could not borrow a Receiver reference from the Capability. This is likely because the recipient account \(recipient.address) has not set up the FungibleToken Vault or public capability correctly. Verify that the address is correct and the account has the correct Vault and capability."
+                    "TokenForwarding.Forwarder.init: Could not borrow a `Receiver` reference from the Capability. This is likely because the recipient account \(recipient.address) has not set up the FungibleToken `Vault` or public capability correctly. Verify that the address is correct and the account has the correct `Vault` and capability."
             }
             self.recipient = recipient
         }

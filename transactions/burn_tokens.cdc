@@ -26,7 +26,7 @@ transaction(ftTypeIdentifier: String, amount: UFix64) {
         // Withdraw tokens from the signer's vault in storage
         let sourceVault = signer.storage.borrow<auth(FungibleToken.Withdraw) &{FungibleToken.Vault}>(
                 from: vaultData.storagePath)
-	            ?? panic("The signer does not store a FungibleToken Vault object at the path \(vaultData.storagePath). The signer must initialize their account with this object first!")
+	            ?? panic("The signer does not store a `FungibleToken.Vault` object at the path \(vaultData.storagePath). The signer must initialize their account with this object first!")
 
         self.burnVault <- sourceVault.withdraw(amount: amount)
     }

@@ -7,7 +7,7 @@ access(all) fun main(address: Address): FungibleTokenMetadataViews.FTVaultData {
     let account = getAccount(address)
 
     let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-        ?? panic("Could not resolve FTVaultData view. The ExampleToken contract needs to implement the FTVaultData Metadata view in order to execute this script.")
+        ?? panic("Could not resolve `FTVaultData` view. The ExampleToken contract needs to implement the `FTVaultData` Metadata view in order to execute this script.")
 
     return vaultData
 }

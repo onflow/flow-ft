@@ -28,7 +28,7 @@ transaction(contractAddress: Address, contractName: String) {
 
         // Use that reference to retrieve the FTView
         let ftVaultData = resolverRef.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("Could not resolve FTVaultData view. The \(contractName) contract needs to implement the FTVaultData Metadata view in order to execute this transaction.")
+            ?? panic("Could not resolve `FTVaultData` view. The \(contractName) contract needs to implement the `FTVaultData` Metadata view in order to execute this transaction.")
 
         // Create a new empty vault using the createEmptyVault function inside the FTVaultData
         let emptyVault <-ftVaultData.createEmptyVault()

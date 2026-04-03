@@ -15,11 +15,11 @@ transaction(to: Address, amount: UFix64) {
     prepare(signer: auth(BorrowValue) &Account) {
 
         let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("Could not resolve FTVaultData view. The ExampleToken contract needs to implement the FTVaultData Metadata view in order to execute this transaction.")
+            ?? panic("Could not resolve `FTVaultData` view. The ExampleToken contract needs to implement the `FTVaultData` Metadata view in order to execute this transaction.")
 
         // Get a reference to the signer's stored vault
         self.vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &ExampleToken.Vault>(from: vaultData.storagePath)
-            ?? panic("The signer does not store an ExampleToken.Vault object at the path \(vaultData.storagePath). The signer must initialize their account with this object first!")
+            ?? panic("The signer does not store an `ExampleToken.Vault` object at the path \(vaultData.storagePath). The signer must initialize their account with this object first!")
 
     }
 
@@ -33,7 +33,7 @@ transaction(to: Address, amount: UFix64) {
         // Get a reference to the recipient's SwitchboardPublic
         let switchboardRef = recipient.capabilities.borrow<&{FungibleTokenSwitchboard.SwitchboardPublic}>(
                 FungibleTokenSwitchboard.PublicPath)
-	            ?? panic("The recipient does not store a FungibleToken Switchboard capability at the path \(FungibleTokenSwitchboard.PublicPath). The recipient must initialize their account with this object first!")  
+	            ?? panic("The recipient does not store a FungibleToken `Switchboard` capability at the path \(FungibleTokenSwitchboard.PublicPath). The recipient must initialize their account with this object first!")  
 
         // Validate the receiving capability by using safeBorrowByType
         if let receivingRef = switchboardRef.safeBorrowByType(type: Type<@ExampleToken.Vault>()) {

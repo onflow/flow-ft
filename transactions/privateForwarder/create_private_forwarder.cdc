@@ -12,7 +12,7 @@ transaction {
     prepare(signer: auth(IssueStorageCapabilityController, PublishCapability, SaveValue) &Account) {
 
         let vaultData = ExampleToken.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-            ?? panic("Could not resolve FTVaultData view. The ExampleToken contract needs to implement the FTVaultData Metadata view in order to execute this transaction.")
+            ?? panic("Could not resolve `FTVaultData` view. The ExampleToken contract needs to implement the `FTVaultData` Metadata view in order to execute this transaction.")
 
         // Issue a Receiver Capability targetting the ExampleToken Vault
         let receiverCapability = signer.capabilities.storage.issue<&{FungibleToken.Receiver}>(
