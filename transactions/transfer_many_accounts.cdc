@@ -23,7 +23,7 @@ transaction(addressAmountMap: {Address: UFix64}) {
 
     execute {
 
-        for address in addressAmountMap.keys {
+        for address in addressAmountMap {
 
             // Withdraw tokens from the signer's stored vault
             let sentVault <- self.vaultRef.withdraw(amount: addressAmountMap[address]!)
