@@ -330,7 +330,7 @@ access(all) contract FungibleTokenSwitchboard {
                     // the underlying vault types they accept.
                     if receiverType.isSubtype(of: Type<@{FungibleToken.Receiver}>()) {
                         let subTypes = receiverRef.getSupportedVaultTypes()
-                        for subReceiverType in subTypes.keys {
+                        for subReceiverType in subTypes {
                             let supported = subTypes[subReceiverType]!
                             if supported && subReceiverType.isSubtype(of: Type<@{FungibleToken.Vault}>()) {
                                 supportedVaults[subReceiverType] = true

@@ -28,7 +28,7 @@ transaction(addressAmountMap: {Address: UFix64}) {
 
     execute {
 
-        for address in addressAmountMap.keys {
+        for address in addressAmountMap {
 
             self.privateForwardingSender.sendPrivateTokens(address, tokens: <-self.vaultRef.withdraw(amount: addressAmountMap[address]!))
 
