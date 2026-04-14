@@ -7,7 +7,7 @@ require (
 	github.com/onflow/cadence v1.10.0
 	github.com/onflow/flow-emulator v1.19.0
 	github.com/onflow/flow-ft/lib/go/contracts v1.0.1
-	github.com/onflow/flow-ft/lib/go/templates v1.0.1
+	github.com/onflow/flow-ft/lib/go/templates v1.1.0
 	github.com/onflow/flow-go-sdk v1.10.0
 	github.com/onflow/flow-nft/lib/go/contracts v1.3.0
 	github.com/rs/zerolog v1.34.0
@@ -135,7 +135,7 @@ require (
 	github.com/onflow/flow-core-contracts/lib/go/templates v1.9.3 // indirect
 	github.com/onflow/flow-evm-bridge v0.1.0 // indirect
 	github.com/onflow/flow-go v0.47.0-ledger-service.1.0.20260320214141-968222a41c12 // indirect
-	github.com/onflow/flow-nft/lib/go/templates v1.3.0 // indirect
+	github.com/onflow/flow-nft/lib/go/templates v1.4.1 // indirect
 	github.com/onflow/flow/protobuf/go/flow v0.4.20 // indirect
 	github.com/onflow/go-ethereum v1.15.10 // indirect
 	github.com/onflow/nft-storefront/lib/go/contracts v1.0.0 // indirect
