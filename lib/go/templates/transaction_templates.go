@@ -82,32 +82,7 @@ func GenerateTransferGenericVaultWithPathsScript(fungibleTokenAddr string) []byt
 
 // GenerateTransferGenericVaultWithAddressScript creates a script that withdraws an tokens from an account
 // and deposits it to another account's vault for any vault type using the contract's address and name as arguments
-func GenerateTransferGenericVaultWithAddressScript(fungibleTokenAddr, ftMetadataViewsAddr string) []byte {
-
-	code := assets.MustAssetString(genericTransferWithAddressFilename)
-
-	code = strings.ReplaceAll(
-		code,
-		placeholderFungibleToken,
-		fungibleTokenImport+withHexPrefix(fungibleTokenAddr),
-	)
-
-	code = strings.ReplaceAll(
-		code,
-		placeholderFTMetadataViews,
-		ftMetadataViewsImport+withHexPrefix(ftMetadataViewsAddr),
-	)
-
-	code = strings.ReplaceAll(
-		code,
-		placeholderMetadataViews,
-		metadataViewsImport+withHexPrefix(ftMetadataViewsAddr),
-	)
-
-	return []byte(code)
-}
-
-func TESTGenerateTransferGenericVaultWithAddressScript(fungibleTokenAddr, ftMetadataViewsAddr, metadataViewsAddr string) []byte {
+func GenerateTransferGenericVaultWithAddressScript(fungibleTokenAddr, ftMetadataViewsAddr, metadataViewsAddr string) []byte {
 
 	code := assets.MustAssetString(genericTransferWithAddressFilename)
 
