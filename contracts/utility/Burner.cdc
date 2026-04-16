@@ -5,10 +5,10 @@
 /// - Deniz Edincik - https://twitter.com/bluesign
 /// - Bastian Müller - https://twitter.com/turbolent
 access(all) contract Burner {
-    /// Burnable is an interface that replaces the custom destructor feature removed in Cadence 1.0.
-    /// It allows resource authors to add a callback that fires when their resource is destroyed,
-    /// ensuring they can enforce invariants (e.g. "don't destroy a non-empty vault") or
-    /// perform bookkeeping (e.g. updating the total supply of a fungible token).
+    /// When Crescendo (Cadence 1.0) is released, custom destructors will be removed from cadece.
+    /// Burnable is an interface meant to replace this lost feature, allowing anyone to add a callback
+    /// method to ensure they do not destroy something which is not meant to be,
+    /// or to add logic based on destruction such as tracking the supply of a FT Collection
     ///
     /// NOTE: The only way to see benefit from this interface
     /// is to always use the burn method in this contract. Anyone who owns a resource can always elect **not**
