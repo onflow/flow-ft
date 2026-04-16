@@ -17,14 +17,20 @@ access(all) contract FungibleTokenSwitchboard {
 
     /// The event that is emitted when a new vault capability is added to a
     /// switchboard resource.
-    access(all) event VaultCapabilityAdded(type: Type, switchboardOwner: Address?, capabilityOwner: Address?)
+    /// 
+    access(all) event VaultCapabilityAdded(type: Type, switchboardOwner: Address?, 
+                                    capabilityOwner: Address?)
 
-    /// The event that is emitted when a vault capability is removed from a
+    /// The event that is emitted when a vault capability is removed from a 
     /// switchboard resource.
-    access(all) event VaultCapabilityRemoved(type: Type, switchboardOwner: Address?, capabilityOwner: Address?)
+    /// 
+    access(all) event VaultCapabilityRemoved(type: Type,  switchboardOwner: Address?, 
+                                        capabilityOwner: Address?)
 
     /// The event that is emitted when a deposit can not be completed.
-    access(all) event NotCompletedDeposit(type: Type, amount: UFix64, switchboardOwner: Address?)
+    /// 
+    access(all) event NotCompletedDeposit(type: Type, amount: UFix64, 
+                                    switchboardOwner: Address?)
 
     /// The interface that enforces the method to allow anyone to check on the
     /// available capabilities of a switchboard resource and also exposes the 
@@ -60,8 +66,9 @@ access(all) contract FungibleTokenSwitchboard {
         access(Owner) fun addNewVault(capability: Capability<&{FungibleToken.Receiver}>) {
             // Borrow a reference to the vault pointed to by the capability we 
             // want to store inside the switchboard
-            let vaultRef = capability.borrow()
-                ?? panic("FungibleTokenSwitchboard.Switchboard.addNewVault: Cannot borrow reference to vault from capability. Make sure that the capability path points to a `Vault` that has been properly initialized.")
+            let vaultRef = capability.borrow() 
+                ?? panic("FungibleTokenSwitchboard.Switchboard.addNewVault: Cannot borrow reference to vault from capability! "
+                          .concat("Make sure that the capability path points to a Vault that has been properly initialized. "))
 
             // Check if there is a previous capability for this token
             if (self.receiverCapabilities[vaultRef.getType()] == nil) {
@@ -70,14 +77,14 @@ access(all) contract FungibleTokenSwitchboard {
                 self.receiverCapabilities[vaultRef.getType()] = capability
                 // emit the event that indicates that a new capability has been 
                 // added
-                emit VaultCapabilityAdded(
-                    type: vaultRef.getType(),
-                    switchboardOwner: self.owner?.address,
-                    capabilityOwner: capability.address
-                )
+                emit VaultCapabilityAdded(type: vaultRef.getType(),
+                                               switchboardOwner: self.owner?.address, 
+                                                 capabilityOwner: capability.address)
             } else {
                 // If there was already a capability for that token, panic
-                panic("FungibleTokenSwitchboard.Switchboard.addNewVault: Cannot add new `Vault` capability! There is already a vault in the `Switchboard` for this type <\(vaultRef.getType().identifier)>.")
+                panic("FungibleTokenSwitchboard.Switchboard.addNewVault: Cannot add new Vault capability! "
+                    .concat("There is already a vault in the Switchboard for this type <")
+                    .concat(vaultRef.getType().identifier).concat(">."))
             }
         }
 
@@ -99,14 +106,13 @@ access(all) contract FungibleTokenSwitchboard {
                 // If the vault was borrowed successfully...
                 if let vaultRef = capability.borrow() {
                     // ...and if there is no previous capability added for that token
-                    if (self.receiverCapabilities[vaultRef.getType()] == nil) {
+                    if (self.receiverCapabilities[vaultRef!.getType()] == nil) {
                         // Use the vault reference type as key for storing the
                         // capability
-                        self.receiverCapabilities[vaultRef.getType()] = capability
+                        self.receiverCapabilities[vaultRef!.getType()] = capability
                         // and emit the event that indicates that a new
                         // capability has been added
-                        emit VaultCapabilityAdded(
-                            type: vaultRef.getType(),
+                        emit VaultCapabilityAdded(type: vaultRef.getType(),
                             switchboardOwner: self.owner?.address,
                             capabilityOwner: address,
                         )
@@ -130,12 +136,15 @@ access(all) contract FungibleTokenSwitchboard {
         /// capability, rather than the `Type` from the reference borrowed from
         /// said capability
         /// 
-        access(Owner) fun addNewVaultWrapper(capability: Capability<&{FungibleToken.Receiver}>,
+        access(Owner) fun addNewVaultWrapper(capability: Capability<&{FungibleToken.Receiver}>, 
                                                                         type: Type) {
-            pre {
-                capability.check():
-                    "FungibleTokenSwitchboard.Switchboard.addNewVaultWrapper: Cannot borrow reference to a vault from the provided capability. Make sure that the capability path points to a Vault that has been properly initialized."
-            }
+            // Check if the capability is working
+            assert (
+                capability.check(),
+                message:
+                    "FungibleTokenSwitchboard.Switchboard.addNewVaultWrapper: Cannot borrow reference to a vault from the provided capability! "
+                    .concat("Make sure that the capability path points to a Vault that has been properly initialized.")
+            )
             // Use the type parameter as key for the capability
             self.receiverCapabilities[type] = capability
             // emit the event that indicates that a new capability has been 
@@ -158,12 +167,8 @@ access(all) contract FungibleTokenSwitchboard {
         /// @param types: The types of the fungible token to be deposited on each path.
         /// @param address: The address of the owner of the capabilities.
         /// 
-        access(Owner) fun addNewVaultWrappersByPath(paths: [PublicPath], types: [Type],
+        access(Owner) fun addNewVaultWrappersByPath(paths: [PublicPath], types: [Type], 
                                                                   address: Address) {
-            pre {
-                paths.length == types.length:
-                    "FungibleTokenSwitchboard.Switchboard.addNewVaultWrappersByPath: The paths and types arrays must be the same length. paths length: \(paths.length), types length: \(types.length)"
-            }
             // Get the account where the public capabilities are stored
             let owner = getAccount(address)
             // For each path, get the saved capability and store it 
@@ -196,7 +201,8 @@ access(all) contract FungibleTokenSwitchboard {
             // Borrow a reference to the vault pointed to by the capability we 
             // want to remove from the switchboard
             let vaultRef = capability.borrow()
-                ?? panic("FungibleTokenSwitchboard.Switchboard.removeVault: Cannot borrow reference to a vault from the provided capability. Make sure that the capability path points to a `Vault` that has been properly initialized.")
+                ?? panic ("FungibleTokenSwitchboard.Switchboard.addNewVaultWrapper: Cannot borrow reference to a vault from the provided capability! "
+                          .concat("Make sure that the capability path points to a Vault that has been properly initialized."))
 
             // Use the vault reference to find the capability to remove
             self.receiverCapabilities.remove(key: vaultRef.getType())
@@ -217,11 +223,16 @@ access(all) contract FungibleTokenSwitchboard {
         access(all) fun deposit(from: @{FungibleToken.Vault}) {
             // Get the capability from the ones stored at the switchboard
             let depositedVaultCapability = self.receiverCapabilities[from.getType()]
-                ?? panic("FungibleTokenSwitchboard.Switchboard.deposit: Cannot deposit `Vault`! The deposited vault of type <\(from.getType().identifier)> is not available on this Fungible Token `Switchboard`. The recipient needs to initialize their account and `Switchboard` to hold and receive the deposited vault type.")
+                ?? panic ("FungibleTokenSwitchboard.Switchboard.deposit: Cannot deposit Vault! "
+                          .concat("The deposited vault of type <").concat(from.getType().identifier)
+                          .concat("> is not available on this Fungible Token switchboard. ")
+                          .concat("The recipient needs to initialize their account and switchboard to hold and receive the deposited vault type."))
 
             // Borrow the reference to the desired vault
             let vaultRef = depositedVaultCapability.borrow()
-                ?? panic("FungibleTokenSwitchboard.Switchboard.deposit: Cannot borrow reference to a vault from the type of the deposited `Vault` <\(from.getType().identifier)>. Make sure that the capability path points to a `Vault` that has been properly initialized.")
+                ?? panic ("FungibleTokenSwitchboard.Switchboard.deposit: Cannot borrow reference to a vault "
+                          .concat("from the type of the deposited Vault <").concat(from.getType().identifier)
+                          .concat(">. Make sure that the capability path points to a Vault that has been properly initialized."))
 
             vaultRef.deposit(from: <-from)
         }
@@ -261,33 +272,33 @@ access(all) contract FungibleTokenSwitchboard {
             return nil
         }
 
-        /// Checks that the capability tied to a type is valid.
+        /// Checks that the capability tied to a type is valid
         ///
-        /// @param type: The type of the ft vault whose capability needs to be checked
+        /// @param vaultType: The type of the ft vault whose capability needs to be checked
         ///
         /// @return a boolean marking the capability for a type as valid or not
         access(all) view fun checkReceiverByType(type: Type): Bool {
-            if let cap = self.receiverCapabilities[type] {
-                return cap.check()
+            if self.receiverCapabilities[type] == nil {
+                return false
             }
-            return false
+
+            return self.receiverCapabilities[type]!.check()
         }
 
         /// Gets the receiver assigned to a provided vault type.
         /// This is necessary because without it, it is not possible to look under the hood and see if a capability
-        /// is of an expected type or not. This helps guard against infinitely chained TokenForwarding or other invalid
+        /// is of an expected type or not. This helps guard against infinitely chained TokenForwarding or other invalid 
         /// malicious kinds of updates that could prevent listings from being made that are valid on storefronts.
         ///
-        /// @param type: The type of the ft vault whose capability needs to be checked
+        /// @param vaultType: The type of the ft vault whose capability needs to be checked
         ///
         /// @return an optional receiver capability for consumers of the switchboard to check/validate on their own
         access(all) view fun safeBorrowByType(type: Type): &{FungibleToken.Receiver}? {
-            // Single dictionary lookup: returns nil if the type is not registered
-            // or if the capability is stale, without a separate check() + borrow() TOCTOU.
-            if let cap = self.receiverCapabilities[type] {
-                return cap.borrow()
+            if !self.checkReceiverByType(type: type) {
+                return nil
             }
-            return nil
+
+            return self.receiverCapabilities[type]!.borrow()
         }
 
         /// A getter function to know which tokens a certain switchboard 
@@ -299,11 +310,11 @@ access(all) contract FungibleTokenSwitchboard {
         ///
         access(all) view fun getVaultTypesWithAddress(): {Type: Address} {
             let effectiveTypesWithAddress: {Type: Address} = {}
-            // Iterate over key-value pairs to avoid double dictionary lookups per entry
+            // Check if each capability is live
             for vaultType in self.receiverCapabilities.keys {
-                let cap = self.receiverCapabilities[vaultType]!
-                if cap.check() {
-                    effectiveTypesWithAddress[vaultType] = cap.address
+                if self.receiverCapabilities[vaultType]!.check() {
+                    // and attach it to the owner's address
+                    effectiveTypesWithAddress[vaultType] = self.receiverCapabilities[vaultType]!.address
                 }
             }
             return effectiveTypesWithAddress
@@ -313,26 +324,18 @@ access(all) contract FungibleTokenSwitchboard {
         /// which can be deposited using the 'deposit' function.
         ///
         /// @return Dictionary of FT types that can be deposited.
-        access(all) view fun getSupportedVaultTypes(): {Type: Bool} {
+        access(all) view fun getSupportedVaultTypes(): {Type: Bool} { 
             let supportedVaults: {Type: Bool} = {}
-            // Iterate over key-value pairs to avoid repeated dictionary lookups.
-            // Using borrow() instead of check() + borrow() eliminates the TOCTOU
-            // between the two calls and reduces the total number of capability operations.
             for receiverType in self.receiverCapabilities.keys {
-                let cap = self.receiverCapabilities[receiverType]!
-                if let receiverRef = cap.borrow() {
-                    // Direct vault types are added as-is
+                if self.receiverCapabilities[receiverType]!.check() {
                     if receiverType.isSubtype(of: Type<@{FungibleToken.Vault}>()) {
                         supportedVaults[receiverType] = true
                     }
-                    // Wrapper receivers (e.g. TokenForwarding.Forwarder) are not Vault subtypes,
-                    // but they implement Receiver — recurse into their supported types to find
-                    // the underlying vault types they accept.
                     if receiverType.isSubtype(of: Type<@{FungibleToken.Receiver}>()) {
-                        let subTypes = receiverRef.getSupportedVaultTypes()
-                        for subReceiverType in subTypes {
-                            let supported = subTypes[subReceiverType]!
-                            if supported && subReceiverType.isSubtype(of: Type<@{FungibleToken.Vault}>()) {
+                        let receiverRef = self.receiverCapabilities[receiverType]!.borrow()!
+                        let subReceiverSupportedTypes = receiverRef.getSupportedVaultTypes()
+                        for subReceiverType in subReceiverSupportedTypes.keys {                          
+                            if subReceiverType.isSubtype(of: Type<@{FungibleToken.Vault}>()) {
                                 supportedVaults[subReceiverType] = true
                             }
                         }
@@ -342,10 +345,13 @@ access(all) contract FungibleTokenSwitchboard {
             return supportedVaults
         }
 
-        /// Returns whether or not the given type is accepted by the Receiver.
-        /// A vault that can accept any type should just return true by default.
+        /// Returns whether or not the given type is accepted by the Receiver
+        /// A vault that can accept any type should just return true by default
         access(all) view fun isSupportedVaultType(type: Type): Bool {
-            return self.getSupportedVaultTypes()[type] ?? false
+            let supportedVaults = self.getSupportedVaultTypes()
+            if let supported = supportedVaults[type] {
+                return supported
+            } else { return false }
         }
 
         init() {
