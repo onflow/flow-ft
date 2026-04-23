@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use flow-ft in your research or reference it, please cite it as below."
+title: "flow-ft: The Flow Fungible Token Standard"
+authors:
+  - name: "Flow Foundation"
+    website: "https://flow.com"
+repository-code: "https://github.com/onflow/flow-ft"
+url: "https://developers.flow.com"
+license: Unlicense
+type: software
+keywords:
+  - flow
+  - flow-network
+  - cadence
+  - fungible-token
+  - token-standard
+  - smart-contracts

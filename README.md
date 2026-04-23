@@ -1,4 +1,20 @@
-# Fungible Token Standard
+# flow-ft — The Flow Fungible Token Standard
+
+[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](https://github.com/onflow/flow-ft/blob/master/LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/onflow/flow-ft?include_prereleases&sort=semver)](https://github.com/onflow/flow-ft/releases)
+[![Discord](https://img.shields.io/discord/613813861610684416?label=Discord&logo=discord&logoColor=white)](https://discord.gg/flow)
+[![Built on Flow](https://img.shields.io/badge/Built%20on-Flow-00EF8B)](https://flow.com)
+[![Cadence](https://img.shields.io/badge/Cadence-1.0-9D7FEA)](https://cadence-lang.org)
+
+## TL;DR
+
+- **What:** The canonical fungible token standard for the Flow network, defined as a Cadence contract interface (`FungibleToken`) with a reference implementation (`ExampleToken`), metadata views, and a multi-token `FungibleTokenSwitchboard`.
+- **Who it's for:** Cadence developers building fungible token contracts, wallets, or dApps on Flow that need to send, receive, or display tokens.
+- **Why use it:** Resource-oriented design prevents lost transfers, supports capability-based `Provider`/`Receiver` patterns, emits standard events, and enables flexible metadata — without `approve`/`transferFrom` double-spend pitfalls.
+- **Status:** See [Releases](https://github.com/onflow/flow-ft/releases) for the latest version.
+- **License:** Unlicense (public domain).
+- **Related repos:** [onflow/flow-nft](https://github.com/onflow/flow-nft), [onflow/flow-core-contracts](https://github.com/onflow/flow-core-contracts), [onflow/cadence](https://github.com/onflow/cadence)
+- The reference fungible token standard for the Flow network, open-sourced since 2020.
 
 This is a description of the Flow standard for fungible token contracts. 
 It is meant to contain the minimum requirements to implement a safe, secure, easy to understand,
@@ -333,4 +349,35 @@ The works in these folders are under the [Unlicense](https://github.com/onflow/f
 
 - [/contracts](https://github.com/onflow/flow-ft/blob/master/contracts/)
 
+## FAQ
+
+**Q: What is the `FungibleToken` standard?**
+A: It is a Cadence contract interface that defines the minimum requirements for fungible token contracts on Flow, including the `Vault`, `Provider`, `Receiver`, and `Balance` interfaces.
+
+**Q: Do I need to deploy `FungibleToken` myself?**
+A: No. The `FungibleToken`, `FungibleTokenMetadataViews`, and `FungibleTokenSwitchboard` contracts are already deployed on emulator, testnet, and mainnet. Import them from the addresses listed in the Import Addresses table.
+
+**Q: How is this different from ERC-20?**
+A: Tokens cannot be sent to accounts that lack a `Vault`, so no `safetransfer` is needed. The `approve`/`transferFrom` pattern is replaced by capability-based `Provider` references, which avoids common double-spend issues. Cadence integer types also protect against overflow and underflow.
+
+**Q: How do I add metadata to my token?**
+A: Implement the metadata views defined in `FungibleTokenMetadataViews.cdc` (`FTView`, `FTDisplay`, `FTVaultData`, `TotalSupply`). The `ExampleToken` contract shows a working pattern.
+
+**Q: What is the `FungibleTokenSwitchboard`?**
+A: A resource that lets a user accept many fungible token types through a single `&{FungibleToken.Receiver}` capability placed at `/public/GenericFTReceiver`.
+
+**Q: How do I run the tests?**
+A: Cadence tests run with `flow test --cover --covercode="contracts" tests/*.cdc`. Go tests run via `go test -v` from `lib/go/test/` (run `make generate` from `lib/go/` first if contracts or transactions changed).
+
+**Q: Where can I ask questions or report issues?**
+A: Open an issue on this repo, join the [Flow Discord](https://discord.gg/flow), or start a thread on the [Flow Forum](https://forum.flow.com).
+
+## About Flow
+
+This repo is part of the [Flow network](https://flow.com), a Layer 1 blockchain built for consumer applications, AI Agents, and DeFi at scale.
+
+- Developer docs: https://developers.flow.com
+- Cadence language: https://cadence-lang.org
+- Community: [Flow Discord](https://discord.gg/flow) · [Flow Forum](https://forum.flow.com)
+- Governance: [Flow Improvement Proposals](https://github.com/onflow/flips)
 
