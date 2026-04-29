@@ -143,9 +143,13 @@ access(all) contract FungibleTokenMetadataViews {
         ) {
             pre {
                 receiverLinkedType.isSubtype(of: Type<&{FungibleToken.Receiver}>()):
-                    "FungibleTokenMetadataViews.FTVaultData.init: Invalid receiverLinkedType. The receiver public type <\(receiverLinkedType.identifier)> must be a subtype of <\(Type<&{FungibleToken.Receiver}>().identifier)>."
+                    "Receiver public type <".concat(receiverLinkedType.identifier)
+                    .concat("> must be a subtype of <").concat(Type<&{FungibleToken.Receiver}>().identifier)
+                    .concat(">.")
                 metadataLinkedType.isSubtype(of: Type<&{FungibleToken.Vault}>()):
-                    "FungibleTokenMetadataViews.FTVaultData.init: Invalid metadataLinkedType. The metadata linked type <\(metadataLinkedType.identifier)> must be a subtype of <\(Type<&{FungibleToken.Vault}>().identifier)>."
+                    "Metadata linked type <".concat(metadataLinkedType.identifier)
+                    .concat("> must be a subtype of <").concat(Type<&{FungibleToken.Vault}>().identifier)
+                    .concat(">.")
             }
             self.storagePath = storagePath
             self.receiverPath = receiverPath
